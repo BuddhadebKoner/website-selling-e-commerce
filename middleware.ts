@@ -1,6 +1,18 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-export default clerkMiddleware();
+const isForAdmin = createRouteMatcher("/admin-dashbord");
+// const isPublicRoute = createRouteMatcher([
+//   '/sign-in(.*)',
+//   '/sign-up(.*)'
+// ])
+
+
+export default clerkMiddleware(async (auth, req) => {
+  if (isForAdmin(req)) await auth.protect();
+  // if (!isPublicRoute(req)) {
+  //   await auth.protect()
+  // }
+});
 
 export const config = {
   matcher: [

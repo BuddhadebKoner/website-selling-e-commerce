@@ -273,6 +273,7 @@ a:hover {
 
 .btn-primary:hover {
   background-color: var(--link-hover);
+  color: black;
 }
 
 .btn-secondary {
