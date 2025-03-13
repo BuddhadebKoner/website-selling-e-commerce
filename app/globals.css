@@ -1,26 +1,519 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Base color variables - dark theme */
+  --background-primary: #121826;
+  --background-secondary: #1e2433;
+  --border-color: #2a3142;
+  --box-background: #1e2433;
+
+  /* Text colors */
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+
+  /* Highlight colors */
+  --highlight-primary: #60a5fa;
+  --highlight-secondary: #f472b6;
+
+  /* Accent colors for specific levels */
+  --accent-green-light: #4ade80;
+  --accent-green: #10b981;
+  --accent-yellow: #fbbf24;
+  --accent-orange: #f97316;
+  --accent-red: #ef4444;
+
+  /* Link color */
+  --link-color: #60a5fa;
+  --link-hover: #93c5fd;
+
+  /* Foreground/background for inverted sections */
+  --foreground: #2a3142;
+  --accent-alpha: rgba(96, 165, 250, 0.1);
+
+  /* Glassmorphism variables - dark theme */
+  --glass-background: rgba(18, 24, 38, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: rgba(0, 0, 0, 0.2);
+  --glass-blur: 10px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Light theme overrides */
+.light {
+  --background-primary: #ffffff;
+  --background-secondary: #f8fafc;
+  --border-color: #e2e8f0;
+  --box-background: #ffffff;
+
+  /* Text colors */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+
+  /* Highlight colors */
+  --highlight-primary: #2563eb;
+  --highlight-secondary: #db2777;
+
+  /* Accent colors for specific levels */
+  --accent-green-light: #22c55e;
+  --accent-green: #059669;
+  --accent-yellow: #eab308;
+  --accent-orange: #ea580c;
+  --accent-red: #dc2626;
+
+  /* Link color */
+  --link-color: #2563eb;
+  --link-hover: #1d4ed8;
+
+  /* Foreground/background for inverted sections */
+  --foreground: #ffffff;
+  --accent-alpha: rgba(37, 99, 235, 0.1);
+
+  /* Glassmorphism variables - light theme */
+  --glass-background: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --glass-shadow: rgba(0, 0, 0, 0.1);
+  --glass-blur: 10px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Typography */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+}
+
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  width: 100vw;
+  height: 100vh;
+  min-width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background-color: var(--background-primary);
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: 0;
+  margin-bottom: 0.5em;
+  color: var(--text-primary);
+}
+
+code,
+pre {
+  font-family: 'JetBrains Mono', Monaco, 'Courier New', monospace;
+}
+
+/* Utility classes based on theme variables */
+.bg-background {
+  background-color: var(--background-primary);
+}
+
+.bg-background-secondary {
+  background-color: var(--background-secondary);
+}
+
+.bg-foreground {
+  background-color: var(--foreground);
+}
+
+.bg-box {
+  background-color: var(--box-background);
+}
+
+.border-theme {
+  border-color: var(--border-color);
+}
+
+.text-primary {
+  color: var(--text-primary);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-highlight {
+  color: var(--highlight-primary);
+}
+
+.text-highlight-secondary {
+  color: var(--highlight-secondary);
+}
+
+.text-main-text {
+  color: var(--text-primary);
+}
+
+/* Accent utilities */
+.accent-green-light {
+  color: var(--accent-green-light);
+}
+
+.accent-green {
+  color: var(--accent-green);
+}
+
+.accent-yellow {
+  color: var(--accent-yellow);
+}
+
+.accent-orange {
+  color: var(--accent-orange);
+}
+
+.accent-red {
+  color: var(--accent-red);
+}
+
+/* Backgrounds for accents */
+.bg-accent-green-light {
+  background-color: var(--accent-green-light);
+}
+
+.bg-accent-green {
+  background-color: var(--accent-green);
+}
+
+.bg-accent-yellow {
+  background-color: var(--accent-yellow);
+}
+
+.bg-accent-orange {
+  background-color: var(--accent-orange);
+}
+
+.bg-accent-red {
+  background-color: var(--accent-red);
+}
+
+.bg-accent {
+  background-color: var(--accent-alpha);
+}
+
+/* Link styles */
+a {
+  color: var(--link-color);
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+a:hover {
+  color: var(--link-hover);
+}
+
+.link-color {
+  color: var(--link-color);
+}
+
+.hover\:link-hover:hover {
+  color: var(--link-hover);
+}
+
+/* Glassmorphism utilities */
+.bg-glass {
+  background-color: var(--glass-background);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.dropdown-glass {
+  background-color: var(--glass-background);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 10px 15px -3px var(--glass-shadow), 0 4px 6px -2px var(--glass-shadow);
+  border-radius: 8px;
+}
+
+/* Button styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: var(--highlight-primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--link-hover);
+}
+
+.btn-secondary {
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background-color: var(--foreground);
+}
+
+/* Card styles */
+.card {
+  background-color: var(--box-background);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Animation utilities */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.hover\:scale-105:hover {
+  transform: scale(1.05);
+}
+
+/* Add these animation classes to your existing styles */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Grid and layout utilities */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-4 {
+  gap: 1rem;
+}
+
+/* Responsive utilities */
+@media (min-width: 640px) {
+  .sm\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .md\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .lg\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* E-commerce specific styles */
+.product-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.product-image {
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 8px 8px 0 0;
+}
+
+.product-info {
+  padding: 1rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.product-price {
+  font-weight: 700;
+  color: var(--highlight-primary);
+  margin-bottom: 0.5rem;
+}
+
+.product-description {
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.add-to-cart {
+  margin-top: auto;
+}
+
+/* Navigation styles */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.nav-link {
+  color: var(--text-primary);
+  font-weight: 500;
+  transition: color 0.2s ease-in-out;
+}
+
+.nav-link:hover {
+  color: var(--highlight-primary);
+}
+
+/* Form styles */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+}
+
+.form-input:focus {
+  outline: 2px solid var(--highlight-primary);
+  outline-offset: 1px;
+}
+
+/* Footer styles */
+.footer {
+  background-color: var(--background-secondary);
+  padding: 2rem 0;
+  margin-top: 4rem;
+}
+
+.footer-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+}
+
+.footer-heading {
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.footer-link {
+  display: block;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.footer-link:hover {
+  color: var(--text-primary);
+}
+
+/* Accessibility */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Focus styles for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--highlight-primary);
+  outline-offset: 2px;
 }

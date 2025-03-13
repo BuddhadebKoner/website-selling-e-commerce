@@ -1,36 +1,134 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# E-commerce Platform Data Model (Clerk Auth)
 
-## Getting Started
+## 1. User
+- name: string;
+- email: string;
+- phone: string;
+- address: string;
+- role: string;
+- imageUrl: string;
+- imageId: string;
+- orders: mongoose.Types.ObjectId[];
+- cart: mongoose.Types.ObjectId[];
+- products: mongoose.Types.ObjectId[];
+- favorite: mongoose.Types.ObjectId[];
 
-First, run the development server:
+## 2. Admin
+- name: string;
+- email: string;
+- role: string;            
+- isMaster: boolean;        
+- permissions: string[];   
+- imageUrl: string;
+- createdAt: Date;
+- updatedAt: Date;
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 3. Product
+- creator: mongoose.Types.ObjectId;
+- title: string;
+- subTitle: string;
+- slug: string;
+- link: string;
+- productType: string;
+- productAbout: string;
+- tags: string[];
+- price: number;
+- websiteAge: number;
+- status: string;
+- images: string[];
+- bannerImageUrl: string;
+- bannerImageID: string;
+- technologyStack: string[];
+- is_featured: boolean;
+- category: mongoose.Types.ObjectId;
+- rating: mongoose.Types.ObjectId;
+- offer: mongoose.Types.ObjectId;
+- stock: number;
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 4. Order
+- owner: mongoose.Types.ObjectId;
+- products: mongoose.Types.ObjectId[];
+- totalAmount: number;
+- discount: string;
+- status: string;
+- paymentStatus: string;
+- payment: string;
+- orderDate: Date;
+- paymentDate: Date;
+- deliveryDate: Date;
+- trackId: string;
+- invoiceId: string;
+- customerNote: string;
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 5. Category
+- name: string;
+- slug: string;
+- description: string;
+- imageUrl: string;
+- imageId: string;
+- parent: mongoose.Types.ObjectId;
+- isFeatured: boolean;
+- products: mongoose.Types.ObjectId[];
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 6. Rating
+- user: mongoose.Types.ObjectId;
+- product: mongoose.Types.ObjectId;
+- rating: number;
+- comment: string;
+- likes: mongoose.Types.ObjectId[];
+- helpfulness_score: number;
+- reply_to: mongoose.Types.ObjectId;
+- verified_purchase: boolean;
+- created_at: Date;
+- updated_at: Date;
+- images: string[];
+- sentiment_score: number;
+- reported_count: number;
+- is_featured: boolean;
+- is_hidden: boolean;
 
-## Learn More
+## 7. Offer
+- offerName: string;
+- description: string;
+- status: string;
+- type: string;
+- discount: number;
+- offerStartDate: Date;
+- offerEndDate: Date;
+- products: mongoose.Types.ObjectId[];
+- isFeatured: boolean;
 
-To learn more about Next.js, take a look at the following resources:
+## 8. Cart
+- user: mongoose.Types.ObjectId;
+- products: mongoose.Types.ObjectId[];
+- quantity: number[];
+- totalAmount: number;
+- cartCreatedAt: Date;
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 9. Payment (or Transaction)
+- order: mongoose.Types.ObjectId;
+- user: mongoose.Types.ObjectId;
+- paymentGateway: string;
+- transactionId: string;
+- amount: number;
+- status: string;
+- paymentDate: Date;
+- createdAt: Date;
+- updatedAt: Date;
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 10. Notification
+- recipient: mongoose.Types.ObjectId; 
+- title: string;
+- message: string;
+- isRead: boolean;
+- createdAt: Date;
+- updatedAt: Date;
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 11. (Optional) Return/Refund
+- order: mongoose.Types.ObjectId;
+- user: mongoose.Types.ObjectId;
+- reason: string;
+- status: string;        
+- refundAmount: number;
+- createdAt: Date;
+- updatedAt: Date;
