@@ -3,7 +3,6 @@
 import { Search, X, Loader2, Tag } from 'lucide-react'
 import React, { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 
 // Mock data for search results
 type Product = {
@@ -276,7 +275,7 @@ const SearchContainer = ({ setIsSearchOpen }: {
                   {/* No results message */}
                   {!isLoading && searchResults.length === 0 && hasSearched && (
                      <div className="py-8 text-center">
-                        <p className="text-secondary mb-2">No templates found for "{searchQuery}"</p>
+                        <p className="text-secondary mb-2">No templates found for &quot;{searchQuery}&quot;</p>
                         <p className="text-sm text-secondary">Try another search term or browse our categories</p>
                      </div>
                   )}

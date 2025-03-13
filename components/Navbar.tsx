@@ -1,13 +1,14 @@
 "use client";
 
-import { CircleUser, Contact, House, Monitor, Moon, Search, ShieldCheck, ShoppingBag, ShoppingCart, Sun, TextSearch, User } from 'lucide-react';
+import { CircleUser, Monitor, Moon, Search, ShieldCheck, ShoppingCart, Sun } from 'lucide-react';
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useTheme } from '../context/ThemeProvider';
-import { SignInButton, UserButton, SignedIn, SignedOut, useClerk } from '@clerk/nextjs';
+import { useClerk } from '@clerk/nextjs';
 import SearchContainer from './SearchContainer';
-import { useAuth } from '@/context/AuthProvider';
+import { useUserAuthentication } from '@/context/AuthProvider';
 import Image from 'next/image';
+import { toast } from 'react-toastify';
 
 const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
@@ -19,7 +20,7 @@ const Navbar = () => {
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   // Get authentication data from context
-  const { currentUser, isAdmin, isLoading } = useAuth();
+  const { currentUser, isAdmin, isLoading } = useUserAuthentication();
   const { signOut } = useClerk();
 
   // Close dropdowns when clicking outside
@@ -214,11 +215,19 @@ const Navbar = () => {
                   </Link>
 
                   {/* sign out */}
-                    <button
-                      className='block px-4 py-2 text-sm text-primary hover:bg-accent'
-                      onClick={() => signOut({ redirectUrl: '/' })}>
-                      Sign out
-                    </button>
+                  <button
+                    className='block px-4 py-2 text-sm text-primary hover:bg-accent'
+                    onClick={async () => {
+                      const toastId = toast.loading('Signing out...');
+                      try {
+                        await signOut();
+                        toast.update(toastId, { render: 'You have been signed out', type: 'success', isLoading: false, autoClose: 5000 });
+                      } catch {
+                        toast.update(toastId, { render: 'Sign out failed', type: 'error', isLoading: false, autoClose: 5000 });
+                      }
+                    }}>
+                    Sign out
+                  </button>
                 </div>
               )}
             </div>

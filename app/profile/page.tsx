@@ -1,9 +1,9 @@
 "use client";
 
-import { useAuth } from '@/context/AuthProvider';
+import { useUserAuthentication } from '@/context/AuthProvider';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShieldCheck, Package, UserCircle, Mail, CheckCircle, Loader, AlertCircle, UserRoundPen } from 'lucide-react';
+import { ShieldCheck, Package, UserCircle, Mail, CheckCircle, Loader, AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useUser } from "@clerk/nextjs";
@@ -16,7 +16,7 @@ const Profile = () => {
    const [uploadSuccess, setUploadSuccess] = useState(false);
 
    const { user } = useUser();
-   const { currentUser, isLoading, isAdmin } = useAuth();
+   const { currentUser, isLoading } = useUserAuthentication();
    const router = useRouter();
 
    // Handle file selection
@@ -220,7 +220,7 @@ const Profile = () => {
                         <Package className="w-5 h-5 text-highlight-primary" />
                      </div>
                      <div>
-                        <p className="text-primary font-medium">You haven't placed any orders yet</p>
+                        <p className="text-primary font-medium">You haven&apos;t placed any orders yet</p>
                         <p className="text-secondary text-sm">Browse our collection and find something you like!</p>
                      </div>
                   </div>

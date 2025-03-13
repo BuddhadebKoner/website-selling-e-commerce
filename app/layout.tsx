@@ -4,8 +4,9 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/context/ThemeProvider";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+// import Footer from "@/components/Footer";
 import { AuthProvider } from "@/context/AuthProvider";
+import { ToastContainer } from "react-toastify";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,12 +37,22 @@ export default function RootLayout({
               className={`${geistSans.variable} ${geistMono.variable} antialiased`}
             >
               <Navbar />
-              <main className="min-h-screen px-4 py-12 sm:py-16 md:py-24 bg-background text-main-text flex flex-col justify-center items-center gap-6 md:flex-row md:gap-12 lg:gap-16">
-                <div className='w-full md:w-1/2 flex flex-col justify-start items-center gap-5'>
-                  {children}
-                </div>
+              <main className="w-full h-fit px-4 pt-12 sm:pt-16 md:pt-24 bg-background text-main-text flex flex-col  gap-6 md:flex-row md:gap-12 lg:gap-16 overflow-hidden">
+                {children}
               </main>
-              <Footer />
+              {/* <Footer /> */}
+              <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick={false}
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+              />
             </body>
           </html>
         </ThemeProvider>
