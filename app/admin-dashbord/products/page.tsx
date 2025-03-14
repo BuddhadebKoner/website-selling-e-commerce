@@ -1,11 +1,18 @@
 'use client'
 
+import Link from "next/link"
+
 export default function ProductsPage() {
   return (
     <div className="space-y-6 animate-fadeIn">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Products</h2>
-        <button className="btn btn-primary">Add New Product</button>
+        <Link
+          href="/admin-dashbord/add-product"
+          className="btn btn-primary text-sm py-1 px-3"
+        >
+          Add Product
+        </Link>
       </div>
 
       <div className="bg-box rounded-lg overflow-hidden border border-theme">
@@ -53,7 +60,12 @@ export default function ProductsPage() {
                 <td className="px-4 py-3 font-medium">{product.price}</td>
                 <td className="px-4 py-3">
                   <div className="flex space-x-2">
-                    <button className="btn btn-secondary text-sm py-1 px-3">Edit</button>
+                    <Link
+                      href={`/admin-dashbord/update-product/${i}`}
+                      className="btn btn-secondary text-sm py-1 px-3"
+                    >
+                      Edit
+                    </Link>
                     <button className="btn btn-secondary text-sm py-1 px-3 text-accent-red">Delete</button>
                   </div>
                 </td>
