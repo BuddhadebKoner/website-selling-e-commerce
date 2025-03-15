@@ -3,7 +3,6 @@
 import {
    Bell,
    Search,
-   LogOut,
    ShieldAlert,
    Loader2
 } from 'lucide-react'

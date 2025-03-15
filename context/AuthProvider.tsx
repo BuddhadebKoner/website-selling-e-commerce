@@ -42,9 +42,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    };
 
    // Check in database if user exists
-   const checkUserExist = async (clerkId: string, email: string) => {
+   const checkUserExist = async (clerkId: string, email: string, fullName: string) => {
       try {
-         const res = await isAuthCheck({ clerkId, email });
+         const res = await isAuthCheck({ clerkId, email, fullName });
          return res;
       } catch (error) {
          console.error("Error in checkUserExist:", error);
@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             isAdmin: checkIfAdmin(user.publicMetadata)
          };
 
-         const res = await checkUserExist(userData.id, userData.email);
+         const res = await checkUserExist(userData.id, userData.email, userData.fullName);
 
          if (res.error) {
             console.error("Error in checkUserExist:", res.error);

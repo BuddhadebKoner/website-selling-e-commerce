@@ -15,11 +15,15 @@ const userSchema = new mongoose.Schema({
       required: true,
       unique: true
    },
+   name: {
+      type: String,
+      required: true,
+   },
    email: {
       type: String,
       required: true,
    },
-   Spent: {
+   spent: {
       type: Number,
       default: 0,
    },
@@ -39,7 +43,7 @@ const userSchema = new mongoose.Schema({
          ref: "Product",
       },
    ],
-});
+}, { timestamps: true });;
 
 const User = mongoose.models.User || mongoose.model<iUser>("User", userSchema);
 export default User;  

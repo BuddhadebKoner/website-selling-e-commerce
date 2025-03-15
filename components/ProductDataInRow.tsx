@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import React from 'react'
 
-const ProductTable = ({ product }: {
+const ProductDataInRow = ({ product }: {
    product: {
       _id: string
       title: string
@@ -15,7 +15,6 @@ const ProductTable = ({ product }: {
          <tr key={product._id} className="border-t border-theme">
             <td className="px-4 py-3">
                <div className="flex items-center">
-                  <div className="h-10 w-10 rounded bg-background-secondary mr-3"></div>
                   <span className="font-medium">{product.title}</span>
                </div>
             </td>
@@ -46,4 +45,4 @@ const ProductTable = ({ product }: {
    )
 }
 
-export default ProductTable
+export default ProductDataInRow

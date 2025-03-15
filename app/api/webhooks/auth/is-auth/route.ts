@@ -4,9 +4,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
    try {
-      const { clerkId, email } = await request.json();
+      const { clerkId, email, fullName } = await request.json();
 
-      if (!clerkId || !email) {
+      if (!clerkId || !email || !fullName) {
          return NextResponse.json(
             { error: "Clerk ID and email are required" },
             { status: 400 }
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
       if (existingUser) {
          return NextResponse.json(
-            { message: "User exists"},
+            { message: "User exists" },
             { status: 200 }
          );
       }
@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
       const newUser = await User.create({
          clerkId,
          email,
+         name: fullName,
       });
 
       if (!newUser) {

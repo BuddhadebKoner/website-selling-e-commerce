@@ -1,6 +1,7 @@
 type AuthCheckParams = {
    clerkId: string;
    email: string;
+   fullName: string;
 };
 
 type AuthCheckResponse = {
@@ -9,14 +10,14 @@ type AuthCheckResponse = {
    error?: string;
 };
 
-export async function isAuthCheck({ clerkId, email }: AuthCheckParams): Promise<AuthCheckResponse> {
+export async function isAuthCheck({ clerkId, email, fullName }: AuthCheckParams): Promise<AuthCheckResponse> {
    try {
       const response = await fetch('/api/webhooks/auth/is-auth', {
          method: 'POST',
          headers: {
             'Content-Type': 'application/json',
          },
-         body: JSON.stringify({ clerkId, email }),
+         body: JSON.stringify({ clerkId, email, fullName }),
       });
 
       const data = await response.json();

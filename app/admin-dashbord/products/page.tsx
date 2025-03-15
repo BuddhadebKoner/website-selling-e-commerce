@@ -4,7 +4,7 @@ import React from 'react';
 import { useGetAllProducts } from "@/lib/react-query/queriesAndMutation";
 import Link from "next/link";
 import { useInView } from 'react-intersection-observer';
-import ProductTable from '@/components/ProductTable';
+import ProductDataInRow from '@/components/ProductDataInRow';
 
 export interface IProducts {
   _id: string;
@@ -63,7 +63,7 @@ export default function page() {
           <tbody>
             {data?.pages.map((page) =>
               (page.data || []).map((product: IProducts) => (
-                <ProductTable
+                <ProductDataInRow
                   key={product._id}
                   product={product}
                 />

@@ -55,3 +55,23 @@ export async function createProduct(product: ProductData): Promise<CreateProduct
       };
    }
 }
+
+export const getAllUsers = async (page = 1, limit = 10) => {
+   try {
+      const response = await fetch(`/api/admin/user?page=${page}&limit=${limit}`);
+      const result = await response.json();
+
+      if (!response.ok) {
+         throw new Error(result.error || "Failed to fetch");
+      }
+
+      return {
+         data: result.data,
+         currentPage: result.pagination.currentPage,
+         totalPages: result.pagination.totalPages
+      };
+   } catch (error) {
+      console.error("Failed to get users", error);
+      return { error: error instanceof Error ? error.message : "Internal Server Error" };
+   }
+};
