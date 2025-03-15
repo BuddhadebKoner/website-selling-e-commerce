@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 // import Footer from "@/components/Footer";
 import { AuthProvider } from "@/context/AuthProvider";
 import { ToastContainer } from "react-toastify";
+import { QueryProvider } from "@/lib/react-query/QueryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,33 +31,35 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <AuthProvider>
-        <ThemeProvider>
-          <html lang="en">
-            <body
-              className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-            >
-              <Navbar />
-              <main className="w-full h-fit px-4 pt-12 sm:pt-16 md:pt-24 bg-background text-main-text flex flex-col  gap-6 md:flex-row md:gap-12 lg:gap-16 overflow-hidden">
-                {children}
-              </main>
-              {/* <Footer /> */}
-              <ToastContainer
-                position="top-right"
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick={false}
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="light"
-              />
-            </body>
-          </html>
-        </ThemeProvider>
-      </AuthProvider>
+      <QueryProvider>
+        <AuthProvider>
+          <ThemeProvider>
+            <html lang="en">
+              <body
+                className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+              >
+                <Navbar />
+                <main className="w-full h-fit px-4 pt-12 sm:pt-16 md:pt-24 bg-background text-main-text flex flex-col  gap-6 md:flex-row md:gap-12 lg:gap-16 overflow-hidden">
+                  {children}
+                </main>
+                {/* <Footer /> */}
+                <ToastContainer
+                  position="top-right"
+                  autoClose={5000}
+                  hideProgressBar={false}
+                  newestOnTop={false}
+                  closeOnClick={false}
+                  rtl={false}
+                  pauseOnFocusLoss
+                  draggable
+                  pauseOnHover
+                  theme="light"
+                />
+              </body>
+            </html>
+          </ThemeProvider>
+        </AuthProvider>
+      </QueryProvider>
     </ClerkProvider >
   );
 }

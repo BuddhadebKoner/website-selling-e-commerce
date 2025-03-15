@@ -21,7 +21,6 @@ export async function adminGuard(req: NextRequest) {
       // Get user from Clerk to check metadata
       const client = await clerkClient();
       const user = await client.users.getUser(userId);
-      console.log("User metadata:", user.publicMetadata);
 
       // Apply the same admin check logic as in your context
       // Looking for feature: 'master' in publicMetadata
@@ -58,7 +57,7 @@ export async function isAdminRequest(req: NextRequest): Promise<boolean> {
    try {
       const client = await clerkClient();
       const user = await client.users.getUser(userId);
-      return user.publicMetadata?.feature === 'master';
+      return user.publicMetadata?.role === 'master';
    } catch {
       return false;
    }

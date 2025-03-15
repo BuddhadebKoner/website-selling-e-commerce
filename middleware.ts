@@ -1,11 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-const isForAdmin = createRouteMatcher("/admin-dashbord");
 
-
-export default clerkMiddleware(async (auth, req) => {
-  if (isForAdmin(req)) await auth.protect();
-});
+export default clerkMiddleware();
 
 export const config = {
   matcher: [

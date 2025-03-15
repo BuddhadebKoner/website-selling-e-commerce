@@ -10,7 +10,8 @@ import { StatCard } from '@/components/StatCard'
 import { OrderRow } from '@/components/OrderRow'
 import { ProductCard } from '@/components/ProductCard'
 
-export default function page() {
+export default async function page() {
+
    return (
       <div className="w-full space-y-6 animate-fadeIn">
          <h2 className="text-2xl font-bold">Dashboard Overview</h2>

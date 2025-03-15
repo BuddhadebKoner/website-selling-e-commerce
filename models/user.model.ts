@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 
 export interface iUser {
    clerkId: string;
-   role: string;
    email: string;
    Spent: number;
    address: mongoose.Types.ObjectId;
@@ -16,15 +15,9 @@ const userSchema = new mongoose.Schema({
       required: true,
       unique: true
    },
-   role: {
-      type: String,
-      enum: ["master", "member", "admin"],
-      default: "member",
-   },
    email: {
       type: String,
       required: true,
-      unique: true
    },
    Spent: {
       type: Number,

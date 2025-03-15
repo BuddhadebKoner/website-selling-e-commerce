@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import React, { createContext, useContext, useEffect } from "react";
+import { isAuthCheck } from "@/endpoints/user.api";
 
-// Define types for better type safety
 interface UserData {
    id: string;
    firstName: string;
@@ -19,56 +19,87 @@ interface AuthContextType {
    currentUser: UserData | null;
    isLoading: boolean;
    isAdmin: boolean;
+   refreshUser: () => Promise<void>;
 }
 
 // Create context with proper typing
 export const AuthContext = createContext<AuthContextType>({
    currentUser: null,
    isLoading: true,
-   isAdmin: false
+   isAdmin: false,
+   refreshUser: async () => { }
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-   const [currentUser, setCurrentUser] = React.useState<UserData | null>(null);
-   const [isLoading, setIsLoading] = React.useState(true);
+   const [currentUser, setCurrentUser] = useState<UserData | null>(null);
+   const [isLoading, setIsLoading] = useState(true);
    const { user, isLoaded } = useUser();
-
-   useEffect(() => {
-      if (isLoaded) {
-         if (user) {
-            // Extract only the important user data for security
-            const userData: UserData = {
-               id: user.id,
-               firstName: user.firstName || '',
-               lastName: user.lastName || '',
-               fullName: user.fullName || '',
-               email: user.primaryEmailAddress?.emailAddress || '',
-               imageUrl: user.imageUrl || '',
-               createdAt: user.createdAt ? user.createdAt.toISOString() : '',
-               // Check if user is admin based on metadata
-               isAdmin: checkIfAdmin(user.publicMetadata)
-            };
-
-            setCurrentUser(userData);
-         } else {
-            setCurrentUser(null);
-         }
-
-         setIsLoading(false);
-      }
-   }, [isLoaded, user]);
 
    // Function to check if user is admin
    const checkIfAdmin = (metadata: any): boolean => {
-      // You can set different conditions for admin status based on metadata
-      return metadata?.feature === 'master';
-   }
+      console.log("metadata:", metadata);
+      return metadata?.role === 'master';
+   };
+
+   // Check in database if user exists
+   const checkUserExist = async (clerkId: string, email: string) => {
+      try {
+         const res = await isAuthCheck({ clerkId, email });
+         return res;
+      } catch (error) {
+         console.error("Error in checkUserExist:", error);
+         return { error: "Internal Server Error" };
+      }
+   };
+
+   // Function to refresh user data
+   const refreshUser = async () => {
+      if (!user) {
+         setCurrentUser(null);
+         setIsLoading(false);
+         return;
+      }
+
+      try {
+         setIsLoading(true);
+         const userData: UserData = {
+            id: user.id,
+            firstName: user.firstName || '',
+            lastName: user.lastName || '',
+            fullName: user.fullName || '',
+            email: user.primaryEmailAddress?.emailAddress || '',
+            imageUrl: user.imageUrl || '',
+            createdAt: user.createdAt ? new Date(user.createdAt).toISOString() : '',
+            isAdmin: checkIfAdmin(user.publicMetadata)
+         };
+
+         const res = await checkUserExist(userData.id, userData.email);
+
+         if (res.error) {
+            console.error("Error in checkUserExist:", res.error);
+            setCurrentUser(null);
+         } else {
+            setCurrentUser(userData);
+         }
+      } catch (error) {
+         console.error("Error refreshing user:", error);
+         setCurrentUser(null);
+      } finally {
+         setIsLoading(false);
+      }
+   };
+
+   useEffect(() => {
+      if (isLoaded) {
+         refreshUser();
+      }
+   }, [isLoaded, user]);
 
    // The actual admin status based on current user
    const isAdmin = currentUser?.isAdmin || false;
 
    return (
-      <AuthContext.Provider value={{ currentUser, isLoading, isAdmin }}>
+      <AuthContext.Provider value={{ currentUser, isLoading, isAdmin, refreshUser }}>
          {children}
       </AuthContext.Provider>
    );

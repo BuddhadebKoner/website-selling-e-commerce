@@ -11,7 +11,10 @@ export interface IProduct {
    price: number;
    websiteAge: number;
    status: string;
-   images: string[];
+   images: {
+      imageUrl: string;
+      imageId: string;
+   }[];
    bannerImageUrl: string;
    bannerImageID: string;
    technologyStack: string[];
@@ -63,6 +66,7 @@ const ProductSchema = new mongoose.Schema({
       type: String,
       enum: ["live", "delay", "sold", "pending"],
       default: "pending",
+      required: true,
    },
    images: [
       {
@@ -78,14 +82,17 @@ const ProductSchema = new mongoose.Schema({
    ],
    bannerImageUrl: {
       type: String,
-      default: ""
+      default: "",
+      required: true,
    },
    bannerImageID: {
       type: String,
-      default: ""
+      default: "",
+      required: true,
    },
    technologyStack: {
       type: [String],
+      required: true,
    },
    is_featured: {
       type: Boolean,
@@ -94,11 +101,11 @@ const ProductSchema = new mongoose.Schema({
    totalSold: {
       type: Number,
       default: 0,
+      required: true,
    },
    category: {
       type: mongoose.Types.ObjectId,
       ref: "Category",
-      required: true
    },
    rating: [
       {
