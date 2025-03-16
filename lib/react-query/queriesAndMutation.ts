@@ -1,7 +1,7 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "./queryKeys";
 import { getAllProducts, getLiveProducts, getDelayedProducts, getUnavailableProducts } from "@/endpoints/products";
-import { getAllUsers } from "@/endpoints/admin.api";
+import { getAllUsers, updateProductStatus } from "@/endpoints/admin.api";
 
 // Original infinite scroll for all products
 export const useGetAllProducts = (limit = 10) => {

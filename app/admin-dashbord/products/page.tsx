@@ -9,6 +9,7 @@ import {
 import Link from "next/link";
 import { useInView } from 'react-intersection-observer';
 import ProductDataInRow from '@/components/ProductDataInRow';
+import { Loader } from 'lucide-react';
 
 export interface IProducts {
   _id: string;
@@ -72,23 +73,8 @@ export default function Page() {
   // Render loading skeleton
   if (isLoading) {
     return (
-      <div className="space-y-6 animate-fadeIn">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Products</h2>
-          <div className="h-8 w-32 bg-gray-300 animate-pulse rounded"></div>
-        </div>
-
-        <div className="flex space-x-2 mb-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-8 w-24 bg-gray-300 animate-pulse rounded"></div>
-          ))}
-        </div>
-
-        <div className="bg-box rounded-lg overflow-hidden border border-theme p-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-16 bg-gray-200 animate-pulse rounded mb-2"></div>
-          ))}
-        </div>
+      <div className="space-y-6 animate-fadeIn w-full h-full flex items-start justify-center">
+        <Loader className='animate-spin w-8 h-8' />
       </div>
     );
   }
