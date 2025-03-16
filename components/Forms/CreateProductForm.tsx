@@ -1,5 +1,9 @@
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import FormField from '../shared/FormField';
+import Image from 'next/image';
+import { createProduct } from '@/endpoints/admin.api';
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
 
 export interface ProductData {
    slug: string;
@@ -37,7 +41,6 @@ const CreateProductForm = () => {
    });
 
    const [isSubmitting, setIsSubmitting] = useState(false);
-   const [submitSuccess, setSubmitSuccess] = useState(false);
    const [currentImage, setCurrentImage] = useState({ imageUrl: '', imageId: '' });
    const [errors, setErrors] = useState({
       slug: '',
@@ -47,6 +50,8 @@ const CreateProductForm = () => {
       images: '',
       tags: '',
    });
+
+   const naviagte = useRouter();
 
    const handleInputChange = (
       e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -64,12 +69,14 @@ const CreateProductForm = () => {
       }
    };
 
-   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+   const handleTagsChange = (
+      e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+   ) => {
       const value = e.target.value;
       setFormData(prev => ({
          ...prev,
          _tagsInput: value,
-         tags: value.split(',').map(tag => tag.trim()).filter(tag => tag !== ''),
+         tags: value.split(',').map(tag => tag.trim()), // send as array of strings
       }));
       setErrors(prev => ({
          ...prev,
@@ -77,7 +84,9 @@ const CreateProductForm = () => {
       }));
    };
 
-   const handleImageInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+   const handleImageInputChange = (
+      e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+   ) => {
       const { name, value } = e.target;
       setCurrentImage(prev => ({
          ...prev,
@@ -160,21 +169,40 @@ const CreateProductForm = () => {
       setIsSubmitting(true);
 
       try {
-         const dataToSubmit = {
-            ...formData,
-            price: Number(formData.price),
-            websiteAge: formData.websiteAge ? Number(formData.websiteAge) : undefined,
-            technologyStack: formData.technologyStack
-               ? formData.technologyStack.split(',').map(tech => tech.trim())
-               : [],
-         };
-
-         // Remove temporary fields
+         // Prepare product data without conversion so all fields remain as strings.
+         const dataToSubmit = { ...formData };
+         // Remove temporary field
          delete (dataToSubmit as any)._tagsInput;
 
          console.log('Submitting product data:', dataToSubmit);
          // Call API to create product
-         setSubmitSuccess(true);
+         // loading start
+         setIsSubmitting(true);
+         const res = await createProduct(dataToSubmit);
+         if(!res) {
+            toast.error('An error occurred while creating the product. Please try again.');
+            setIsSubmitting(false);
+            return;
+         }
+         // Reset form fields
+         setFormData({
+            slug: '',
+            title: '',
+            subTitle: '',
+            liveLink: '',
+            productType: '',
+            productAbout: '',
+            tags: [],
+            _tagsInput: '',
+            price: '',
+            websiteAge: '',
+            images: [],
+            bannerImageUrl: '',
+            bannerImageID: '',
+            technologyStack: '',
+         });
+         naviagte.push('/admin-dashbord/products');
+         toast.success('Product created successfully');
       } catch (error) {
          console.error('Error creating product:', error);
          alert('An error occurred while creating the product. Please try again.');
@@ -197,11 +225,6 @@ const CreateProductForm = () => {
    return (
       <div className="space-y-6 animate-fadeIn">
          <h2 className="text-2xl font-bold">Create New Product</h2>
-         {submitSuccess && (
-            <div className="bg-accent-green-light text-primary p-4 rounded mb-6 animate-slideDown">
-               Product information logged successfully!
-            </div>
-         )}
 
          <form onSubmit={handleCreateProduct} className="bg-box p-6 rounded-lg border border-theme">
             <div className="grid md:grid-cols-2 gap-6">
@@ -303,8 +326,10 @@ const CreateProductForm = () => {
                   <div className="mt-4">
                      <p className="text-secondary text-sm mb-2">Banner Preview:</p>
                      <div className="bg-background-secondary border border-theme p-2 rounded">
-                        <img
+                        <Image
                            src={formData.bannerImageUrl}
+                           width={400}
+                           height={200}
                            alt="Banner preview"
                            className="h-32 object-cover rounded"
                            onError={(e) => (e.currentTarget.style.display = 'none')}

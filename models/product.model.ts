@@ -41,6 +41,7 @@ const ProductSchema = new mongoose.Schema({
    },
    liveLink: {
       type: String,
+      required: true,
    },
    productType: {
       type: String,
