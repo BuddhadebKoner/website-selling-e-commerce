@@ -154,9 +154,6 @@ const CreateCategoryForm = () => {
 
             {/* Banner Image Section */}
             <div className="form-group mt-6">
-               <label className="form-label">
-                  Banner Image <span className="text-accent-red">*</span>
-               </label>
                <div className="grid md:grid-cols-2 gap-4">
                   <FormField
                      htmlFor="bannerImageUrl"

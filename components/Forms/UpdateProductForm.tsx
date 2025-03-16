@@ -196,10 +196,16 @@ const UpdateProductForm = () => {
                   onChange={handleInputChange}
                   options={[
                      { value: '', label: 'Select product type' },
-                     { value: 'website', label: 'Website' },
-                     { value: 'template', label: 'Template' },
-                     { value: 'plugin', label: 'Plugin' },
-                     { value: 'service', label: 'Service' },
+                     { value: 'E-commerce', label: 'E-commerce' },
+                     { value: 'Portfolio', label: 'Portfolio' },
+                     { value: 'Business', label: 'Business' },
+                     { value: 'Personal Blog', label: 'Personal Blog' },
+                     { value: 'Landing Page', label: 'Landing Page' },
+                     { value: 'SaaS', label: 'SaaS' },
+                     { value: 'Educational', label: 'Educational' },
+                     { value: 'Real Estate', label: 'Real Estate' },
+                     { value: 'Job Portal', label: 'Job Portal' },
+                     { value: 'Social Network', label: 'Social Network' },
                   ]}
                />
             </div>

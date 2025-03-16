@@ -44,6 +44,18 @@ const ProductSchema = new mongoose.Schema({
    },
    productType: {
       type: String,
+      enum: [
+         "E-commerce",
+         "Portfolio",
+         "Business",
+         "Personal Blog",
+         "Landing Page",
+         "SaaS",
+         "Educational",
+         "Real Estate",
+         "Job Portal",
+         "Social Network"
+      ],
       required: true
    },
    productAbout: {
@@ -64,8 +76,8 @@ const ProductSchema = new mongoose.Schema({
    },
    status: {
       type: String,
-      enum: ["live", "delay", "sold", "pending"],
-      default: "pending",
+      enum: ["live", "delay", "unabaliable"],
+      default: "unabaliable",
       required: true,
    },
    images: [
