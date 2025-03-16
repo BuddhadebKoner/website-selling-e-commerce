@@ -1,35 +1,8 @@
-"use client";
+import UpdateProductForm from '@/components/Forms/UpdateProductForm';
+import React from 'react';
 
-import ProductForm from '@/components/ProductForm';
-import { useParams } from 'next/navigation'
-import React, { useState } from 'react'
+const Page = () => {
+  return <UpdateProductForm />;
+};
 
-const page = () => {
-
-  const [formData, setFormData] = useState({
-    slug: '',
-    title: '',
-    subTitle: '',
-    liveLink: '',
-    productType: '',
-    productAbout: '',
-    tags: [] as string[],
-    _tagsInput: '',
-    price: '',
-    websiteAge: '',
-    images: [] as { imageUrl: string; imageId: string }[],
-    bannerImageUrl: '',
-    bannerImageID: '',
-    technologyStack: ''
-  })
-
-  return (
-    <ProductForm
-      action="update"
-      formData={formData}
-      setFormData={setFormData}
-    />
-  )
-}
-
-export default page
+export default Page;

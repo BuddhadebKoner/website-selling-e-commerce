@@ -1,8 +1,11 @@
 import { BarChart, ChartColumnStacked, Package, Settings, ShoppingBag, Users } from 'lucide-react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import React from 'react'
 
 const DashbordSidebar = () => {
+   const pathname = usePathname();
+   
    return (
       <aside className="fixed lg:static z-20 h-full w-64 bg-background-secondary border-r border-theme transition-all duration-300">
          <div className="p-6">
@@ -14,37 +17,37 @@ const DashbordSidebar = () => {
                   icon={<BarChart size={20} />}
                   label="Overview"
                   href="/admin-dashbord"
-                  active={true}
+                  active={pathname === '/admin-dashbord'}
                />
                <SidebarLink
                   icon={<ShoppingBag size={20} />}
                   label="Products"
                   href="/admin-dashbord/products"
-                  active={false}
+                  active={pathname === '/admin-dashbord/products'}
                />
                <SidebarLink
                   icon={<Users size={20} />}
                   label="Customers"
                   href="/admin-dashbord/customers"
-                  active={false}
+                  active={pathname === '/admin-dashbord/customers'}
                />
                <SidebarLink
                   icon={<Package size={20} />}
                   label="Orders"
                   href="/admin-dashbord/orders"
-                  active={false}
+                  active={pathname === '/admin-dashbord/orders'}
                />
                <SidebarLink
                   icon={<ChartColumnStacked size={20} />}
                   label="Categories"
                   href="/admin-dashbord/categories"
-                  active={false}
+                  active={pathname === '/admin-dashbord/categories'}
                />
                <SidebarLink
                   icon={<Settings size={20} />}
                   label="Settings"
                   href="/admin-dashbord/settings"
-                  active={false}
+                  active={pathname === '/admin-dashbord/settings'}
                />
             </div>
          </nav>
@@ -61,12 +64,13 @@ function SidebarLink({ icon, label, active, href }: { icon: React.ReactNode, lab
    return (
       <Link
          href={href}
-         className={`flex items-center w-full px-6 py-3 transition-colors ${active
-            ? 'bg-accent text-highlight'
-            : 'text-secondary hover:bg-background hover:text-primary'
+         className={`flex items-center w-full px-6 py-3 transition-all relative ${active
+               ? 'bg-accent text-highlight font-medium'
+               : 'text-secondary hover:bg-background-secondary hover:text-primary'
             }`}
       >
-         <span className="mr-3">{icon}</span>
+         {active && <div className="absolute left-0 top-0 bottom-0 w-1 bg-highlight-primary"></div>}
+         <span className={`mr-3 transition-colors ${active ? 'text-highlight' : ''}`}>{icon}</span>
          <span>{label}</span>
       </Link>
    )
