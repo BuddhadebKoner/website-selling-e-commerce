@@ -1,10 +1,13 @@
 "use client";
 
-import CreateProductForm from '@/components/Forms/CreateProductForm';
+import ProductForm from '@/components/Forms/ProductForm';
 import React from 'react';
 
 const Page = () => {
-  return <CreateProductForm />;
+  return <ProductForm
+    action="create"
+    productData=""
+  />;
 };
 
 export default Page;

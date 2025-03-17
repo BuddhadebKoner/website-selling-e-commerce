@@ -4,11 +4,12 @@ import { updateProductStatus, updateProductType } from '@/endpoints/admin.api'
 import Link from 'next/link'
 import React, { useState, useEffect } from 'react'
 import { toast } from 'react-toastify'
-import { Loader } from 'lucide-react'
+import { LoaderCircle } from 'lucide-react'
 
 const ProductDataInRow = ({ product }: {
    product: {
       _id: string
+      slug: string
       title: string
       productType: string
       status: string
@@ -112,7 +113,7 @@ const ProductDataInRow = ({ product }: {
                   <option value="Social Network">Social Network</option>
                </select>
                {productTypeLoading && (
-                  <Loader className="absolute right-6 top-1/2 transform -translate-y-1/2 w-4 h-4 animate-spin" />
+                  <LoaderCircle className="absolute right-6 top-1/2 transform -translate-y-1/2 w-4 h-4 animate-spin" />
                )}
             </div>
          </td>
@@ -129,7 +130,7 @@ const ProductDataInRow = ({ product }: {
                   <option value="unabaliable">Unavailable</option>
                </select>
                {statusLoading && (
-                  <Loader className="absolute right-6 top-1/2 transform -translate-y-1/2 w-4 h-4 animate-spin" />
+                  <LoaderCircle className="absolute right-6 top-1/2 transform -translate-y-1/2 w-4 h-4 animate-spin" />
                )}
             </div>
          </td>
@@ -137,7 +138,7 @@ const ProductDataInRow = ({ product }: {
          <td className="px-4 py-3">
             <div className="flex space-x-2">
                <Link
-                  href={`/admin-dashbord/update-product/${product._id}`}
+                  href={`/admin-dashbord/update-product/${product.slug}`}
                   className="btn btn-secondary text-sm py-1 px-3"
                >
                   Edit

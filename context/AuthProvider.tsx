@@ -37,7 +37,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
    // Function to check if user is admin
    const checkIfAdmin = (metadata: any): boolean => {
-      console.log("metadata:", metadata);
       return metadata?.role === 'master';
    };
 

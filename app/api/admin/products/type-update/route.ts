@@ -1,3 +1,4 @@
+import { connectToDatabase } from "@/lib/db";
 import Product from "@/models/product.model";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -31,6 +32,8 @@ export async function PUT(request: NextRequest) {
             { status: 400 }
          );
       }
+
+      await connectToDatabase();
 
       // Update product status
       const updatedProduct = await Product.findByIdAndUpdate(

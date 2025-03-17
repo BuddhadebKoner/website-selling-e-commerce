@@ -4,22 +4,20 @@ import { getAllProducts, getLiveProducts, getDelayedProducts, getUnavailableProd
 import { getAllUsers } from "@/endpoints/admin.api";
 
 // Original infinite scroll for all products
-export const useGetAllProducts = (limit = 10) => {
+export const useGetAllProducts = (limit = 10, options = {}) => {
    return useInfiniteQuery({
       queryKey: [QUERY_KEYS.GET_ALL_PRODUCTS, limit],
       initialPageParam: 1,
       queryFn: ({ pageParam = 1 }: { pageParam?: number }) => getAllProducts(pageParam, limit),
       getNextPageParam: (lastPage) => {
-         // Handle error case
-         if ('error' in lastPage) {
-            return undefined;
-         }
+         if ('error' in lastPage) return undefined;
          if (lastPage.currentPage < lastPage.totalPages) {
             return lastPage.currentPage + 1;
          }
          return undefined;
       },
       refetchOnWindowFocus: false,
+      ...options,
    });
 };
 

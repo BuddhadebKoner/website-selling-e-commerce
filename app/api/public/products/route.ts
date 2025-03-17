@@ -1,3 +1,4 @@
+import { connectToDatabase } from "@/lib/db";
 import Product from "@/models/product.model";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -13,8 +14,10 @@ export async function GET(request: NextRequest) {
       const totalCount = await Product.countDocuments();
       const totalPages = Math.ceil(totalCount / limit);
 
+      await connectToDatabase();
+
       const products = await Product.find()
-         .select("title productType status price")
+         .select("title productType status price slug")
          .skip(skip)
          .limit(limit);
 

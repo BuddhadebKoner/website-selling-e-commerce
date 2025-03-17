@@ -1,3 +1,4 @@
+import { connectToDatabase } from "@/lib/db";
 import Product from "@/models/product.model";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -11,6 +12,8 @@ export async function GET(request: NextRequest) {
       // Get total count for pagination metadata (only for live products)
       const totalCount = await Product.countDocuments({ status: "live" });
       const totalPages = Math.ceil(totalCount / limit);
+
+      await connectToDatabase();
 
       const products = await Product.find({ status: "live" })
          .select("title productType status price")

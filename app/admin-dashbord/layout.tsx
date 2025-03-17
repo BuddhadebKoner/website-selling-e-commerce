@@ -4,7 +4,7 @@ import {
    Bell,
    Search,
    ShieldAlert,
-   Loader2
+   LoaderCircle
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
@@ -63,7 +63,7 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
       return (
          <div className="w-full h-screen flex items-center justify-center bg-background">
             <div className="text-center">
-               <Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" />
+               <LoaderCircle className="h-10 w-10 animate-spin mx-auto text-primary" />
                <h2 className="mt-4 text-xl font-semibold">Loading Admin Dashboard...</h2>
                <p className="mt-2 text-muted-foreground">Please wait while we verify your credentials</p>
             </div>

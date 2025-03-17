@@ -3,7 +3,7 @@
 import { useUserAuthentication } from '@/context/AuthProvider';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShieldCheck, Package, UserCircle, Mail, CheckCircle, Loader, AlertCircle } from 'lucide-react';
+import { ShieldCheck, Package, UserCircle, Mail, CheckCircle, LoaderCircle, AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useUser } from "@clerk/nextjs";
@@ -83,7 +83,7 @@ const Profile = () => {
    if (isLoading) {
       return (
          <div className="min-h-screen flex items-center justify-center">
-            <Loader className='animate-spin w-12 h-12 text-primary' />
+            <LoaderCircle className='animate-spin w-12 h-12 text-primary' />
          </div>
       );
    }
@@ -128,7 +128,7 @@ const Profile = () => {
 
                      {isUploading && (
                         <div className="absolute inset-0 bg-background/75 rounded-lg flex items-center justify-center">
-                           <Loader className="animate-spin w-10 h-10 text-primary" />
+                           <LoaderCircle className="animate-spin w-10 h-10 text-primary" />
                         </div>
                      )}
                   </div>

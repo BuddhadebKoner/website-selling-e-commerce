@@ -9,10 +9,11 @@ import {
 import Link from "next/link";
 import { useInView } from 'react-intersection-observer';
 import ProductDataInRow from '@/components/ProductDataInRow';
-import { Loader } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 
 export interface IProducts {
   _id: string;
+  slug: string;
   title: string;
   productType: string;
   status: string;
@@ -62,11 +63,6 @@ export default function Page() {
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // Refresh data when filter changes
-  React.useEffect(() => {
-    refetch();
-  }, [activeFilter, refetch]);
-
   // Check if there are products in the data
   const hasProducts = data?.pages[0]?.data?.length > 0;
 
@@ -74,7 +70,7 @@ export default function Page() {
   if (isLoading) {
     return (
       <div className="space-y-6 animate-fadeIn w-full h-full flex items-start justify-center">
-        <Loader className='animate-spin w-8 h-8' />
+        <LoaderCircle className='animate-spin w-8 h-8' />
       </div>
     );
   }

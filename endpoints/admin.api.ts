@@ -1,4 +1,4 @@
-import { ProductData } from "@/components/Forms/CreateProductForm";
+import { ProductData } from "@/components/Forms/ProductForm";
 
 // Define the product type to match your form data structure
 export type CreateProductResponse = {
@@ -36,6 +36,34 @@ export async function createProduct(product: ProductData): Promise<CreateProduct
    }
 }
 
+export async function updateProduct(product: Partial<ProductData>) {
+   try {
+      if (!product.slug) {
+         throw new Error('Product slug is required for updates');
+      }
+
+      const response = await fetch(`/api/admin/products/${product.slug}`, {
+         method: 'PATCH',
+         headers: {
+            'Content-Type': 'application/json',
+         },
+         body: JSON.stringify(product),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+         throw new Error(data.error || 'Failed to update product');
+      }
+
+      return { success: true, product: data };
+   } catch (error) {
+      console.error('Error in updating product:', error);
+      return {
+         success: false,
+         error: error instanceof Error ? error.message : 'Unknown error occurred while updating product'
+      };
+   }
+}
 
 export const getAllUsers = async (page = 1, limit = 10) => {
    try {

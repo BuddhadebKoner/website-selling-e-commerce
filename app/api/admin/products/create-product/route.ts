@@ -1,3 +1,4 @@
+import { connectToDatabase } from "@/lib/db";
 import Product from "@/models/product.model";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -110,6 +111,7 @@ export async function POST(request: NextRequest) {
          }
       }
 
+      await connectToDatabase();
       // Check for uniqueness of the processed slug
       const isProductExist = await Product.findOne({ slug: processedSlug });
       if (isProductExist) {
