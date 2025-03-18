@@ -1,13 +1,14 @@
+import { CategoriesData } from "@/components/Forms/CategoryForm";
 import { ProductData } from "@/components/Forms/ProductForm";
 
 // Define the product type to match your form data structure
-export type CreateProductResponse = {
+export type CreateResponse = {
    success?: boolean;
    product?: any;
    error?: string;
 };
 
-export async function createProduct(product: ProductData): Promise<CreateProductResponse> {
+export async function createProduct(product: ProductData): Promise<CreateResponse> {
    try {
       const response = await fetch('/api/admin/products/create-product', {
          method: 'POST',
@@ -61,6 +62,36 @@ export async function updateProduct(product: Partial<ProductData>) {
       return {
          success: false,
          error: error instanceof Error ? error.message : 'Unknown error occurred while updating product'
+      };
+   }
+}
+
+// create category
+export async function createCategory(category: CategoriesData): Promise<CreateResponse> {
+   try {
+      const response = await fetch('/api/admin/category/create-category', { 
+         method: 'POST',
+         headers: {
+            'Content-Type': 'application/json',
+         },
+         body: JSON.stringify(category),
+      });
+
+      // Attempt to parse JSON even if the response is not ok
+      const data = await response.json();
+
+      if (!response.ok) {
+         // Throw a specific error based on the returned error message, if available.
+         throw new Error(data.error || 'Failed to create category');
+      }
+
+      return data;
+   } catch (error) {
+      console.error('Error in creating category:', error);
+      // Return a well-defined error structure
+      return {
+         success: false,
+         error: error instanceof Error ? error.message : 'Unknown error occurred while creating category',
       };
    }
 }

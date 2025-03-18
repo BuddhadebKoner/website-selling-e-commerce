@@ -1,35 +1,19 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useParams } from "next/navigation";
 import ProductForm from "@/components/Forms/ProductForm";
-import { getProductBySlug } from "@/endpoints/products";
+import { useGetProductBySlug } from "@/lib/react-query/queriesAndMutation";
 
 const Page = () => {
-  const { id } = useParams<{ id: string }>();
-  const [product, setProduct] = useState<any>(null);
+  const { id: slug } = useParams<{ id: string }>();
 
-  useEffect(() => {
-    async function fetchProduct() {
-      if (!id) return;
-      console.log("slug", id);
-      const res = await getProductBySlug(id);
-      if (res.error) {
-        console.error(res.error);
-        return;
-      }
-      setProduct(res.product);
-    }
+  const { data: product, isLoading, isError, error } = useGetProductBySlug(slug);
+  if (isLoading) return <p>Loading product...</p>;
+  if (isError)
+    return <p>Error: {error?.message || "Failed to fetch product"}</p>;
 
-    fetchProduct();
-  }, [id]);
-
-  return (
-    <ProductForm
-      action="update"
-      productData={product}
-    />
-  );
+  return <ProductForm action="update" productData={product.product} />;
 };
 
 export default Page;

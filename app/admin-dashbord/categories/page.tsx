@@ -2,36 +2,43 @@
 
 import React from 'react';
 import Link from "next/link";
+import { useGetAllCategory } from '@/lib/react-query/queriesAndMutation';
+import { useInView } from 'react-intersection-observer';
+import CategoryDataRow from '@/components/CategoryDataRow';
 
 export interface ICategories {
   _id: string;
   title: string;
-  productType: string;
-  status: string;
-  price: number;
+  subTitle: string;
+  slug: string;
+  isFeatured: boolean;
+  createdAt: string;
+  productsCount: number;
 }
 
 export default function page() {
-  // const {
-  //   data,
-  //   fetchNextPage,
-  //   hasNextPage,
-  //   isFetching,
-  //   isFetchingNextPage,
-  //   isLoading,
-  //   isError
-  // } = useGetAllProducts();
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+    error,
+    refetch
+  } = useGetAllCategory();
 
-  // const { ref, inView } = useInView();
+  const { ref, inView } = useInView();
 
-  // React.useEffect(() => {
-  //   if (inView && hasNextPage && !isFetchingNextPage) {
-  //     fetchNextPage();
-  //   }
-  // }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  React.useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // if (isLoading) return <div>Loading...</div>;
-  // if (isError) return <div>Error...</div>;
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>Error...</div>;
 
 
   return (
@@ -50,35 +57,35 @@ export default function page() {
         <table className="w-full">
           <thead className="bg-background-secondary">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium">Product</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Category</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Price</th>
+              <th className="px-4 py-3 text-left text-sm font-medium">Name</th>
+              <th className="px-4 py-3 text-left text-sm font-medium">Sub Title</th>
+              <th className="px-4 py-3 text-left text-sm font-medium">Is Featured</th>
+              <th className="px-4 py-3 text-left text-sm font-medium">Product Count</th>
               <th className="px-4 py-3 text-left text-sm font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {/* {data?.pages.map((page) =>
-              (page.data || []).map((product: IProducts) => (
-                <ProductDataInRow
+            {data?.pages.map((page) =>
+              (page.data || []).map((product: ICategories) => (
+                <CategoryDataRow
                   key={product._id}
-                  product={product}
+                  category={product}
                 />
               ))
-            )} */}
+            )}
           </tbody>
         </table>
       </div>
 
       {/* Intersection observer target for infinite scroll */}
-      {/* <div ref={ref} className="h-10" />
+      <div ref={ref} className="h-10" />
 
       {isFetchingNextPage && (
         <div className="text-center">Loading more...</div>
       )}
       {isFetching && !isFetchingNextPage && (
         <div className="text-center">Fetching...</div>
-      )} */}
+      )}
     </div>
   );
 }

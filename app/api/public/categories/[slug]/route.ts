@@ -1,6 +1,7 @@
 import { connectToDatabase } from "@/lib/db";
-import Product from "@/models/product.model";
+import Category from "@/models/category.model";
 import { NextRequest, NextResponse } from "next/server";
+
 
 export async function GET(request: NextRequest, { params }: { params: { slug: string } }) {
    try {
@@ -16,24 +17,23 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
          );
       }
 
-      const product = await Product.findOne({ slug })
-         .select("slug title subTitle liveLink productType productAbout tags price websiteAge images bannerImageUrl bannerImageID technologyStack")
+      const category = await Category.findOne({ slug })
          .sort({ createdAt: -1 });
 
-      if (!product) {
+      if (!category) {
          return NextResponse.json(
-            { error: "Product not found!" },
+            { error: "category not found!" },
             { status: 404 }
          );
       }
 
       return NextResponse.json(
-         { message: "Product found successfully!", product },
+         { message: "Category found successfully!", category },
          { status: 200 }
       );
 
    } catch (error) {
-      console.error("Error fetching product:", error);
+      console.error("Error fetching Category:", error);
       return NextResponse.json(
          { error: "Internal Server Error!" },
          { status: 500 }

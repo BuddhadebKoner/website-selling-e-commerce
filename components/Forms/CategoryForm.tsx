@@ -1,5 +1,9 @@
+"use client";
+
 import React, { useState } from 'react';
 import FormField from '../shared/FormField';
+import { createCategory } from '@/endpoints/admin.api';
+import { toast } from 'react-toastify';
 
 export interface CategoriesData {
    slug: string;
@@ -8,11 +12,11 @@ export interface CategoriesData {
    description: string;
    bannerImageUrl: string;
    bannerImageID: string;
-   isFeatured: string;
+   isFeatured: boolean;
    products: string[];
 }
 
-const CreateCategoryForm = () => {
+const CategoryForm = () => {
    const [formData, setFormData] = useState<CategoriesData>({
       slug: '',
       title: '',
@@ -20,7 +24,7 @@ const CreateCategoryForm = () => {
       description: '',
       bannerImageUrl: '',
       bannerImageID: '',
-      isFeatured: '',
+      isFeatured: false,
       products: [],
    });
 
@@ -28,11 +32,14 @@ const CreateCategoryForm = () => {
    const [productIdsInput, setProductIdsInput] = useState('');
 
    const [isSubmitting, setIsSubmitting] = useState(false);
-   const [submitSuccess, setSubmitSuccess] = useState(false);
+   const [apiError, setApiError] = useState('');
    const [errors, setErrors] = useState({
       slug: '',
       title: '',
+      subTitle: '',
+      description: '',
       bannerImageUrl: '',
+      bannerImageID: '',
    });
 
    // Handle general input field changes
@@ -58,17 +65,28 @@ const CreateCategoryForm = () => {
       setProductIdsInput(value);
       // Split comma-separated values, trim, and filter out empty strings
       const productIds = value.split(',').map(id => id.trim()).filter(id => id !== '');
+
+      // Add validation to ensure each ID is a valid ObjectId format
+      const validProductIds = productIds.filter(id => /^[0-9a-fA-F]{24}$/.test(id));
+
       setFormData(prev => ({
          ...prev,
-         products: productIds,
+         products: validProductIds,
       }));
+
+      // If there are invalid IDs, show a warning
+      if (validProductIds.length !== productIds.length) {
+         setApiError('Some product IDs are not in a valid format and were removed.');
+      } else {
+         setApiError('');
+      }
    };
 
    // Handle featured checkbox
    const handleFeaturedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setFormData(prev => ({
          ...prev,
-         isFeatured: e.target.checked ? 'true' : 'false',
+         isFeatured: e.target.checked,
       }));
    };
 
@@ -77,11 +95,22 @@ const CreateCategoryForm = () => {
       const newErrors = {
          slug: '',
          title: '',
+         subTitle: '',
+         description: '',
          bannerImageUrl: '',
+         bannerImageID: '',
       };
       let isValid = true;
       if (!formData.title.trim()) {
          newErrors.title = 'Title is required';
+         isValid = false;
+      }
+      if (!formData.subTitle.trim()) {
+         newErrors.subTitle = 'Subtitle is required';
+         isValid = false;
+      }
+      if (!formData.description.trim()) {
+         newErrors.description = 'Description is required';
          isValid = false;
       }
       if (!formData.slug.trim()) {
@@ -95,31 +124,58 @@ const CreateCategoryForm = () => {
          newErrors.bannerImageUrl = 'Banner image URL is required';
          isValid = false;
       }
+      if (!formData.bannerImageID) {
+         newErrors.bannerImageID = 'Banner image ID is required';
+         isValid = false;
+      }
       setErrors(newErrors);
       return isValid;
    };
 
    // Handle form submission
-   const handleSubmit = (e: React.FormEvent) => {
+   const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       if (!validateForm()) return;
-      console.log(formData);
-      // Submit logic goes here
+
+      setIsSubmitting(true);
+      setApiError('');
+
+      try {
+         console.log('Submitting form:', formData);
+         const res = await createCategory(formData);
+         console.log('Response:', res);
+
+         if (res.success === false) {
+            toast.error(res.error || 'Failed to create category');
+            return;
+         }
+
+         toast.success('Category created successfully');
+
+         // Optional: Reset form after successful submission
+         // setFormData({ ...initialFormData });
+         // setProductIdsInput('');
+      } catch (error) {
+         console.error('Error creating category:', error);
+         toast.error(error instanceof Error ? error.message : 'An unknown error occurred');
+      } finally {
+         setIsSubmitting(false);
+      }
    };
 
    // Field configurations for the text inputs
    const inputFields = [
       { id: 'title', label: 'Title', name: 'title', required: true, type: 'text', placeholder: 'Category title', error: errors.title },
       { id: 'slug', label: 'Slug', name: 'slug', required: true, type: 'text', placeholder: 'category-url-slug', error: errors.slug },
-      { id: 'subTitle', label: 'Subtitle', name: 'subTitle', required: true, type: 'text', placeholder: 'Category subtitle', error: '' },
+      { id: 'subTitle', label: 'Subtitle', name: 'subTitle', required: true, type: 'text', placeholder: 'Category subtitle', error: errors.subTitle },
    ];
 
    return (
       <div className="space-y-6 animate-fadeIn">
          <h2 className="text-2xl font-bold">Create New Category</h2>
-         {submitSuccess && (
-            <div className="bg-accent-green-light text-primary p-4 rounded mb-6 animate-slideDown">
-               Category added successfully!
+         {apiError && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+               {apiError}
             </div>
          )}
          <form onSubmit={handleSubmit} className="bg-box p-6 rounded-lg border border-theme">
@@ -150,6 +206,7 @@ const CreateCategoryForm = () => {
                onChange={handleChange}
                inputClass="form-input min-h-[150px]"
                placeholder="Category description"
+               error={errors.description}
             />
 
             {/* Banner Image Section */}
@@ -170,11 +227,12 @@ const CreateCategoryForm = () => {
                      htmlFor="bannerImageID"
                      labelText="Banner Image ID"
                      name="bannerImageID"
-                     isRequired={false}
+                     isRequired={true}
                      inputType="text"
                      value={formData.bannerImageID}
                      onChange={handleChange}
                      placeholder="Banner Image ID"
+                     error={errors.bannerImageID}
                   />
                </div>
                {formData.bannerImageUrl && (
@@ -185,7 +243,10 @@ const CreateCategoryForm = () => {
                            src={formData.bannerImageUrl}
                            alt="Banner preview"
                            className="h-32 object-cover rounded"
-                           onError={(e) => (e.currentTarget.style.display = 'none')}
+                           onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              setApiError('Error loading image. Please check the URL.');
+                           }}
                         />
                      </div>
                   </div>
@@ -198,7 +259,7 @@ const CreateCategoryForm = () => {
                   <input
                      type="checkbox"
                      id="isFeatured"
-                     checked={formData.isFeatured === 'true'}
+                     checked={formData.isFeatured}
                      onChange={handleFeaturedChange}
                      className="h-4 w-4"
                   />
@@ -275,4 +336,4 @@ const CreateCategoryForm = () => {
    );
 };
 
-export default CreateCategoryForm;
+export default CategoryForm;

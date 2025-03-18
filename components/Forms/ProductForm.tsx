@@ -23,6 +23,7 @@ export interface ProductData {
 }
 
 const ProductForm = ({ action, productData }: { action: string, productData: any }) => {
+
    const initialProductData: ProductData = {
       slug: '',
       title: '',

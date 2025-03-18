@@ -37,6 +37,7 @@ const ProductDataInRow = ({ product }: {
          try {
             setStatusLoading(true);
             setCurrentStatus(newStatus);
+            console.log('newStatus:', newStatus, product._id);
 
             const res = await updateProductStatus(product._id, newStatus);
 

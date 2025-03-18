@@ -1,7 +1,8 @@
-import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "./queryKeys";
-import { getAllProducts, getLiveProducts, getDelayedProducts, getUnavailableProducts } from "@/endpoints/products";
+import { getAllProducts, getLiveProducts, getDelayedProducts, getUnavailableProducts, getProductBySlug } from "@/endpoints/products";
 import { getAllUsers } from "@/endpoints/admin.api";
+import { getAllCategory, getCategoryBySlug } from "@/endpoints/category";
 
 // Original infinite scroll for all products
 export const useGetAllProducts = (limit = 10, options = {}) => {
@@ -17,9 +18,11 @@ export const useGetAllProducts = (limit = 10, options = {}) => {
          return undefined;
       },
       refetchOnWindowFocus: false,
+      staleTime: 1000 * 60 * 5,
       ...options,
    });
 };
+
 
 // Live products infinite scroll
 export const useGetLiveProducts = (limit = 10) => {
@@ -37,6 +40,7 @@ export const useGetLiveProducts = (limit = 10) => {
          }
          return undefined;
       },
+      staleTime: 1000 * 60 * 5,
       refetchOnWindowFocus: false,
    });
 };
@@ -57,6 +61,7 @@ export const useGetDelayedProducts = (limit = 10) => {
          }
          return undefined;
       },
+      staleTime: 1000 * 60 * 5,
       refetchOnWindowFocus: false,
    });
 };
@@ -77,7 +82,28 @@ export const useGetUnavailableProducts = (limit = 10) => {
          }
          return undefined;
       },
+      staleTime: 1000 * 60 * 5,
       refetchOnWindowFocus: false,
+   });
+};
+
+// get product by slug 
+export const useGetProductBySlug = (slug: string) => {
+   return useQuery({
+      queryKey: [QUERY_KEYS.GET_PRODUCT_BY_SLUG, slug],
+      queryFn: () => getProductBySlug(slug),
+      enabled: !!slug,
+      staleTime: 1000 * 60 * 5,
+   });
+};
+
+// get category bu slug
+export const useGetCategoryBySlug = (slug: string) => {
+   return useQuery({
+      queryKey: [QUERY_KEYS.GET_CATEGORY_BY_SLUG, slug],
+      queryFn: () => getCategoryBySlug(slug),
+      enabled: !!slug,
+      staleTime: 1000 * 60 * 5,
    });
 };
 
@@ -98,6 +124,28 @@ export const useGetAllUsers = (limit = 10) => {
          }
          return undefined;
       },
+      staleTime: 1000 * 60 * 5,
       refetchOnWindowFocus: false,
+   });
+};
+
+
+// get all category
+
+export const useGetAllCategory = (limit = 10, options = {}) => {
+   return useInfiniteQuery({
+      queryKey: [QUERY_KEYS.GET_ALL_CATEGORY, limit],
+      initialPageParam: 1,
+      queryFn: ({ pageParam = 1 }: { pageParam?: number }) => getAllCategory(pageParam, limit),
+      getNextPageParam: (lastPage) => {
+         if ('error' in lastPage) return undefined;
+         if (lastPage.currentPage < lastPage.totalPages) {
+            return lastPage.currentPage + 1;
+         }
+         return undefined;
+      },
+      staleTime: 1000 * 60 * 5,
+      refetchOnWindowFocus: false,
+      ...options,
    });
 };

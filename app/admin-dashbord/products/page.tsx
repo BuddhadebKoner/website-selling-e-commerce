@@ -48,8 +48,7 @@ export default function Page() {
     isFetchingNextPage,
     isLoading,
     isError,
-    error,
-    refetch
+    error
   } = activeQuery;
 
   // Handle filter button clicks
@@ -108,12 +107,6 @@ export default function Page() {
           <p className="text-gray-500 mb-4">
             {error instanceof Error ? error.message : 'Could not fetch product data. Please try again.'}
           </p>
-          <button
-            onClick={() => refetch()}
-            className="btn btn-primary"
-          >
-            Try Again
-          </button>
         </div>
       </div>
     );
