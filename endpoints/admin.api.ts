@@ -66,35 +66,6 @@ export async function updateProduct(product: Partial<ProductData>) {
    }
 }
 
-// create category
-export async function createCategory(category: CategoriesData): Promise<CreateResponse> {
-   try {
-      const response = await fetch('/api/admin/category/create-category', { 
-         method: 'POST',
-         headers: {
-            'Content-Type': 'application/json',
-         },
-         body: JSON.stringify(category),
-      });
-
-      // Attempt to parse JSON even if the response is not ok
-      const data = await response.json();
-
-      if (!response.ok) {
-         // Throw a specific error based on the returned error message, if available.
-         throw new Error(data.error || 'Failed to create category');
-      }
-
-      return data;
-   } catch (error) {
-      console.error('Error in creating category:', error);
-      // Return a well-defined error structure
-      return {
-         success: false,
-         error: error instanceof Error ? error.message : 'Unknown error occurred while creating category',
-      };
-   }
-}
 
 export const getAllUsers = async (page = 1, limit = 10) => {
    try {
@@ -163,3 +134,62 @@ export const updateProductType = async (id: string, productType: string) => {
       return { success: false, error: error instanceof Error ? error.message : "Unknown error occurred while updating product type" };
    }
 };
+// create category
+export async function createCategory(category: CategoriesData): Promise<CreateResponse> {
+   try {
+      const response = await fetch('/api/admin/category/create-category', {
+         method: 'POST',
+         headers: {
+            'Content-Type': 'application/json',
+         },
+         body: JSON.stringify(category),
+      });
+
+      // Attempt to parse JSON even if the response is not ok
+      const data = await response.json();
+
+      if (!response.ok) {
+         // Throw a specific error based on the returned error message, if available.
+         throw new Error(data.error || 'Failed to create category');
+      }
+
+      return data;
+   } catch (error) {
+      console.error('Error in creating category:', error);
+      // Return a well-defined error structure
+      return {
+         success: false,
+         error: error instanceof Error ? error.message : 'Unknown error occurred while creating category',
+      };
+   }
+}
+
+// update category
+export async function updateCategory(category: Partial<CategoriesData>) {
+   try {
+      if (!category.slug) {
+         throw new Error('Category slug is required for updates');
+      }
+
+      const response = await fetch(`/api/admin/category/${category.slug}`, {
+         method: 'PATCH',
+         headers: {
+            'Content-Type': 'application/json',
+         },
+         body: JSON.stringify(category),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+         throw new Error(data.error || 'Failed to update category');
+      }
+
+      return { success: true, category: data };
+   } catch (error) {
+      console.error('Error in updating category:', error);
+      return {
+         success: false,
+         error: error instanceof Error ? error.message : 'Unknown error occurred while updating category'
+      };
+   }
+}

@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import FormField from '../shared/FormField';
-import { createCategory } from '@/endpoints/admin.api';
+import { createCategory, updateCategory } from '@/endpoints/admin.api';
 import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
 
 export interface CategoriesData {
    slug: string;
@@ -16,8 +17,11 @@ export interface CategoriesData {
    products: string[];
 }
 
-const CategoryForm = () => {
-   const [formData, setFormData] = useState<CategoriesData>({
+const CategoryForm = ({ action, categoryData }: {
+   action: string;
+   categoryData: any;
+}) => {
+   const initialCategoryData: CategoriesData = {
       slug: '',
       title: '',
       subTitle: '',
@@ -26,12 +30,38 @@ const CategoryForm = () => {
       bannerImageID: '',
       isFeatured: false,
       products: [],
-   });
+   };
+
+   const [formData, setFormData] = useState<CategoriesData>(initialCategoryData);
+   const [originalData, setOriginalData] = useState<CategoriesData>(initialCategoryData);
+   const [isSubmitting, setIsSubmitting] = useState(false);
+
+   const router = useRouter();
+
+   useEffect(() => {
+      if (action === "update" && categoryData) {
+         setProductIdsInput(categoryData.products ? categoryData.products.join(', ') : '');
+
+         const formattedData = {
+            slug: categoryData.slug,
+            title: categoryData.title,
+            subTitle: categoryData.subTitle,
+            description: categoryData.description,
+            bannerImageUrl: categoryData.bannerImageUrl,
+            bannerImageID: categoryData.bannerImageID,
+            isFeatured: categoryData.isFeatured,
+            products: categoryData.products,
+         };
+
+
+         setFormData(formattedData);
+         setOriginalData(formattedData);
+      }
+   }, [action, categoryData]);
 
    // New state for direct input of product IDs
    const [productIdsInput, setProductIdsInput] = useState('');
 
-   const [isSubmitting, setIsSubmitting] = useState(false);
    const [apiError, setApiError] = useState('');
    const [errors, setErrors] = useState({
       slug: '',
@@ -59,24 +89,30 @@ const CategoryForm = () => {
       }
    };
 
-   // Handle changes for product IDs input field
+   // Modify the handleProductIdsChange function
    const handleProductIdsChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
       const value = e.target.value;
       setProductIdsInput(value);
+
       // Split comma-separated values, trim, and filter out empty strings
       const productIds = value.split(',').map(id => id.trim()).filter(id => id !== '');
 
-      // Add validation to ensure each ID is a valid ObjectId format
-      const validProductIds = productIds.filter(id => /^[0-9a-fA-F]{24}$/.test(id));
+      // Keep track of invalid IDs to show in the UI
+      const invalidIds: string[] = [];
+      const validProductIds = productIds.filter(id => {
+         const isValid = /^[0-9a-fA-F]{24}$/.test(id);
+         if (!isValid && id !== '') invalidIds.push(id);
+         return isValid;
+      });
 
       setFormData(prev => ({
          ...prev,
          products: validProductIds,
       }));
 
-      // If there are invalid IDs, show a warning
-      if (validProductIds.length !== productIds.length) {
-         setApiError('Some product IDs are not in a valid format and were removed.');
+      // Better error messaging
+      if (invalidIds.length > 0) {
+         setApiError(`Invalid product IDs: ${invalidIds.join(', ')}. IDs must be 24 character hex strings.`);
       } else {
          setApiError('');
       }
@@ -135,29 +171,85 @@ const CategoryForm = () => {
    // Handle form submission
    const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
+
       if (!validateForm()) return;
 
-      setIsSubmitting(true);
-      setApiError('');
+      if (action === "add") {
+         await handleCreateCategory();
+      } else if (action === "update") {
+         await handleUpdateCategory();
+      }
+   };
 
+   const handleCreateCategory = async () => {
       try {
-         console.log('Submitting form:', formData);
          const res = await createCategory(formData);
-         console.log('Response:', res);
-
-         if (res.success === false) {
-            toast.error(res.error || 'Failed to create category');
-            return;
+         if (!res) {
+            toast.success('Category added successfully');
+            setFormData(initialCategoryData);
          }
 
-         toast.success('Category created successfully');
-
-         // Optional: Reset form after successful submission
-         // setFormData({ ...initialFormData });
-         // setProductIdsInput('');
+         // reset
+         setFormData(initialCategoryData);
+         router.push('/admin-dashbord/categories');
+         toast.success('Category added successfully');
       } catch (error) {
-         console.error('Error creating category:', error);
-         toast.error(error instanceof Error ? error.message : 'An unknown error occurred');
+         console.error(error);
+         toast.error('An error occurred. Please try again.');
+      } finally {
+         setIsSubmitting(false);
+      }
+   };
+   const handleUpdateCategory = async () => {
+      // create a shalow copy of changes feilds
+      const changes: Partial<CategoriesData> = { slug: formData.slug }; // slug is required
+
+
+      // check for changes
+      if (originalData.slug !== formData.slug) {
+         changes.slug = formData.slug;
+      }
+      if (originalData.title !== formData.title) {
+         changes.title = formData.title;
+      }
+      if (originalData.subTitle !== formData.subTitle) {
+         changes.subTitle = formData.subTitle;
+      }
+      if (originalData.description !== formData.description) {
+         changes.description = formData.description;
+      }
+      if (originalData.bannerImageUrl !== formData.bannerImageUrl) {
+         changes.bannerImageUrl = formData.bannerImageUrl;
+      }
+      if (originalData.bannerImageID !== formData.bannerImageID) {
+         changes.bannerImageID = formData.bannerImageID;
+      }
+      if (originalData.isFeatured !== formData.isFeatured) {
+         changes.isFeatured = formData.isFeatured;
+      }
+      if (originalData.products.join(',') !== formData.products.join(',')) {
+         changes.products = formData.products;
+      }
+
+      // if no changes
+      if (Object.keys(changes).length === 0) {
+         toast.info('No changes were made');
+         return;
+      }
+
+      // update category
+      setIsSubmitting(true);
+      try {
+         const res = await updateCategory(changes);
+         if (res.success) {
+            toast.success('Category updated successfully');
+         }
+         else {
+            toast.error('An error occurred while updating the category. Please try again.');
+         }
+      } catch (error) {
+         console.error('Error updating product:', error);
+         toast.error('An error occurred while updating the product. Please try again.');
       } finally {
          setIsSubmitting(false);
       }
@@ -172,7 +264,9 @@ const CategoryForm = () => {
 
    return (
       <div className="space-y-6 animate-fadeIn">
-         <h2 className="text-2xl font-bold">Create New Category</h2>
+         <h2 className="text-2xl font-bold">
+            {action === "add" ? "Create New Category" : "Update Category"}
+         </h2>
          {apiError && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                {apiError}
@@ -242,9 +336,12 @@ const CategoryForm = () => {
                         <img
                            src={formData.bannerImageUrl}
                            alt="Banner preview"
-                           className="h-32 object-cover rounded"
+                           className="h-32 object-cover rounded w-full"
                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
+                              // Better error handling
+                              const target = e.currentTarget;
+                              target.onerror = null; // Prevent infinite loop
+                              target.src = "/placeholder-image.jpg"; // Replace with your placeholder image
                               setApiError('Error loading image. Please check the URL.');
                            }}
                         />
@@ -302,33 +399,13 @@ const CategoryForm = () => {
                   disabled={isSubmitting}
                   className={`btn btn-primary px-8 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
                >
-                  {isSubmitting ? (
-                     <>
-                        <svg
-                           className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                           xmlns="http://www.w3.org/2000/svg"
-                           fill="none"
-                           viewBox="0 0 24 24"
-                        >
-                           <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                           ></circle>
-                           <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                           ></path>
-                        </svg>
-                        Processing...
-                     </>
-                  ) : (
-                     'Add Category'
-                  )}
+                  {
+                     isSubmitting ? (
+                        'processing...'
+                     ) : (
+                        action === "add" ? 'Add Category' : 'Update Category'
+                     )
+                  }
                </button>
             </div>
          </form>

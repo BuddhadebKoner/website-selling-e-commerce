@@ -18,6 +18,7 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
       }
 
       const category = await Category.findOne({ slug })
+         .select("slug title subTitle description bannerImageUrl bannerImageID isFeatured products")
          .sort({ createdAt: -1 });
 
       if (!category) {
