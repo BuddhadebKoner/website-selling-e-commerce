@@ -1,3 +1,4 @@
+import { isAdminRequest } from "@/lib/auth-admin-gard";
 import { connectToDatabase } from "@/lib/db";
 import Category from "@/models/category.model";
 import { NextRequest, NextResponse } from "next/server";
@@ -7,6 +8,17 @@ export async function PATCH(
    { params }: { params: { slug: string } }
 ) {
    try {
+
+      // the the user is authenticated or not
+      const isAdmin = isAdminRequest(request);
+      if (!isAdmin) {
+         return NextResponse.json(
+            { error: "Unauthorized" },
+            { status: 401 }
+         );
+      }
+
+
       const slug = params.slug;
       if (!slug) {
          return NextResponse.json(

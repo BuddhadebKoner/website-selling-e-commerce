@@ -1,9 +1,19 @@
+import { isAdminRequest } from "@/lib/auth-admin-gard";
 import { connectToDatabase } from "@/lib/db";
 import Category from "@/models/category.model";
 import Product from "@/models/product.model";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
+   // the the user is authenticated or not
+   const isAdmin = isAdminRequest(request);
+   if (!isAdmin) {
+      return NextResponse.json(
+         { error: "Unauthorized" },
+         { status: 401 }
+      );
+   }
+
    try {
       const {
          slug,

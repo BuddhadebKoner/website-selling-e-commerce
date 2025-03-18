@@ -1,8 +1,18 @@
+import { isAdminRequest } from "@/lib/auth-admin-gard";
 import { connectToDatabase } from "@/lib/db";
 import Product from "@/models/product.model";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
+   // the the user is authenticated or not
+   const isAdmin = isAdminRequest(request);
+   if (!isAdmin) {
+      return NextResponse.json(
+         { error: "Unauthorized" },
+         { status: 401 }
+      );
+   }
+
    try {
       const {
          slug,
@@ -137,7 +147,7 @@ export async function POST(request: NextRequest) {
          bannerImageID,
          technologyStack: convertedTechStack,
       });
-      if (!res) { 
+      if (!res) {
          return NextResponse.json(
             { error: "Failed to create product" },
             { status: 500 }

@@ -1,5 +1,3 @@
-"use client";
-
 import ProductForm from '@/components/Forms/ProductForm';
 import React from 'react';
 
