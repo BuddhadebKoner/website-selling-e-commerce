@@ -5,7 +5,7 @@ import React from 'react'
 
 const DashbordSidebar = () => {
    const pathname = usePathname();
-   
+
    return (
       <aside className="fixed lg:static z-20 h-full w-64 bg-background-secondary border-r border-theme transition-all duration-300">
          <div className="p-6">
@@ -26,6 +26,18 @@ const DashbordSidebar = () => {
                   active={pathname === '/admin-dashbord/products'}
                />
                <SidebarLink
+                  icon={<ChartColumnStacked size={20} />}
+                  label="Categories"
+                  href="/admin-dashbord/categories"
+                  active={pathname === '/admin-dashbord/categories'}
+               />
+               <SidebarLink
+                  icon={<ChartColumnStacked size={20} />}
+                  label="Offers"
+                  href="/admin-dashbord/offers"
+                  active={pathname === '/admin-dashbord/offers'}
+               />
+               <SidebarLink
                   icon={<Users size={20} />}
                   label="Customers"
                   href="/admin-dashbord/customers"
@@ -36,12 +48,6 @@ const DashbordSidebar = () => {
                   label="Orders"
                   href="/admin-dashbord/orders"
                   active={pathname === '/admin-dashbord/orders'}
-               />
-               <SidebarLink
-                  icon={<ChartColumnStacked size={20} />}
-                  label="Categories"
-                  href="/admin-dashbord/categories"
-                  active={pathname === '/admin-dashbord/categories'}
                />
                <SidebarLink
                   icon={<Settings size={20} />}
@@ -65,8 +71,8 @@ function SidebarLink({ icon, label, active, href }: { icon: React.ReactNode, lab
       <Link
          href={href}
          className={`flex items-center w-full px-6 py-3 transition-all relative ${active
-               ? 'bg-accent text-highlight font-medium'
-               : 'text-secondary hover:bg-background-secondary hover:text-primary'
+            ? 'bg-accent text-highlight font-medium'
+            : 'text-secondary hover:bg-background-secondary hover:text-primary'
             }`}
       >
          {active && <div className="absolute left-0 top-0 bottom-0 w-1 bg-highlight-primary"></div>}

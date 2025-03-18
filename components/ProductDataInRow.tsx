@@ -135,7 +135,7 @@ const ProductDataInRow = ({ product }: {
                )}
             </div>
          </td>
-         <td className="px-4 py-3 font-medium">${product.price}</td>
+         <td className="px-4 py-3 font-medium">₹ {product.price}</td>
          <td className="px-4 py-3">
             <div className="flex space-x-2">
                <Link
