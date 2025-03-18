@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
       await connectToDatabase();
 
       const products = await Product.find()
-         .select("title productType status price slug")
+         .select("title productType status price slug bannerImageUrl")
          .skip(skip)
          .limit(limit);
 

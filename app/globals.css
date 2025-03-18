@@ -36,6 +36,25 @@
   --glass-border: rgba(255, 255, 255, 0.1);
   --glass-shadow: rgba(0, 0, 0, 0.2);
   --glass-blur: 10px;
+
+  /* Premium card variables - dark theme */
+  --premium-border: rgba(207, 175, 69, 0.5);
+  --premium-bg-start: #2c2c2c; 
+  --premium-bg-end: #3a3a3a;
+  --premium-overlay-start: rgba(255, 215, 0, 0.1);
+  --premium-overlay-end: rgba(255, 215, 0, 0);
+  --premium-btn-start: #CFAF45;
+  --premium-btn-end: #CFAF45;
+
+  /* Free card variables - dark theme */
+  --free-card-border: rgba(255, 255, 255, 0.1);
+  --free-card-bg: #1e2433;
+
+  /* Card-specific variables - dark theme */
+  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --card-border-radius: 8px;
+  --card-border-color: rgba(255, 255, 255, 0.1);
+  --card-bg: #1e2433;
 }
 
 /* Light theme overrides */
@@ -73,6 +92,25 @@
   --glass-border: rgba(0, 0, 0, 0.1);
   --glass-shadow: rgba(0, 0, 0, 0.1);
   --glass-blur: 10px;
+
+  /* Premium card variables - light theme */
+  --premium-border: rgba(212, 175, 55, 0.3);
+  --premium-bg-start: #fffaf0;
+  --premium-bg-end: #f5e1a4;
+  --premium-overlay-start: rgba(255, 215, 0, 0.2);
+  --premium-overlay-end: rgba(255, 215, 0, 0);
+  --premium-btn-start: #D4AF37;
+  --premium-btn-end: #D4AF37;
+  
+  /* Free card variables - light theme */
+  --free-card-border: rgba(0, 0, 0, 0.08);
+  --free-card-bg: #ffffff;
+
+  /* Card-specific variables - light theme */
+  --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --card-border-radius: 8px;
+  --card-border-color: rgba(0, 0, 0, 0.08);
+  --card-bg: #ffffff;
 }
 
 /* Typography */
@@ -259,21 +297,46 @@ a:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 1rem;
+  padding: 0.625rem 1.25rem;
   font-weight: 500;
-  border-radius: 0.375rem;
-  transition: all 0.2s ease-in-out;
+  border-radius: 4px;
+  transition: all 0.2s ease;
   cursor: pointer;
+  letter-spacing: 0.01em;
 }
 
 .btn-primary {
-  background-color: var(--highlight-primary);
+  background-image: linear-gradient(to right,
+      var(--highlight-primary),
+      var(--highlight-secondary));
+  position: relative;
+  overflow: hidden;
   color: white;
+  font-weight: 600;
 }
 
 .btn-primary:hover {
-  background-color: var(--link-hover);
-  color: black;
+  background-image: linear-gradient(to right,
+      var(--highlight-primary) 30%,
+      var(--highlight-secondary));
+}
+
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 60%);
+  transform: scale(0);
+  opacity: 0;
+  transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+}
+
+.btn-primary:hover::after {
+  transform: scale(1);
+  opacity: 1;
 }
 
 .btn-secondary {
@@ -288,16 +351,134 @@ a:hover {
 
 /* Card styles */
 .card {
-  background-color: var(--box-background);
-  border-radius: 8px;
+  background-color: var(--card-bg);
+  border-radius: var(--card-border-radius);
   overflow: hidden;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid var(--card-border-color);
+  position: relative;
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* Premium Card Golden Finish for Light Mode */
+.premium-card {
+  border: 1px solid var(--premium-border);
+  background-color: var(--premium-bg);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Premium Card Overlay for Light Mode */
+.premium-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: var(--premium-accent);
+  pointer-events: none;
+}
+
+/* Premium Button Styling for Light Mode */
+.premium-card .btn-primary {
+  background-color: var(--premium-btn-start);
+  background-image: none;
+  border: none;
+  color: #000;
+  font-weight: 600;
+}
+
+.premium-card .btn-primary:hover {
+  background-color: var(--premium-btn-end);
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Simple, Premium Look for Free Plan Card (Light Mode) */
+.free-card {
+  border: 1px solid var(--free-card-border);
+  background-color: var(--free-card-bg);
+}
+
+/* Dark Mode Adjustments */
+.dark .premium-card {
+  border: 2px solid #CFAF45;
+  /* Slightly muted gold for dark mode */
+  /* Use a darker, but still warm, gradient to maintain legibility */
+  background: linear-gradient(135deg, #2c2c2c, #3a3a3a);
+}
+
+/* Dark Mode Overlay */
+.dark .premium-card::before {
+  background: linear-gradient(45deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0));
+}
+
+/* Dark Mode Premium Button */
+.dark .premium-card .btn-primary {
+  background-image: linear-gradient(to right, #CFAF45, #FFC700);
+  border: none;
+}
+
+/* Ensure text inside premium card remains legible in dark mode */
+.dark .premium-card h2,
+.dark .premium-card p,
+.dark .premium-card span {
+  color: var(--text-primary);
+}
+
+/* Dark Mode Overrides are no longer needed as we're using CSS variables */
+/* We're keeping these to ensure backward compatibility but they're not strictly necessary */
+.dark .premium-card::before {
+  background: linear-gradient(45deg, var(--premium-overlay-start), var(--premium-overlay-end));
+}
+
+.dark .premium-card .btn-primary {
+  background-image: linear-gradient(to right, var(--premium-btn-start), var(--premium-btn-end));
+}
+
+.dark .free-card {
+  border: 1px solid var(--free-card-border);
+  background-color: var(--free-card-bg);
+}
+
+/* Update text classes for cards */
+.card h2 {
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+}
+
+.card .text-3xl {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Badge styling - more subtle and professional */
+.card .bg-highlight-primary {
+  background-color: var(--highlight-primary);
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 2rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* Feature list styling */
+.card ul li {
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+}
+
+.card ul li svg {
+  min-width: 1.25rem;
 }
 
 /* Animation utilities */
@@ -313,13 +494,25 @@ a:hover {
 
 /* Add these animation classes to your existing styles */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideDown {
-  from { transform: translateY(-20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .animate-fadeIn {
@@ -413,15 +606,6 @@ a:hover {
   font-weight: 700;
   color: var(--highlight-primary);
   margin-bottom: 0.5rem;
-}
-
-.product-description {
-  color: var(--text-secondary);
-  margin-bottom: 1rem;
-}
-
-.add-to-cart {
-  margin-top: auto;
 }
 
 /* Navigation styles */
@@ -531,9 +715,17 @@ a:hover {
 
 /* Status icon pulse animation for 'live' status */
 @keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.6; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
 .status-live-icon {

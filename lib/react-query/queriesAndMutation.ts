@@ -17,7 +17,6 @@ export const useGetAllProducts = (limit = 10, options = {}) => {
          }
          return undefined;
       },
-      refetchOnWindowFocus: false,
       staleTime: 1000 * 60 * 5,
       ...options,
    });
@@ -131,7 +130,6 @@ export const useGetAllUsers = (limit = 10) => {
 
 
 // get all category
-
 export const useGetAllCategory = (limit = 10, options = {}) => {
    return useInfiniteQuery({
       queryKey: [QUERY_KEYS.GET_ALL_CATEGORY, limit],
