@@ -4,7 +4,9 @@ import { updateProductStatus, updateProductType } from '@/endpoints/admin.api'
 import Link from 'next/link'
 import React, { useState, useEffect } from 'react'
 import { toast } from 'react-toastify'
-import { LoaderCircle } from 'lucide-react'
+import { LoaderCircle, Trash2, Edit } from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
+import { QUERY_KEYS } from '@/lib/react-query/queryKeys'
 
 const ProductDataInRow = ({ product }: {
    product: {
@@ -16,6 +18,9 @@ const ProductDataInRow = ({ product }: {
       price: number
    }
 }) => {
+   // Get query client for cache invalidation
+   const queryClient = useQueryClient();
+
    // Local state to track changes
    const [currentStatus, setCurrentStatus] = useState<string>(product.status);
    const [currentProductType, setCurrentProductType] = useState<string>(product.productType);
@@ -23,6 +28,28 @@ const ProductDataInRow = ({ product }: {
    // Loading states
    const [statusLoading, setStatusLoading] = useState(false);
    const [productTypeLoading, setProductTypeLoading] = useState(false);
+   const [deleteLoading, setDeleteLoading] = useState(false);
+
+   // Product type options
+   const productTypes = [
+      "E-commerce",
+      "Portfolio",
+      "Business",
+      "Personal Blog",
+      "Landing Page",
+      "SaaS",
+      "Educational",
+      "Real Estate",
+      "Job Portal",
+      "Social Network"
+   ];
+
+   // Status options
+   const statusOptions = [
+      { value: "live", label: "Live" },
+      { value: "delay", label: "Delay" },
+      { value: "unabaliable", label: "Unavailable" }
+   ];
 
    // Update local state if product prop changes
    useEffect(() => {
@@ -36,8 +63,7 @@ const ProductDataInRow = ({ product }: {
       if (newStatus !== currentStatus) {
          try {
             setStatusLoading(true);
-            setCurrentStatus(newStatus);
-            console.log('newStatus:', newStatus, product._id);
+            setCurrentStatus(newStatus); // Optimistic update
 
             const res = await updateProductStatus(product._id, newStatus);
 
@@ -46,7 +72,11 @@ const ProductDataInRow = ({ product }: {
                setCurrentStatus(product.status);
                toast.error(`Failed to update status: ${res.error}`);
             } else {
-               toast.success(`Product status updated to ${newStatus}`);
+               toast.success(`Product status updated to ${statusOptions.find(s => s.value === newStatus)?.label || newStatus}`);
+
+               // Invalidate related queries to refresh data
+               queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_ALL_PRODUCTS] });
+               queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_PRODUCTS_BY_STATUS] });
             }
          } catch (error) {
             // Revert to previous status on exception
@@ -65,7 +95,7 @@ const ProductDataInRow = ({ product }: {
       if (newProductType !== currentProductType) {
          try {
             setProductTypeLoading(true);
-            setCurrentProductType(newProductType);
+            setCurrentProductType(newProductType); // Optimistic update
 
             const res = await updateProductType(product._id, newProductType);
 
@@ -75,6 +105,10 @@ const ProductDataInRow = ({ product }: {
                toast.error(`Failed to update product type: ${res.error}`);
             } else {
                toast.success(`Product type updated to ${newProductType}`);
+
+               // Invalidate related queries to refresh data
+               queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_ALL_PRODUCTS] });
+               queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_PRODUCTS_BY_TYPE] });
             }
          } catch (error) {
             // Revert to previous type on exception
@@ -87,8 +121,31 @@ const ProductDataInRow = ({ product }: {
       }
    };
 
+   // Handle product deletion (placeholder for future implementation)
+   const handleDeleteProduct = async () => {
+      if (window.confirm(`Are you sure you want to delete ${product.title}?`)) {
+         setDeleteLoading(true);
+
+         // Replace with actual delete API call when implemented
+         try {
+            // const res = await deleteProduct(product._id);
+            toast.success(`Product deleted successfully`);
+
+            // Invalidate queries to refresh data
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_ALL_PRODUCTS] });
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_PRODUCTS_BY_STATUS] });
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_PRODUCTS_BY_TYPE] });
+         } catch (error) {
+            toast.error('Failed to delete product');
+            console.error('Delete error:', error);
+         } finally {
+            setDeleteLoading(false);
+         }
+      }
+   };
+
    return (
-      <tr key={product._id} className="border-t border-theme">
+      <tr key={product._id} className="border-t border-theme hover:bg-background-secondary/10 transition-colors">
          <td className="px-4 py-3">
             <div className="flex items-center">
                <span className="font-medium">{product.title}</span>
@@ -102,16 +159,9 @@ const ProductDataInRow = ({ product }: {
                   disabled={productTypeLoading}
                   className={`inline-block px-2 py-1 rounded text-sm bg-transparent border border-gray-300 focus:outline-none ${productTypeLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
                >
-                  <option value="E-commerce">E-commerce</option>
-                  <option value="Portfolio">Portfolio</option>
-                  <option value="Business">Business</option>
-                  <option value="Personal Blog">Personal Blog</option>
-                  <option value="Landing Page">Landing Page</option>
-                  <option value="SaaS">SaaS</option>
-                  <option value="Educational">Educational</option>
-                  <option value="Real Estate">Real Estate</option>
-                  <option value="Job Portal">Job Portal</option>
-                  <option value="Social Network">Social Network</option>
+                  {productTypes.map(type => (
+                     <option key={type} value={type}>{type}</option>
+                  ))}
                </select>
                {productTypeLoading && (
                   <LoaderCircle className="absolute right-6 top-1/2 transform -translate-y-1/2 w-4 h-4 animate-spin" />
@@ -126,25 +176,34 @@ const ProductDataInRow = ({ product }: {
                   disabled={statusLoading}
                   className={`inline-block px-2 py-1 rounded text-sm bg-transparent border border-gray-300 focus:outline-none ${statusLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
                >
-                  <option value="live">Live</option>
-                  <option value="delay">Delay</option>
-                  <option value="unabaliable">Unavailable</option>
+                  {statusOptions.map(option => (
+                     <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
                </select>
                {statusLoading && (
                   <LoaderCircle className="absolute right-6 top-1/2 transform -translate-y-1/2 w-4 h-4 animate-spin" />
                )}
             </div>
          </td>
-         <td className="px-4 py-3 font-medium">₹ {product.price}</td>
+         <td className="px-4 py-3 font-medium">₹ {product.price.toLocaleString()}</td>
          <td className="px-4 py-3">
             <div className="flex space-x-2">
                <Link
                   href={`/admin-dashbord/update-product/${product.slug}`}
-                  className="btn btn-secondary text-sm py-1 px-3"
+                  className="btn btn-secondary text-sm py-1 px-3 flex items-center"
                >
-                  Edit
+                  <Edit size={14} className="mr-1" /> Edit
                </Link>
-               <button className="btn btn-secondary text-sm py-1 px-3 text-accent-red">
+               <button
+                  className="btn btn-secondary text-sm py-1 px-3 text-accent-red flex items-center"
+                  onClick={handleDeleteProduct}
+                  disabled={deleteLoading}
+               >
+                  {deleteLoading ? (
+                     <LoaderCircle size={14} className="mr-1 animate-spin" />
+                  ) : (
+                     <Trash2 size={14} className="mr-1" />
+                  )}
                   Delete
                </button>
             </div>

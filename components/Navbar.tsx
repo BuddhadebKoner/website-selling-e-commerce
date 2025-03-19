@@ -105,7 +105,7 @@ const Navbar = () => {
 
           <div className="hidden md:flex md:space-x-4 ml-6">
             <Link
-              href="/shop"
+              href="/templates"
               className="text-primary hover:text-highlight flex items-center space-x-2 px-3 py-2 rounded-md transition-colors"
             >
               <span>Templates</span>

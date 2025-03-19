@@ -79,7 +79,7 @@ const Page = () => {
             </li>
           </ul>
           <Link
-            href={"/shop"}
+            href={"/templates"}
             className="btn btn-primary w-full py-2">
             Order Now
           </Link>

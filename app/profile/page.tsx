@@ -226,7 +226,7 @@ const Profile = () => {
                   </div>
 
                   <div className="mt-4 flex justify-center">
-                     <Link href="/shop" className="btn btn-primary">
+                     <Link href="/templates" className="btn btn-primary">
                         Browse Products
                      </Link>
                   </div>

@@ -1,10 +1,9 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "./queryKeys";
-import { getAllProducts, getLiveProducts, getDelayedProducts, getUnavailableProducts, getProductBySlug } from "@/endpoints/products";
+import { getAllProducts, getProductBySlug, getProductsByStatus, getProductsByType } from "@/endpoints/products";
 import { getAllUsers } from "@/endpoints/admin.api";
 import { getAllCategory, getCategoryBySlug } from "@/endpoints/category";
 
-// Original infinite scroll for all products
 export const useGetAllProducts = (limit = 10, options = {}) => {
    return useInfiniteQuery({
       queryKey: [QUERY_KEYS.GET_ALL_PRODUCTS, limit],
@@ -17,74 +16,50 @@ export const useGetAllProducts = (limit = 10, options = {}) => {
          }
          return undefined;
       },
-      staleTime: 1000 * 60 * 5,
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      ...options,
+   });
+};
+
+export const useGetProductsByStatus = (status: string, limit = 10, options: { enabled?: boolean } = {}) => {
+   return useInfiniteQuery({
+      queryKey: [QUERY_KEYS.GET_PRODUCTS_BY_STATUS, status, limit],
+      initialPageParam: 1,
+      queryFn: ({ pageParam = 1 }: { pageParam?: number }) => getProductsByStatus(status, pageParam, limit),
+      getNextPageParam: (lastPage) => {
+         if ('error' in lastPage) return undefined;
+         if (lastPage.currentPage < lastPage.totalPages) {
+            return lastPage.currentPage + 1;
+         }
+         return undefined;
+      },
+      // Skip the query if no status is provided
+      enabled: !!status && (options.enabled !== false),
+      staleTime: 1000 * 60 * 5, // 5 minutes
       ...options,
    });
 };
 
 
-// Live products infinite scroll
-export const useGetLiveProducts = (limit = 10) => {
+export const useGetProductsByType = (productType: string, limit = 10, options: { enabled?: boolean } = {}) => {
    return useInfiniteQuery({
-      queryKey: [QUERY_KEYS.GET_LIVE_PRODUCTS, limit],
+      queryKey: [QUERY_KEYS.GET_PRODUCTS_BY_TYPE, productType, limit],
       initialPageParam: 1,
-      queryFn: ({ pageParam = 1 }: { pageParam?: number }) => getLiveProducts(pageParam, limit),
+      queryFn: ({ pageParam = 1 }: { pageParam?: number }) => getProductsByType(productType, pageParam, limit),
       getNextPageParam: (lastPage) => {
-         // Handle error case
-         if ('error' in lastPage) {
-            return undefined;
-         }
+         if ('error' in lastPage) return undefined;
          if (lastPage.currentPage < lastPage.totalPages) {
             return lastPage.currentPage + 1;
          }
          return undefined;
       },
-      staleTime: 1000 * 60 * 5,
-      refetchOnWindowFocus: false,
+      // Skip the query if no product type is provided
+      enabled: !!productType && (options.enabled !== false),
+      staleTime: 1000 * 60 * 5, 
+      ...options,
    });
 };
 
-// Delayed products infinite scroll
-export const useGetDelayedProducts = (limit = 10) => {
-   return useInfiniteQuery({
-      queryKey: [QUERY_KEYS.GET_DELAYED_PRODUCTS, limit],
-      initialPageParam: 1,
-      queryFn: ({ pageParam = 1 }: { pageParam?: number }) => getDelayedProducts(pageParam, limit),
-      getNextPageParam: (lastPage) => {
-         // Handle error case
-         if ('error' in lastPage) {
-            return undefined;
-         }
-         if (lastPage.currentPage < lastPage.totalPages) {
-            return lastPage.currentPage + 1;
-         }
-         return undefined;
-      },
-      staleTime: 1000 * 60 * 5,
-      refetchOnWindowFocus: false,
-   });
-};
-
-// Unavailable products infinite scroll
-export const useGetUnavailableProducts = (limit = 10) => {
-   return useInfiniteQuery({
-      queryKey: [QUERY_KEYS.GET_UNAVAILABLE_PRODUCTS, limit],
-      initialPageParam: 1,
-      queryFn: ({ pageParam = 1 }: { pageParam?: number }) => getUnavailableProducts(pageParam, limit),
-      getNextPageParam: (lastPage) => {
-         // Handle error case
-         if ('error' in lastPage) {
-            return undefined;
-         }
-         if (lastPage.currentPage < lastPage.totalPages) {
-            return lastPage.currentPage + 1;
-         }
-         return undefined;
-      },
-      staleTime: 1000 * 60 * 5,
-      refetchOnWindowFocus: false,
-   });
-};
 
 // get product by slug 
 export const useGetProductBySlug = (slug: string) => {
