@@ -6,7 +6,7 @@ export interface iUser {
    Spent: number;
    address: mongoose.Types.ObjectId;
    oders: mongoose.Types.ObjectId[];
-   cart: mongoose.Types.ObjectId[];
+   cart: mongoose.Types.ObjectId;
 };
 
 const userSchema = new mongoose.Schema({
@@ -37,12 +37,10 @@ const userSchema = new mongoose.Schema({
          ref: "Order",
       },
    ],
-   cart: [
-      {
-         type: mongoose.Types.ObjectId,
-         ref: "Product",
-      },
-   ],
+   cart: {
+      type: mongoose.Types.ObjectId,
+      ref: "Cart",
+   }
 }, { timestamps: true });;
 
 const User = mongoose.models.User || mongoose.model<iUser>("User", userSchema);

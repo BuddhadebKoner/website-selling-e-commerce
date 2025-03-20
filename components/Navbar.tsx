@@ -16,6 +16,7 @@ const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [showCartBadge, setShowCartBadge] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -95,6 +96,11 @@ const Navbar = () => {
     }
   }, [isSearchOpen]);
 
+  // Use useEffect to handle client-side rendering of cart badge
+  useEffect(() => {
+    setShowCartBadge(true);
+  }, []);
+
   const router = useRouter();
 
   return (
@@ -152,9 +158,11 @@ const Navbar = () => {
             aria-label="Shopping Cart"
           >
             <ShoppingCart className="w-5 h-5 text-primary" />
-            <span className="absolute top-0 right-0 bg-highlight-secondary text-primary text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
-              2
-            </span>
+            {showCartBadge && (
+              <span className="absolute top-0 right-0 bg-red-500 text-primary text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                {currentUser?.cart?.products?.length || 0}
+              </span>
+            )}
           </Link>
 
           {/* Auth - Show based on currentUser from context */}
@@ -203,38 +211,38 @@ const Navbar = () => {
                     )}
                   </div>
 
-                  <button 
-                      onClick={() => {
-                        // redirect to user profile page
-                        router.push('/profile');
-                        setIsUserMenuOpen(false);
-                  }}
-        
-                  className="block px-4 py-2 text-sm text-primary hover:bg-accent cursor-pointer">
+                  <button
+                    onClick={() => {
+                      // redirect to user profile page
+                      router.push('/profile');
+                      setIsUserMenuOpen(false);
+                    }}
+
+                    className="block px-4 py-2 text-sm text-primary hover:bg-accent cursor-pointer">
                     Your Profile
                   </button>
 
                   {isAdmin && (
-                    <button 
-                        onClick={() => {
-                          // redirect to admin dashboard
-                          router.push('/admin-dashbord');
-                          setIsUserMenuOpen(false);
-                    }}
+                    <button
+                      onClick={() => {
+                        // redirect to admin dashboard
+                        router.push('/admin-dashbord');
+                        setIsUserMenuOpen(false);
+                      }}
 
-                    className="block px-4 py-2 text-sm text-primary hover:bg-accent cursor-pointer">
+                      className="block px-4 py-2 text-sm text-primary hover:bg-accent cursor-pointer">
                       Admin Dashboard
                     </button>
                   )}
 
-                  <button 
-                      onClick={() => {
-                        // redirect to user orders page
-                        router.push('/orders');
-                        setIsUserMenuOpen(false);
-                  }}
-                  
-                  className="block px-4 py-2 text-sm text-primary hover:bg-accent cursor-pointer">
+                  <button
+                    onClick={() => {
+                      // redirect to user orders page
+                      router.push('/orders');
+                      setIsUserMenuOpen(false);
+                    }}
+
+                    className="block px-4 py-2 text-sm text-primary hover:bg-accent cursor-pointer">
                     Your Orders
                   </button>
 

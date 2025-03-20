@@ -17,7 +17,7 @@ const SESSION_TIMEOUT = 15 * 60 * 1000
 
 export default function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
    const navigate = useRouter()
-   const { currentUser, isAdmin, isLoading, refreshUser } = useUserAuthentication()
+   const { currentUser, isAdmin, isLoading } = useUserAuthentication()
    const [lastActivity, setLastActivity] = useState<number>(Date.now())
    const [notificationCount, setNotificationCount] = useState<number>(3)
 

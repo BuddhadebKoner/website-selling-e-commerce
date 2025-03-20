@@ -3,8 +3,20 @@ import React, { createContext, useContext, useEffect, useState, useCallback, use
 import { useUser } from "@clerk/nextjs";
 import { isAuthCheck } from "@/endpoints/user.api";
 
+interface CartData {
+   id: string;
+   totalAmount?: number;
+   products: Array<{
+      _id: string;
+      title: string;
+      price: number;
+      bannerImageUrl: string;
+   }>;
+}
+
 interface UserData {
    id: string;
+   userId?: string; // additional user id from API if needed
    firstName: string;
    lastName: string;
    fullName: string;
@@ -12,6 +24,7 @@ interface UserData {
    imageUrl: string;
    isAdmin: boolean;
    createdAt?: string;
+   cart?: CartData;
 }
 
 interface AuthContextType {
@@ -19,6 +32,7 @@ interface AuthContextType {
    isLoading: boolean;
    isAdmin: boolean;
    refreshUser: () => Promise<void>;
+   refreshCurrentUser: () => Promise<void>; // Add this new function
 }
 
 // Create context with proper typing
@@ -26,7 +40,8 @@ export const AuthContext = createContext<AuthContextType>({
    currentUser: null,
    isLoading: true,
    isAdmin: false,
-   refreshUser: async () => { }
+   refreshUser: async () => { },
+   refreshCurrentUser: async () => { } // Default implementation
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -40,16 +55,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return metadata?.role === 'master';
    }, []);
 
-   // Check in database if user exists - memoized with proper caching
    const checkUserExist = useCallback(async (clerkId: string, email: string, fullName: string) => {
       try {
-         // Don't make API call if we've already checked this user recently
+         // Avoid duplicate API calls for the same user
          if (lastCheckedUserId === clerkId && currentUser) {
             return { success: true };
          }
-
          const res = await isAuthCheck({ clerkId, email, fullName });
-         if (!res.error) {
+         // console.log("isAuthCheck response:", res);
+         if (!res.error && res.data) {
             setLastCheckedUserId(clerkId);
          }
          return res;
@@ -59,7 +73,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
    }, [lastCheckedUserId, currentUser]);
 
-   // Function to refresh user data - memoized to maintain reference equality
    const refreshUser = useCallback(async () => {
       if (!user) {
          setCurrentUser(null);
@@ -70,7 +83,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
          setIsLoading(true);
 
-         // Create userData object once
          const userData: UserData = {
             id: user.id,
             firstName: user.firstName || '',
@@ -82,19 +94,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             isAdmin: checkIfAdmin(user.publicMetadata)
          };
 
-         // Only check user existence if we haven't checked this user yet
+         // Check user existence only if we haven't already done so for this user
          if (lastCheckedUserId !== user.id) {
             const res = await checkUserExist(userData.id, userData.email, userData.fullName);
-            if ('error' in res && res.error) {
-               console.error("Error in checkUserExist:", res.error);
-               setCurrentUser(null);
+            userData.userId = res.data.id;
+            if (!res.error && res.data) {
+               userData.cart = res.data.cart;
             } else {
-               setCurrentUser(userData);
+               console.error("Error in checkUserExist:", res.error);
+               // Optionally, you might decide to clear userData or leave it as is.
             }
-         } else {
-            // If we've already verified this user, just update the data
-            setCurrentUser(userData);
          }
+         // Update state with the latest user data
+         setCurrentUser(userData);
       } catch (error) {
          console.error("Error refreshing user:", error);
          setCurrentUser(null);
@@ -102,6 +114,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
          setIsLoading(false);
       }
    }, [user, checkIfAdmin, checkUserExist, lastCheckedUserId]);
+
+   // Add this new function
+   const refreshCurrentUser = useCallback(async () => {
+      if (!user) {
+         setCurrentUser(null);
+         setIsLoading(false);
+         return;
+      }
+
+      try {
+         setIsLoading(true);
+
+         const userData: UserData = {
+            id: user.id,
+            firstName: user.firstName || '',
+            lastName: user.lastName || '',
+            fullName: user.fullName || '',
+            email: user.primaryEmailAddress?.emailAddress || '',
+            imageUrl: user.imageUrl || '',
+            createdAt: user.createdAt ? new Date(user.createdAt).toISOString() : '',
+            isAdmin: checkIfAdmin(user.publicMetadata)
+         };
+
+         // Always fetch fresh data from API, regardless of lastCheckedUserId
+         const res = await isAuthCheck({ 
+            clerkId: userData.id, 
+            email: userData.email, 
+            fullName: userData.fullName 
+         });
+         
+         if (!res.error && res.data) {
+            userData.userId = res.data.id;
+            userData.cart = res.data.cart;
+            setLastCheckedUserId(user.id);
+         } else {
+            console.error("Error in refreshCurrentUser:", res.error);
+         }
+         
+         // Update state with the latest user data
+         setCurrentUser(userData);
+      } catch (error) {
+         console.error("Error refreshing current user:", error);
+         setCurrentUser(null);
+      } finally {
+         setIsLoading(false);
+      }
+   }, [user, checkIfAdmin]);
 
    // Only run effect when isLoaded or user changes
    useEffect(() => {
@@ -121,8 +180,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       currentUser,
       isLoading,
       isAdmin,
-      refreshUser
-   }), [currentUser, isLoading, isAdmin, refreshUser]);
+      refreshUser,
+      refreshCurrentUser
+   }), [currentUser, isLoading, isAdmin, refreshUser, refreshCurrentUser]);
 
    return (
       <AuthContext.Provider value={contextValue}>

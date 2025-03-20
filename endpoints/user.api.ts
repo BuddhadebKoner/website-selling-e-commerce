@@ -4,13 +4,7 @@ type AuthCheckParams = {
    fullName: string;
 };
 
-type AuthCheckResponse = {
-   message?: string;
-   user?: any;
-   error?: string;
-};
-
-export async function isAuthCheck({ clerkId, email, fullName }: AuthCheckParams): Promise<AuthCheckResponse> {
+export async function isAuthCheck({ clerkId, email, fullName }: AuthCheckParams) {
    try {
       const response = await fetch('/api/webhooks/auth/is-auth', {
          method: 'POST',
@@ -33,7 +27,6 @@ export async function isAuthCheck({ clerkId, email, fullName }: AuthCheckParams)
    }
 }
 
-
 export const getAllUsers = async (page = 1, limit = 10) => {
    try {
       const response = await fetch(`/api/public/users?page=${page}&limit=${limit}`);
@@ -50,6 +43,28 @@ export const getAllUsers = async (page = 1, limit = 10) => {
       };
    } catch (error) {
       console.error("Failed to get users", error);
+      return { error: error instanceof Error ? error.message : "Internal Server Error" };
+   }
+};
+
+export const addToCart = async (user: string, productId: string, cartId?: string) => {
+   try {
+      const response = await fetch('/api/public/users/cart', {
+         method: 'POST',
+         headers: {
+            'Content-Type': 'application/json',
+         },
+         body: JSON.stringify({ user, productId, cartId })
+      })
+      const result = await response.json();
+
+      if (!response.ok) {
+         throw new Error("Failed to add to cart");
+      }
+
+      return result.message;
+   } catch (error) {
+      console.error("Error in POST /cart:", error);
       return { error: error instanceof Error ? error.message : "Internal Server Error" };
    }
 };

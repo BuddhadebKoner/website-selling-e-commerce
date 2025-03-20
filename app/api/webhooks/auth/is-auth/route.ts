@@ -15,12 +15,61 @@ export async function POST(request: NextRequest) {
 
       await connectToDatabase();
 
-      // Check if user already exists
-      const existingUser = await User.findOne({ clerkId });
+      // Check if user exists using aggregation pipeline
+      const existingUserArray = await User.aggregate([
+         { $match: { clerkId } },
+         {
+            $lookup: {
+               from: "carts", // The collection name for carts
+               localField: "cart",
+               foreignField: "_id",
+               as: "cartData"
+            }
+         },
+         { $unwind: { path: "$cartData", preserveNullAndEmptyArrays: true } },
+         {
+            $lookup: {
+               from: "products", // The collection name for products
+               localField: "cartData.products",
+               foreignField: "_id",
+               as: "cartData.productDetails"
+            }
+         },
+         {
+            $project: {
+               _id: 1,
+               cart: "$cartData._id",
+               totalAmount: "$cartData.totalAmount",
+               products: {
+                  $map: {
+                     input: "$cartData.productDetails",
+                     as: "product",
+                     in: {
+                        _id: "$$product._id",
+                        title: "$$product.title",
+                        price: "$$product.price",
+                        bannerImageUrl: "$$product.bannerImageUrl"
+                     }
+                  }
+               }
+            }
+         }
+      ]);
+
+      const existingUser = existingUserArray.length > 0 ? existingUserArray[0] : null;
 
       if (existingUser) {
          return NextResponse.json(
-            { message: "User exists" },
+            {
+               message: "User exists",
+               data: {
+                  userId: existingUser._id,
+                  cart: {
+                     id: existingUser.cart,
+                     products: existingUser.products || []
+                  }
+               }
+            },
             { status: 200 }
          );
       }
@@ -40,7 +89,17 @@ export async function POST(request: NextRequest) {
       }
 
       return NextResponse.json(
-         { message: "User created successfully" },
+         {
+            message: "User created successfully",
+            user: {
+               id: newUser._id,
+               cart: {
+                  id: null,
+                  totalAmount: 0,
+                  products: []
+               }
+            }
+         },
          { status: 201 }
       );
    } catch (error) {
