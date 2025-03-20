@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
   try {
     const page = parseInt(request.nextUrl.searchParams.get('page') || '1');
-    const limit = parseInt(request.nextUrl.searchParams.get('limit') || '10');
+    const limit = parseInt(request.nextUrl.searchParams.get('limit') || '5');
     const status = request.nextUrl.searchParams.get('status');
     const skip = (page - 1) * limit;
 
@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
     const totalPages = Math.ceil(totalCount / limit);
 
     const products = await Product.find({ status })
+      .select("-__v -rating -offer -bannerImageID")
       .skip(skip)
       .limit(limit);
 

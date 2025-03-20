@@ -170,7 +170,7 @@ const Navbar = () => {
                 <span className="sr-only">Open user menu</span>
                 {currentUser.imageUrl ? (
                   <Image
-                    className="h-8 w-8 rounded-full"
+                    className="h-8 w-8 rounded-full cursor-pointer"
                     src={currentUser.imageUrl}
                     alt={currentUser.fullName || "User avatar"}
                     width={32}

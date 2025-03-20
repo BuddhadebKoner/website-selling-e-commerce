@@ -10,7 +10,7 @@ export type CreateResponse = {
 
 export async function createProduct(product: ProductData): Promise<CreateResponse> {
    try {
-      const response = await fetch('/api/admin/products/create-product', {
+      const response = await fetch('/api/admin/products', {
          method: 'POST',
          headers: {
             'Content-Type': 'application/json',
@@ -66,78 +66,56 @@ export async function updateProduct(product: Partial<ProductData>) {
    }
 }
 
-
-export const getAllUsers = async (page = 1, limit = 10) => {
+// endpoints/admin.api.ts
+export const updateProductStatus = async (productId: string, status: string) => {
    try {
-      const response = await fetch(`/api/admin/user?page=${page}&limit=${limit}`);
+      const response = await fetch(`/api/admin/products/${productId}/status`, {
+         method: 'PATCH',
+         headers: {
+            'Content-Type': 'application/json',
+         },
+         body: JSON.stringify({ status }),
+      });
+
       const result = await response.json();
 
       if (!response.ok) {
-         throw new Error(result.error || "Failed to fetch");
+         throw new Error(result.error || "Failed to update status");
       }
 
-      return {
-         data: result.data,
-         currentPage: result.pagination.currentPage,
-         totalPages: result.pagination.totalPages
-      };
+      return result;
    } catch (error) {
-      console.error("Failed to get users", error);
+      console.error("Failed to update product status", error);
       return { error: error instanceof Error ? error.message : "Internal Server Error" };
    }
 };
 
-// chnage the product status
-export const updateProductStatus = async (id: string, status: string) => {
+export const updateProductType = async (productId: string, productType: string) => {
    try {
-      const response = await fetch('/api/admin/products/update-status', {
-         method: 'PUT',
+      const response = await fetch(`/api/admin/products/${productId}/type`, {
+         method: 'PATCH',
          headers: {
             'Content-Type': 'application/json',
          },
-         body: JSON.stringify({ id, status }),
+         body: JSON.stringify({ productType }),
       });
 
-      const data = await response.json();
+      const result = await response.json();
 
       if (!response.ok) {
-         throw new Error(data.error || 'Failed to update product status');
+         throw new Error(result.error || "Failed to update product type");
       }
 
-      return { success: true, product: data.data };
+      return result;
    } catch (error) {
-      console.error("Error in updating product status:", error);
-      return { success: false, error: error instanceof Error ? error.message : "Unknown error occurred while updating product status" };
-   }
-};
-
-// change the product type
-export const updateProductType = async (id: string, productType: string) => {
-   try {
-      const response = await fetch('/api/admin/products/type-update', {
-         method: 'PUT',
-         headers: {
-            'Content-Type': 'application/json',
-         },
-         body: JSON.stringify({ id, productType }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-         throw new Error(data.error || 'Failed to update product type');
-      }
-
-      return { success: true, product: data.data };
-   } catch (error) {
-      console.error("Error in updating product type:", error);
-      return { success: false, error: error instanceof Error ? error.message : "Unknown error occurred while updating product type" };
+      console.error("Failed to update product type", error);
+      return { error: error instanceof Error ? error.message : "Internal Server Error" };
    }
 };
 // create category
 export async function createCategory(category: CategoriesData): Promise<CreateResponse> {
    try {
-      const response = await fetch('/api/admin/category/create-category', {
+      const response = await fetch('/api/admin/category', {
          method: 'POST',
          headers: {
             'Content-Type': 'application/json',
@@ -193,3 +171,4 @@ export async function updateCategory(category: Partial<CategoriesData>) {
       };
    }
 }
+

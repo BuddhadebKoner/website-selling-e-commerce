@@ -20,6 +20,7 @@ export interface IProduct {
    technologyStack: string[];
    is_featured: boolean;
    totalSold: number;
+   totalRating: number;
    category: mongoose.Types.ObjectId;
    rating: mongoose.Types.ObjectId[];
    offer: mongoose.Types.ObjectId[];
@@ -115,6 +116,10 @@ const ProductSchema = new mongoose.Schema({
       type: Number,
       default: 0,
       required: true,
+   },
+   totalRating: {
+      type: Number,
+      default: 0,
    },
    category: {
       type: mongoose.Types.ObjectId,

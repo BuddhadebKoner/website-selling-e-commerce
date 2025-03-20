@@ -1,10 +1,10 @@
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+   import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "./queryKeys";
 import { getAllProducts, getProductBySlug, getProductsByStatus, getProductsByType } from "@/endpoints/products";
-import { getAllUsers } from "@/endpoints/admin.api";
 import { getAllCategory, getCategoryBySlug } from "@/endpoints/category";
+import { getAllUsers } from "@/endpoints/user.api";
 
-export const useGetAllProducts = (limit = 10, options = {}) => {
+export const useGetAllProducts = (limit = 5, options = {}) => {
    return useInfiniteQuery({
       queryKey: [QUERY_KEYS.GET_ALL_PRODUCTS, limit],
       initialPageParam: 1,
@@ -21,7 +21,7 @@ export const useGetAllProducts = (limit = 10, options = {}) => {
    });
 };
 
-export const useGetProductsByStatus = (status: string, limit = 10, options: { enabled?: boolean } = {}) => {
+export const useGetProductsByStatus = (status: string, limit = 5, options: { enabled?: boolean } = {}) => {
    return useInfiniteQuery({
       queryKey: [QUERY_KEYS.GET_PRODUCTS_BY_STATUS, status, limit],
       initialPageParam: 1,
@@ -41,7 +41,7 @@ export const useGetProductsByStatus = (status: string, limit = 10, options: { en
 };
 
 
-export const useGetProductsByType = (productType: string, limit = 10, options: { enabled?: boolean } = {}) => {
+export const useGetProductsByType = (productType: string, limit = 5, options: { enabled?: boolean } = {}) => {
    return useInfiniteQuery({
       queryKey: [QUERY_KEYS.GET_PRODUCTS_BY_TYPE, productType, limit],
       initialPageParam: 1,
@@ -55,11 +55,10 @@ export const useGetProductsByType = (productType: string, limit = 10, options: {
       },
       // Skip the query if no product type is provided
       enabled: !!productType && (options.enabled !== false),
-      staleTime: 1000 * 60 * 5, 
+      staleTime: 1000 * 60 * 5,
       ...options,
    });
 };
-
 
 // get product by slug 
 export const useGetProductBySlug = (slug: string) => {

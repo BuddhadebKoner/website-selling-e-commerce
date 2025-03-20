@@ -1,12 +1,12 @@
 "use client"
 
-import { updateProductStatus, updateProductType } from '@/endpoints/admin.api'
 import Link from 'next/link'
 import React, { useState, useEffect } from 'react'
 import { toast } from 'react-toastify'
 import { LoaderCircle, Trash2, Edit } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { QUERY_KEYS } from '@/lib/react-query/queryKeys'
+import { updateProductStatus, updateProductType } from '@/endpoints/admin.api'
 
 const ProductDataInRow = ({ product }: {
    product: {

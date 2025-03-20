@@ -122,30 +122,7 @@ export default async function page() {
                </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-               <ProductCard
-                  name="Wireless Headphones"
-                  price="$149.99"
-                  sold={452}
-                  image="/api/placeholder/100/100"
-               />
-               <ProductCard
-                  name="Smart Watch"
-                  price="$199.99"
-                  sold={386}
-                  image="/api/placeholder/100/100"
-               />
-               <ProductCard
-                  name="Bluetooth Speaker"
-                  price="$89.99"
-                  sold={324}
-                  image="/api/placeholder/100/100"
-               />
-               <ProductCard
-                  name="Laptop Stand"
-                  price="$49.99"
-                  sold={287}
-                  image="/api/placeholder/100/100"
-               />
+               products
             </div>
          </div>
       </div>

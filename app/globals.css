@@ -39,7 +39,7 @@
 
   /* Premium card variables - dark theme */
   --premium-border: rgba(207, 175, 69, 0.5);
-  --premium-bg-start: #2c2c2c; 
+  --premium-bg-start: #2c2c2c;
   --premium-bg-end: #3a3a3a;
   --premium-overlay-start: rgba(255, 215, 0, 0.1);
   --premium-overlay-end: rgba(255, 215, 0, 0);
@@ -101,7 +101,7 @@
   --premium-overlay-end: rgba(255, 215, 0, 0);
   --premium-btn-start: #D4AF37;
   --premium-btn-end: #D4AF37;
-  
+
   /* Free card variables - light theme */
   --free-card-border: rgba(0, 0, 0, 0.08);
   --free-card-bg: #ffffff;
@@ -292,61 +292,56 @@ a:hover {
   border-radius: 8px;
 }
 
-/* Button styles */
+/* Simple, premium button styles */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.625rem 1.25rem;
+  padding: 0.5rem 1rem;
   font-weight: 500;
   border-radius: 4px;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.2s ease;
   cursor: pointer;
   letter-spacing: 0.01em;
+  border: none;
 }
 
+/* Primary button: soft solid background with a subtle hover effect */
 .btn-primary {
-  background-image: linear-gradient(to right,
-      var(--highlight-primary),
-      var(--highlight-secondary));
-  position: relative;
-  overflow: hidden;
-  color: white;
-  font-weight: 600;
+  background-color: var(--highlight-primary);
+  color: #fff;
 }
 
 .btn-primary:hover {
-  background-image: linear-gradient(to right,
-      var(--highlight-primary) 30%,
-      var(--highlight-secondary));
+  background-color: var(--highlight-secondary);
+  transform: translateY(-1px);
 }
 
-.btn-primary::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 60%);
-  transform: scale(0);
-  opacity: 0;
-  transition: transform 0.5s ease-out, opacity 0.5s ease-out;
-}
-
-.btn-primary:hover::after {
-  transform: scale(1);
-  opacity: 1;
-}
-
+/* Secondary button: understated outline style */
 .btn-secondary {
-  background-color: var(--background-secondary);
-  color: var(--text-primary);
+  background-color: transparent;
   border: 1px solid var(--border-color);
+  color: var(--text-primary);
 }
 
 .btn-secondary:hover {
-  background-color: var(--foreground);
+  background-color: var(--background-secondary);
+}
+
+/* Additional elements (cards, forms) can follow a similar approach */
+/* For example, a simple card with minimal shadow and border: */
+.card {
+  background-color: var(--card-bg);
+  border-radius: var(--card-border-radius);
+  border: 1px solid var(--card-border-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
 }
 
 /* Card styles */
