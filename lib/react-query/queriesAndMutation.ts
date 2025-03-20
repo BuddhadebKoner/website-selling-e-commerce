@@ -1,10 +1,10 @@
-   import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { QUERY_KEYS } from "./queryKeys";
 import { getAllProducts, getProductBySlug, getProductsByStatus, getProductsByType } from "@/endpoints/products";
 import { getAllCategory, getCategoryBySlug } from "@/endpoints/category";
 import { getAllUsers } from "@/endpoints/user.api";
 
-export const useGetAllProducts = (limit = 5, options = {}) => {
+export const useGetAllProducts = (limit = 5) => {
    return useInfiniteQuery({
       queryKey: [QUERY_KEYS.GET_ALL_PRODUCTS, limit],
       initialPageParam: 1,
@@ -16,7 +16,25 @@ export const useGetAllProducts = (limit = 5, options = {}) => {
          }
          return undefined;
       },
-      staleTime: 1000 * 60 * 5, // 5 minutes
+      staleTime: 1000 * 60 * 5, 
+   });
+};
+
+export const useGetProductsByType = (productType: string, limit = 5, options: { enabled?: boolean } = {}) => {
+   return useInfiniteQuery({
+      queryKey: [QUERY_KEYS.GET_PRODUCTS_BY_TYPE, productType, limit],
+      initialPageParam: 1,
+      queryFn: ({ pageParam = 1 }: { pageParam?: number }) => getProductsByType(productType, pageParam, limit),
+      getNextPageParam: (lastPage) => {
+         if ('error' in lastPage) return undefined;
+         if (lastPage.currentPage < lastPage.totalPages) {
+            return lastPage.currentPage + 1;
+         }
+         return undefined;
+      },
+      // Skip the query if no product type is provided
+      enabled: !!productType && (options.enabled !== false),
+      staleTime: 1000 * 60 * 5,
       ...options,
    });
 };
@@ -41,24 +59,6 @@ export const useGetProductsByStatus = (status: string, limit = 5, options: { ena
 };
 
 
-export const useGetProductsByType = (productType: string, limit = 5, options: { enabled?: boolean } = {}) => {
-   return useInfiniteQuery({
-      queryKey: [QUERY_KEYS.GET_PRODUCTS_BY_TYPE, productType, limit],
-      initialPageParam: 1,
-      queryFn: ({ pageParam = 1 }: { pageParam?: number }) => getProductsByType(productType, pageParam, limit),
-      getNextPageParam: (lastPage) => {
-         if ('error' in lastPage) return undefined;
-         if (lastPage.currentPage < lastPage.totalPages) {
-            return lastPage.currentPage + 1;
-         }
-         return undefined;
-      },
-      // Skip the query if no product type is provided
-      enabled: !!productType && (options.enabled !== false),
-      staleTime: 1000 * 60 * 5,
-      ...options,
-   });
-};
 
 // get product by slug 
 export const useGetProductBySlug = (slug: string) => {
@@ -101,7 +101,6 @@ export const useGetAllUsers = (limit = 10) => {
       refetchOnWindowFocus: false,
    });
 };
-
 
 // get all category
 export const useGetAllCategory = (limit = 10, options = {}) => {

@@ -9,6 +9,7 @@ import SearchContainer from './SearchContainer';
 import { useUserAuthentication } from '@/context/AuthProvider';
 import Image from 'next/image';
 import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
 
 const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
@@ -93,6 +94,8 @@ const Navbar = () => {
       document.body.style.overflow = 'auto';
     }
   }, [isSearchOpen]);
+
+  const router = useRouter();
 
   return (
     <nav className="fixed w-full z-100 bg-glass shadow-sm">
@@ -200,19 +203,40 @@ const Navbar = () => {
                     )}
                   </div>
 
-                  <Link href="/profile" className="block px-4 py-2 text-sm text-primary hover:bg-accent">
+                  <button 
+                      onClick={() => {
+                        // redirect to user profile page
+                        router.push('/profile');
+                        setIsUserMenuOpen(false);
+                  }}
+        
+                  className="block px-4 py-2 text-sm text-primary hover:bg-accent cursor-pointer">
                     Your Profile
-                  </Link>
+                  </button>
 
                   {isAdmin && (
-                    <Link href="/admin-dashbord" className="block px-4 py-2 text-sm text-primary hover:bg-accent">
+                    <button 
+                        onClick={() => {
+                          // redirect to admin dashboard
+                          router.push('/admin-dashbord');
+                          setIsUserMenuOpen(false);
+                    }}
+
+                    className="block px-4 py-2 text-sm text-primary hover:bg-accent cursor-pointer">
                       Admin Dashboard
-                    </Link>
+                    </button>
                   )}
 
-                  <Link href="/orders" className="block px-4 py-2 text-sm text-primary hover:bg-accent">
+                  <button 
+                      onClick={() => {
+                        // redirect to user orders page
+                        router.push('/orders');
+                        setIsUserMenuOpen(false);
+                  }}
+                  
+                  className="block px-4 py-2 text-sm text-primary hover:bg-accent cursor-pointer">
                     Your Orders
-                  </Link>
+                  </button>
 
                   {/* sign out */}
                   <button
