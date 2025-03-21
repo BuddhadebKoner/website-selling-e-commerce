@@ -2,6 +2,7 @@
 
 import { useUserAuthentication } from '@/context/AuthProvider';
 import { addToCart } from '@/endpoints/user.api';
+import { LoaderCircle, ShoppingBag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState } from 'react';
@@ -93,27 +94,23 @@ export function ProductCard({
    return (
       <div className="group bg-box border border-theme rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 w-full">
          {/* Image Section */}
-         <div className="relative h-48 bg-background-secondary overflow-hidden">
-            {bannerImageUrl ? (
-               <Image
-                  src={bannerImageUrl}
-                  width={600}
-                  height={300}
-                  alt={title || "i"}
-                  className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
-               />
-            ) : (
-               <div className="flex items-center justify-center w-full h-full bg-gray-300">
-                  i
-               </div>
-            )}
-            {is_featured && (
-               <div className="absolute top-2 left-2 z-10">
-                  <span className="bg-highlight-primary text-white text-xs font-medium px-2 py-1 rounded-md shadow-sm">
-                     Featured
-                  </span>
-               </div>
-            )}
+         <div className="relative h-100 bg-background-secondary overflow-hidden">
+            <Link
+               href={`/templates/${productType}/${slug}`}>
+               {bannerImageUrl ? (
+                  <Image
+                     src={bannerImageUrl}
+                     width={600}
+                     height={300}
+                     alt={title || "i"}
+                     className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+                  />
+               ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-background-secondary text-accent-red text-2xl">
+                     Image not found
+                  </div>
+               )}
+            </Link>
          </div>
 
          {/* Content Section */}
@@ -174,12 +171,26 @@ export function ProductCard({
 
             {/* Action Buttons */}
             <div className="flex items-center justify-between pt-2">
-               {status === 'unabaliable' ? (
-                  <button className="btn cursor-not-allowed" disabled>
-                     Unavailable
-                  </button>
-               ) : currentUser?.cart?.products?.find((product) => product._id === _id) ? (
-                  <Link className='btn btn-primary' href='/cart'>
+               {(status === 'unavailable' || status === 'unabaliable') ? (
+                  <div className="flex items-center gap-2">
+                     <button className="btn cursor-not-allowed btn-secondary" disabled>
+                        Unavailable
+                     </button>
+                     <span className="text-accent-red text-sm">
+                        Wait some time, this is temporarily unavailable
+                     </span>
+                  </div>
+               ) : status === 'delay' ? (
+                  <div className="flex items-center gap-2">
+                     <button className="btn btn-secondary" disabled>
+                        Delayed
+                     </button>
+                     <span className="text-accent-yellow text-sm">
+                        Expect some delay in delivery
+                     </span>
+                  </div>
+               ) : currentUser?.cart?.products?.some(product => product._id === _id) ? (
+                  <Link className="btn btn-primary" href="/cart">
                      Go to Cart
                   </Link>
                ) : (
@@ -188,9 +199,20 @@ export function ProductCard({
                      onClick={handleAddToCart}
                      disabled={addToCartLoading}
                   >
-                     {addToCartLoading ? "Adding..." : "Add to Cart"}
+                     {addToCartLoading ? (
+                        <span className="flex items-center gap-1">
+                           <LoaderCircle className="animate-spin" size={16} />
+                           Adding...
+                        </span>
+                     ) : (
+                        <span className="flex items-center gap-1">
+                           <ShoppingBag className="w-5 h-5" />
+                           Add to Cart
+                        </span>
+                     )}
                   </button>
                )}
+
                <Link href={`/templates/${slug}`} className="btn btn-secondary">
                   View Details
                </Link>

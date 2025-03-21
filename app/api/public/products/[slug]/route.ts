@@ -17,7 +17,6 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
       }
 
       const product = await Product.findOne({ slug })
-         .select("slug title subTitle liveLink productType productAbout tags price websiteAge images bannerImageUrl bannerImageID technologyStack")
          .sort({ createdAt: -1 });
 
       if (!product) {
