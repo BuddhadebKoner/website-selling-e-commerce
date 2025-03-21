@@ -56,61 +56,39 @@ export function ProductCard({
    const handleAddToCart = async () => {
       setAddToCartLoading(true);
 
-      if (currentUser?.cart?.id === undefined) {
-         if (currentUser?.id) {
-            try {
-               const res = await addToCart(currentUser.id, _id);
-               if (res.success) {
-                  refreshCurrentUser();
-                  toast.success(res.message || "Added to cart successfully");
-               } else {
-                  toast.error(res.error || "Failed to add to cart");
-               }
-            } catch (error: any) {
-               console.error(error);
-               toast.error(error.response?.data?.error || "Something went wrong. Please try again.");
-            } finally { 
-               setAddToCartLoading(false);
-            }
-         } else {
-            console.error("User ID is undefined");
-            toast.error("Please log in to add items to cart");
-            setAddToCartLoading(false);
-         }
-      } else {
-         if (currentUser?.id) {
-            try {
-               const res = await addToCart(currentUser.id, _id, currentUser.cart.id);
-               if (res.success) {
-                  refreshCurrentUser();
-                  toast.success(res.message || "Added to cart successfully");
-                  
-                  // Show remaining slots message if available
-                  if (res.remainingSlots !== undefined) {
-                     toast.info(`You can add ${res.remainingSlots} more items to your cart`);
-                  }
-               } else {
-                  // Special case for cart limit reached
-                  if (res.error && res.error.includes("Cart limit reached")) {
-                     toast.error("Your cart is full (max 5 products)");
-                  } else {
-                     toast.error(res.error || "Failed to add to cart");
-                  }
-               }
-            } catch (error: any) {
-               console.error(error);
-               const errorMessage = error.response?.data?.error || "Failed to add to cart";
-               toast.error(errorMessage);
-            } finally {
-               setAddToCartLoading(false);
-            }
-         } else {
-            console.error("User ID is undefined");
-            setAddToCartLoading(false);
-            toast.error("Please log in to add items to cart");
-         }
+      // Check if user is logged in
+      if (!currentUser?.id) {
+         toast.error("Please log in to add items to cart");
+         setAddToCartLoading(false);
+         return;
       }
-   }
+
+      try {
+         // Pass cartId if it exists
+         const cartId = currentUser?.cart?.id;
+         const res = await addToCart(_id, cartId);
+
+         if (res.success) {
+            refreshCurrentUser();
+            toast.success(res.message || "Added to cart successfully");
+
+         } else {
+            // Handle specific error cases
+            if (res.error?.includes("Cart limit reached")) {
+               toast.error("Your cart is full (max 5 products)");
+            } else if (res.error?.includes("already in your cart")) {
+               toast.error("This product is already in your cart");
+            } else {
+               toast.error(res.error || "Failed to add to cart");
+            }
+         }
+      } catch (error: any) {
+         console.error("Error handling add to cart:", error);
+         toast.error("Something went wrong. Please try again.");
+      } finally {
+         setAddToCartLoading(false);
+      }
+   };
 
    return (
       <div className="group bg-box border border-theme rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 w-full">
@@ -196,24 +174,23 @@ export function ProductCard({
 
             {/* Action Buttons */}
             <div className="flex items-center justify-between pt-2">
-               {
-                  currentUser?.cart?.products?.find((product) => product._id === _id) ? (
-                     <button
-                        className="btn cursor-not-allowed"
-                        disabled
-                     >
-                        In Cart
-                     </button>
-                  ) : (
-                     <button
-                        className="btn btn-primary"
-                        onClick={handleAddToCart}
-                        disabled={addToCartLoading}
-                     >
-                        {addToCartLoading ? "Adding..." : "Add to Cart"}
-                     </button>
-                  )
-               }
+               {status === 'unabaliable' ? (
+                  <button className="btn cursor-not-allowed" disabled>
+                     Unavailable
+                  </button>
+               ) : currentUser?.cart?.products?.find((product) => product._id === _id) ? (
+                  <Link className='btn btn-primary' href='/cart'>
+                     Go to Cart
+                  </Link>
+               ) : (
+                  <button
+                     className="btn btn-primary"
+                     onClick={handleAddToCart}
+                     disabled={addToCartLoading}
+                  >
+                     {addToCartLoading ? "Adding..." : "Add to Cart"}
+                  </button>
+               )}
                <Link href={`/templates/${slug}`} className="btn btn-secondary">
                   View Details
                </Link>

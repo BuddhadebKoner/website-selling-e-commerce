@@ -69,20 +69,17 @@ export async function updateProduct(product: Partial<ProductData>) {
 // endpoints/admin.api.ts
 export const updateProductStatus = async (productId: string, status: string) => {
    try {
-      const response = await fetch(`/api/admin/products/${productId}/status`, {
-         method: 'PATCH',
+      const response = await fetch(`/api/admin/products/update-status`, {
+         method: 'PUT',
          headers: {
             'Content-Type': 'application/json',
          },
-         body: JSON.stringify({ status }),
+         body: JSON.stringify({ id: productId, status }),
       });
-
       const result = await response.json();
-
       if (!response.ok) {
          throw new Error(result.error || "Failed to update status");
       }
-
       return result;
    } catch (error) {
       console.error("Failed to update product status", error);
@@ -92,26 +89,24 @@ export const updateProductStatus = async (productId: string, status: string) => 
 
 export const updateProductType = async (productId: string, productType: string) => {
    try {
-      const response = await fetch(`/api/admin/products/${productId}/type`, {
-         method: 'PATCH',
+      const response = await fetch(`/api/admin/products/type-update`, {
+         method: 'PUT',
          headers: {
             'Content-Type': 'application/json',
          },
-         body: JSON.stringify({ productType }),
+         body: JSON.stringify({ id: productId, productType }),
       });
-
       const result = await response.json();
-
       if (!response.ok) {
          throw new Error(result.error || "Failed to update product type");
       }
-
       return result;
    } catch (error) {
       console.error("Failed to update product type", error);
       return { error: error instanceof Error ? error.message : "Internal Server Error" };
    }
 };
+
 // create category
 export async function createCategory(category: CategoriesData): Promise<CreateResponse> {
    try {

@@ -6,9 +6,10 @@ import { toast } from 'react-toastify';
 import { useUserAuthentication } from '@/context/AuthProvider';
 import CartItem, { CartProduct } from '@/components/CartItem';
 import OrderSummary from '@/components/shared/OrderSummary';
+import { removeFromCart } from '@/endpoints/user.api';
 
 const CartPage = () => {
-  const { currentUser, isLoading } = useUserAuthentication();
+  const { currentUser, isLoading, refreshCurrentUser } = useUserAuthentication();
   const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
 
   // Calculate totals
@@ -22,14 +23,16 @@ const CartPage = () => {
   // Handler for removing an item
   const handleRemoveItem = async (productId: string) => {
     setRemovingIds((prev) => new Set(prev.add(productId)));
-    console.log("Removing item from cart:", productId);
-    // Implement actual removal logic here...
-    // Once done, update the state and remove the id from the set:
-    setRemovingIds((prev) => {
-      const newSet = new Set(prev);
-      newSet.delete(productId);
-      return newSet;
-    });
+    
+    console.log(productId, currentUser?.cart?.id);
+
+    const response = await removeFromCart(productId, currentUser?.cart?.id);
+    if (response.success) {
+      refreshCurrentUser();
+      toast.success(response.message || "Product removed from cart successfully");
+    } else {
+      toast.error(response.error || "Failed to remove product from cart");
+    }
   };
 
   // Handler for checkout

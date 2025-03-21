@@ -47,24 +47,60 @@ export const getAllUsers = async (page = 1, limit = 10) => {
    }
 };
 
-export const addToCart = async (user: string, productId: string, cartId?: string) => {
+export const addToCart = async (productId: string, cartId?: string) => {
    try {
       const response = await fetch('/api/public/users/cart', {
          method: 'POST',
          headers: {
             'Content-Type': 'application/json',
          },
-         body: JSON.stringify({ user, productId, cartId })
-      })
+         body: JSON.stringify({ productId, cartId })
+      });
+
       const result = await response.json();
 
       if (!response.ok) {
-         throw new Error("Failed to add to cart");
+         return {
+            success: false,
+            error: result.error || "Failed to add to cart"
+         };
       }
 
-      return result.message;
+      return result; 
    } catch (error) {
-      console.error("Error in POST /cart:", error);
-      return { error: error instanceof Error ? error.message : "Internal Server Error" };
+      console.error("Error in addToCart:", error);
+      return {
+         success: false,
+         error: error instanceof Error ? error.message : "Internal Server Error"
+      };
+   }
+};
+
+export const removeFromCart = async (productId: string, cartId?: string) => { 
+   try {
+      const response = await fetch('/api/public/users/cart/', {
+         method: 'DELETE',
+         headers: {
+            'Content-Type': 'application/json',
+         },
+         body: JSON.stringify({ productId, cartId })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+         return {
+            success: false,
+            error: result.error || "Failed to remove from cart"
+         };
+      }
+
+      return result;
+   } catch (error) {
+      console.error("Error in removeFromCart:", error);
+      return {
+         success: false,
+         error: error instanceof Error ? error.message : "Internal Server Error"
+      };
    }
 };

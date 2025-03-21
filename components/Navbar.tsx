@@ -159,7 +159,7 @@ const Navbar = () => {
           >
             <ShoppingCart className="w-5 h-5 text-primary" />
             {showCartBadge && (
-              <span className="absolute top-0 right-0 bg-red-500 text-primary text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
+              <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
                 {currentUser?.cart?.products?.length || 0}
               </span>
             )}
