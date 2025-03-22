@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(
    request: NextRequest,
-   { params }: { params: { slug: string } }
+   context: { params: { slug: string } }
 ) {
    // the the user is authenticated or not
    const isAdmin = isAdminRequest(request);
@@ -17,7 +17,9 @@ export async function PATCH(
    }
 
    try {
-      const slug = params.slug;
+      const params = await context.params;
+      const { slug } = params;
+      
       if (!slug) {
          return NextResponse.json(
             { error: "Product slug is required" },

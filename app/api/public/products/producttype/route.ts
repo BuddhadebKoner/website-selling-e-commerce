@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
    try {
       const page = parseInt(request.nextUrl.searchParams.get('page') || '1');
       const limit = parseInt(request.nextUrl.searchParams.get('limit') || '5');
-      const productType = request.nextUrl.searchParams.get('type');
+      let productType = request.nextUrl.searchParams.get('type');
       const skip = (page - 1) * limit;
 
       // Validate productType parameter is provided
@@ -17,6 +17,10 @@ export async function GET(request: NextRequest) {
             { status: 400 }
          );
       }
+
+      // Replace %20 with space
+      productType = productType.replace(/%20/g, " ");
+      console.log(productType);
 
       // Validate productType is one of the enum values
       const validProductTypes = [
@@ -52,8 +56,8 @@ export async function GET(request: NextRequest) {
 
       if (!products || products.length === 0) {
          return NextResponse.json(
-            { error: `No products found with type: ${productType}` },
-            { status: 404 }
+            { message: `No Products available` },
+            { status: 200 }
          );
       }
 

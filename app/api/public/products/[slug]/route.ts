@@ -2,9 +2,10 @@ import { connectToDatabase } from "@/lib/db";
 import Product from "@/models/product.model";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest, { params }: { params: { slug: string } }) {
+export async function GET(request: NextRequest, context: { params: { slug: string } }) {
    try {
       await connectToDatabase();
+      const params = await context.params;
       const { slug } = params;
 
       console.log("slug", slug);
@@ -30,7 +31,6 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
          { message: "Product found successfully!", product },
          { status: 200 }
       );
-
    } catch (error) {
       console.error("Error fetching product:", error);
       return NextResponse.json(

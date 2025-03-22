@@ -38,8 +38,8 @@ export const getAllUsers = async (page = 1, limit = 10) => {
 
       return {
          data: result.data,
-         currentPage: result.pagination.currentPage,
-         totalPages: result.pagination.totalPages
+         currentPage: result.pagination?.currentPage,
+         totalPages: result.pagination?.totalPages
       };
    } catch (error) {
       console.error("Failed to get users", error);

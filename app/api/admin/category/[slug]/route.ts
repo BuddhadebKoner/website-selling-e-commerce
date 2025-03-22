@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(
    request: NextRequest,
-   { params }: { params: { slug: string } }
+   context: { params: { slug: string } }
 ) {
    try {
 
@@ -18,8 +18,9 @@ export async function PATCH(
          );
       }
 
-
-      const slug = params.slug;
+      const params = await context.params;
+      const { slug } = params;
+      
       if (!slug) {
          return NextResponse.json(
             { error: "Category slug is required" },

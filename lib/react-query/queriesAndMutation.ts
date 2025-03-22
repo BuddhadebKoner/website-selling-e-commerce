@@ -16,7 +16,7 @@ export const useGetAllProducts = (limit = 5) => {
          }
          return undefined;
       },
-      staleTime: 1000 * 60 * 5, 
+      staleTime: 1000 * 60 * 5,
    });
 };
 
@@ -57,8 +57,6 @@ export const useGetProductsByStatus = (status: string, limit = 5, options: { ena
       ...options,
    });
 };
-
-
 
 // get product by slug 
 export const useGetProductBySlug = (slug: string) => {

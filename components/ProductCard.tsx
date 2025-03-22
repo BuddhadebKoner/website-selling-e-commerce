@@ -38,7 +38,7 @@ export function ProductCard({
    // Format price from cents to dollars
    const formattedPrice = `$${(price / 100).toFixed(2)}`;
 
-   const { currentUser, refreshCurrentUser } = useUserAuthentication();
+   const { currentUser, refreshCurrentUser, isLoading } = useUserAuthentication();
    const [addToCartLoading, setAddToCartLoading] = useState(false);
 
    // Status color mapping
@@ -55,6 +55,11 @@ export function ProductCard({
 
    // Handler for adding product to cart
    const handleAddToCart = async () => {
+      // Prevent action if any loading state is active
+      if (addToCartLoading || isLoading) {
+         return;
+      }
+      
       setAddToCartLoading(true);
 
       // Check if user is logged in
@@ -197,16 +202,21 @@ export function ProductCard({
                   <button
                      className="btn btn-primary"
                      onClick={handleAddToCart}
-                     disabled={addToCartLoading}
+                     disabled={addToCartLoading || isLoading} // Disable button during any loading state
                   >
                      {addToCartLoading ? (
                         <span className="flex items-center gap-1">
                            <LoaderCircle className="animate-spin" size={16} />
                            Adding...
                         </span>
+                     ) : isLoading ? (
+                        <span className="flex items-center gap-1">
+                           <LoaderCircle className="animate-spin" size={16} />
+                           Loading...
+                        </span>
                      ) : (
                         <span className="flex items-center gap-1">
-                           <ShoppingBag className="w-5 h-5" />
+                           <ShoppingBag size={16} />
                            Add to Cart
                         </span>
                      )}

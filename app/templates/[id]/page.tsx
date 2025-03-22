@@ -67,7 +67,7 @@ const FilteredProductsPage = () => {
         </div>
       ) : (
         <div className="py-12 text-center">
-          <p className="text-lg mb-2">No products found for {productType}</p>
+          <p className="text-lg mb-2">No products found for {Array.isArray(productType) ? productType.join(', ').replace(/%20/g, " ") : productType?.replace(/%20/g, " ") || 'this type'}</p>
           <p className="text-gray-500 mb-6">Try selecting a different filter or add a new product.</p>
         </div>
       )}

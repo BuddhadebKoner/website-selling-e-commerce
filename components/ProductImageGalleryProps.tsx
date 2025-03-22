@@ -41,7 +41,7 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({ images }) => 
                src={images[currentImageIndex].imageUrl}
                alt={`Product Image ${currentImageIndex + 1}`}
                fill
-               className="object-contain"
+               className="object-contain hover:scale-110 transition-transform cursor-grab"   
                priority
             />
 

@@ -80,20 +80,11 @@ const ProductDetailsPage = () => {
 
    if (isError || !product) {
       return (
-         <div className="container mx-auto flex items-center justify-center min-h-screen py-12 px-4">
-            <div className="card p-6 sm:p-8 max-w-lg w-full">
-               <h2 className="text-xl sm:text-2xl font-bold text-accent-red mb-4">
-                  {isError ? "Error Loading Product" : "Product Not Found"}
-               </h2>
-               <p className="text-secondary mb-6">
-                  {isError
-                     ? "We couldn't load the product details. Please try again later."
-                     : "The product you're looking for doesn't exist or has been removed."
-                  }
-               </p>
-               <Link href="/templates" className="btn btn-primary w-full text-center">
-                  {isError ? "Return to Templates" : "Browse Templates"}
-               </Link>
+         <div className="container mx-auto flex items-start justify-center min-h-screen py-12 px-4">
+            <div className="text-center">
+               <h2 className="text-xl sm:text-2xl font-semibold text-primary mb-4">Product Not Found</h2>
+               <p className="text-secondary">The product you are looking for does not exist or has been removed.</p>
+               <Link href="/templates" className="btn btn-primary mt-6">Browse Templates</Link>
             </div>
          </div>
       )

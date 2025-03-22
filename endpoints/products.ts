@@ -8,8 +8,8 @@ export const getAllProducts = async (page = 1, limit = 5) => {
       }
       return {
          data: result.data,
-         currentPage: result.pagination.currentPage,
-         totalPages: result.pagination.totalPages
+         currentPage: result.pagination?.currentPage,
+         totalPages: result.pagination?.totalPages
       };
    } catch (error) {
       console.error("Failed to get products", error);
@@ -26,8 +26,8 @@ export const getProductsByStatus = async (status: string, page = 1, limit = 5) =
       }
       return {
          data: result.data,
-         currentPage: result.pagination.currentPage,
-         totalPages: result.pagination.totalPages
+         currentPage: result.pagination?.currentPage,
+         totalPages: result.pagination?.totalPages
       };
    } catch (error) {
       console.error(`Failed to get products with status: ${status}`, error);
@@ -46,8 +46,8 @@ export const getProductsByType = async (productType: string, page = 1, limit = 5
       }
       return {
          data: result.data,
-         currentPage: result.pagination.currentPage,
-         totalPages: result.pagination.totalPages
+         currentPage: result.pagination?.currentPage,
+         totalPages: result.pagination?.totalPages
       };
    } catch (error) {
       console.error(`Failed to get products with type: ${productType}`, error);
