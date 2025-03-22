@@ -5,18 +5,9 @@ import Link from "next/link";
 import { useGetAllCategory } from '@/lib/react-query/queriesAndMutation';
 import { useInView } from 'react-intersection-observer';
 import CategoryDataRow from '@/components/CategoryDataRow';
+import { ICategories } from '@/types/interfaces';
 
-export interface ICategories {
-  _id: string;
-  title: string;
-  subTitle: string;
-  slug: string;
-  isFeatured: boolean;
-  createdAt: string;
-  productsCount: number;
-}
-
-export default function page() {
+export default function Page() {
   const {
     data,
     fetchNextPage,
@@ -25,8 +16,6 @@ export default function page() {
     isFetchingNextPage,
     isLoading,
     isError,
-    error,
-    refetch
   } = useGetAllCategory();
 
   const { ref, inView } = useInView();

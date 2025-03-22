@@ -19,7 +19,7 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
    const navigate = useRouter()
    const { currentUser, isAdmin, isLoading } = useUserAuthentication()
    const [lastActivity, setLastActivity] = useState<number>(Date.now())
-   const [notificationCount, setNotificationCount] = useState<number>(3)
+   // const [notificationCount, setNotificationCount] = useState<number>(3)
 
    // Handle session timeout
    useEffect(() => {
@@ -78,7 +78,7 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
                <ShieldAlert className="h-16 w-16 text-red-500 mx-auto" />
                <h2 className="mt-4 text-2xl font-bold text-red-700">Access Denied</h2>
                <p className="mt-2 text-muted-foreground">
-                  You don't have permission to access the admin dashboard.
+                  You don&apos;t have permission to access the admin dashboard.
                   Redirecting to login page...
                </p>
             </div>
@@ -114,11 +114,9 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
                         onClick={() => navigate.push('/admin-dashbord/notifications')}
                         className="p-2 hover:bg-accent rounded-full transition-colors cursor-pointer">
                         <Bell className="w-5 h-5 text-primary" />
-                        {notificationCount > 0 && (
-                           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                              {notificationCount}
-                           </span>
-                        )}
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                           10
+                        </span>
                      </button>
                   </div>
 

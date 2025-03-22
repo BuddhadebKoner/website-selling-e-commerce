@@ -2,17 +2,8 @@
 
 import React, { useState } from 'react';
 import FormField from '../shared/FormField';
-
-export interface CategoriesData {
-  slug: string;
-  title: string;
-  subTitle: string;
-  description: string;
-  bannerImageUrl: string;
-  bannerImageID: string;
-  isFeatured: string;
-  products: string[];
-}
+import { CategoriesData } from '@/types/interfaces';
+import Image from 'next/image';
 
 const initialCategoryData: CategoriesData = {
   slug: 'sample-category',
@@ -21,7 +12,7 @@ const initialCategoryData: CategoriesData = {
   description: 'This is a sample description for the category.',
   bannerImageUrl: 'https://via.placeholder.com/300x100',
   bannerImageID: 'banner-cat-001',
-  isFeatured: 'true',
+  isFeatured: true,
   products: ['67d59018587ff89b697c8d8f', '67d59018587ff89b697c8d90'],
 };
 
@@ -74,7 +65,7 @@ const UpdateCategoryForm = () => {
   const handleFeaturedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
       ...prev,
-      isFeatured: e.target.checked ? 'true' : 'false',
+      isFeatured: e.target.checked ? true : false,
     }));
   };
 
@@ -122,7 +113,9 @@ const UpdateCategoryForm = () => {
           ? JSON.stringify(initialCategoryData[typedKey])
           : initialCategoryData[typedKey];
       if (current !== initial) {
-        changes[typedKey] = formData[typedKey];
+        if (typeof formData[typedKey] === 'string' || Array.isArray(formData[typedKey])) {
+          changes[typedKey] = formData[typedKey];
+        }
       }
     });
 
@@ -237,8 +230,10 @@ const UpdateCategoryForm = () => {
             <div className="mt-4">
               <p className="text-secondary text-sm mb-2">Banner Preview:</p>
               <div className="bg-background-secondary border border-theme p-2 rounded">
-                <img
+                <Image
                   src={formData.bannerImageUrl}
+                  width={300}
+                  height={100}
                   alt="Banner preview"
                   className="h-32 object-cover rounded"
                   onError={(e) => (e.currentTarget.style.display = 'none')}
@@ -254,7 +249,7 @@ const UpdateCategoryForm = () => {
             <input
               type="checkbox"
               id="isFeatured"
-              checked={formData.isFeatured === 'true'}
+              checked={formData.isFeatured === true}
               onChange={handleFeaturedChange}
               className="h-4 w-4"
             />

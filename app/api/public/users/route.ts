@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
          },
          { status: 200 }
       );
-   } catch (error) {
+   } catch  {
       return NextResponse.json(
          { error: "Error in getting users" },
          { status: 500 }

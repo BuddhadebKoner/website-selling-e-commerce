@@ -2,25 +2,14 @@
 
 import { useUserAuthentication } from '@/context/AuthProvider';
 import { addToCart } from '@/endpoints/user.api';
+import { ProductCardProps } from '@/types/interfaces';
 import { LoaderCircle, ShoppingBag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 
-export interface ProductCardProps {
-   _id: string;
-   title: string;
-   slug: string;
-   subTitle?: string;
-   price: number;
-   status: string;
-   bannerImageUrl: string;
-   productType: string;
-   totalSold: number;
-   is_featured: boolean;
-   technologyStack?: string[];
-}
+
 
 export function ProductCard({
    _id,
@@ -32,7 +21,6 @@ export function ProductCard({
    bannerImageUrl,
    productType,
    totalSold,
-   is_featured,
    technologyStack
 }: ProductCardProps) {
    // Format price from cents to dollars
@@ -88,7 +76,7 @@ export function ProductCard({
                toast.error(res.error || "Failed to add to cart");
             }
          }
-      } catch (error: any) {
+      } catch (error) {
          console.error("Error handling add to cart:", error);
          toast.error("Something went wrong. Please try again.");
       } finally {

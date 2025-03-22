@@ -6,25 +6,9 @@ import { toast } from 'react-toastify';
 import FormField from '../shared/FormField';
 import Image from 'next/image';
 import { createProduct, updateProduct } from '@/endpoints/admin.api';
+import { ProductData } from '@/types/interfaces';
 
-export interface ProductData {
-   slug: string;
-   title: string;
-   subTitle: string;
-   liveLink: string;
-   productType: string;
-   productAbout: string;
-   tags: string[];
-   _tagsInput: string;
-   price: string;
-   websiteAge: string;
-   images: { imageUrl: string; imageId: string }[];
-   bannerImageUrl: string;
-   bannerImageID: string;
-   technologyStack: string;
-}
-
-const ProductForm = ({ action, productData }: { action: string, productData: any }) => {
+const ProductForm = ({ action, productData }: { action: string, productData: ProductData }) => {
 
    const initialProductData: ProductData = {
       slug: '',

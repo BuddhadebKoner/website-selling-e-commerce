@@ -155,29 +155,9 @@ export async function POST(request: NextRequest) {
             { status: 201 }
          );
       }
-   } catch (error: any) {
-      console.error("Error in POST /cart:", error);
-
-      // Handle different types of errors
-      if (error.name === "ValidationError") {
-         return NextResponse.json(
-            { success: false, error: "Validation error: " + error.message },
-            { status: 400 }
-         );
-      } else if (error.name === "CastError") {
-         return NextResponse.json(
-            { success: false, error: "Invalid ID format" },
-            { status: 400 }
-         );
-      } else if (error.code === 11000) { // Duplicate key error
-         return NextResponse.json(
-            { success: false, error: "Duplicate entry detected" },
-            { status: 409 }
-         );
-      }
-
+   } catch (error) {
       return NextResponse.json(
-         { success: false, error: "Internal Server Error. Please try again later." },
+         { success: false, error: "Internal Server Error" },
          { status: 500 }
       );
    }

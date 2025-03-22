@@ -1,19 +1,7 @@
 "use client";
 
+import { OrderSummaryProps } from '@/types/interfaces';
 import React, { useState } from 'react';
-import { CartProduct } from '@/components/CartItem';
-
-interface OrderSummaryProps {
-   cartItems: CartProduct[];
-   subtotal: number;
-   tax: number;
-   total: number;
-   onCheckout: () => void;
-   isLoading: boolean;
-   isCheckingOut: boolean;
-   discountCode?: string;
-   discountAmount?: number;
-}
 
 // Format price from cents to dollars
 const formatPrice = (price: number) => `$${(price / 100).toFixed(2)}`;

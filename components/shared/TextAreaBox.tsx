@@ -1,17 +1,15 @@
 import React from 'react'
 
-const TextAreaBox = ({ divClass, htmlFor, lableClass, inputName, lableText, isRequired, inputValue, handleInputChange, inputClass, inputPlaceholder, Error }: {
+const TextAreaBox = ({ divClass, htmlFor, lableClass, inputName, isRequired, inputValue, handleInputChange, inputClass, inputPlaceholder }: {
    divClass: string,
    htmlFor: string,
    inputName: string,
    lableClass: string,
-   lableText: string,
    isRequired: boolean,
    inputValue: string,
    handleInputChange: any,
    inputClass: string,
    inputPlaceholder: string,
-   Error: string
 }) => {
    return (
       <>

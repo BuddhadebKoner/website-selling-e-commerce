@@ -3,13 +3,7 @@ import Link from 'next/link';
 import { LoaderCircle, ShoppingBag } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { addToCart } from '@/endpoints/user.api';
-
-interface Product {
-   _id: string;
-   title: string;
-   price: number;
-   status: string;
-}
+import { Product } from '@/types/interfaces';
 
 interface ProductPriceDetailsProps {
    product: Product;
@@ -27,7 +21,6 @@ const ProductPriceDetails: React.FC<ProductPriceDetailsProps> = ({
    formattedPrice,
    mainPriceBeforeDiscount,
    statusColorClass,
-   isInCart,
    currentUser,
    refreshCurrentUser,
    isMobile

@@ -6,6 +6,7 @@ import { useGetProductsByType } from '@/lib/react-query/queriesAndMutation';
 import { LoaderCircle } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useInView } from 'react-intersection-observer';
+import { ProductCardProps } from '@/types/interfaces';
 
 const FilteredProductsPage = () => {
   const { id: productType } = useParams();
@@ -59,8 +60,8 @@ const FilteredProductsPage = () => {
     <div className="rounded-lg overflow-hidden">
       {hasProducts ? (
         <div className="flex flex-col space-y-4 p-4">
-          {data?.pages.map((page, pageIndex) =>
-            (page.data || []).map((product: any) => (
+          {data?.pages.map((page) =>
+            (page.data || []).map((product: ProductCardProps) => (
               <ProductCard key={product._id} {...product} />
             ))
           )}

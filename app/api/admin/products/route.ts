@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
             : technologyStack;
 
       // Validate images: if provided, it must be an array of objects with imageUrl and imageId
-      let validatedImages = [];
+      const validatedImages = [];
       if (images) {
          if (!Array.isArray(images)) {
             return NextResponse.json(

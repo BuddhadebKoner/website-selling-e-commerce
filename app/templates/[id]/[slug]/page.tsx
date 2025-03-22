@@ -9,6 +9,7 @@ import { ExternalLink, LoaderCircle } from 'lucide-react';
 import ProductImageGallery from '@/components/ProductImageGalleryProps';
 import ProductPriceDetails from '@/components/ProductPriceDetails';
 import ProductReviews from '@/components/ProductReviews';
+import { Product } from '@/types/interfaces';
 
 const ProductDetailsPage = () => {
    const { slug } = useParams();
@@ -18,23 +19,9 @@ const ProductDetailsPage = () => {
       isError,
    } = useGetProductBySlug(slug as string);
 
-   interface Product {
-      _id: string;
-      title: string;
-      subTitle: string;
-      price: number;
-      tags: string[];
-      images: { imageUrl: string }[];
-      productAbout: string;
-      technologyStack: string[];
-      productType: string;
-      websiteAge: number;
-      liveLink?: string;
-      status: string;
-   }
 
    const product: Product | undefined = data?.product;
-   const [activeTab, setActiveTab] = useState('description'); // For mobile tabs
+   const [activeTab, setActiveTab] = useState('description');
    const { currentUser, refreshCurrentUser } = useUserAuthentication();
 
    // Reset image index when product changes

@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
       const limit = parseInt(request.nextUrl.searchParams.get('limit') || '10');
 
       const skip = (page - 1) * limit;
-   
+
       // Get total count for pagination metadata
       const totalCount = await Product.countDocuments();
       const totalPages = Math.ceil(totalCount / limit);
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
          },
          { status: 200 }
       );
-   } catch (error) {
+   } catch {
       return NextResponse.json(
          { error: "Error in getting products" },
          { status: 500 }

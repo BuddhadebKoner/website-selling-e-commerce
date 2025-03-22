@@ -1,4 +1,4 @@
-import { BarChart, ChartColumnStacked, Package, Settings, ShoppingBag, Users } from 'lucide-react'
+import { BadgePercent, BarChart, ChartColumnStacked, Package, Settings, ShoppingBag, Users } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React from 'react'
@@ -32,7 +32,7 @@ const DashbordSidebar = () => {
                   active={pathname === '/admin-dashbord/categories'}
                />
                <SidebarLink
-                  icon={<ChartColumnStacked size={20} />}
+                  icon={<BadgePercent size={20} />}
                   label="Offers"
                   href="/admin-dashbord/offers"
                   active={pathname === '/admin-dashbord/offers'}

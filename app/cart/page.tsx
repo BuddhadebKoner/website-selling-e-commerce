@@ -4,9 +4,10 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { toast } from 'react-toastify';
 import { useUserAuthentication } from '@/context/AuthProvider';
-import CartItem, { CartProduct } from '@/components/CartItem';
+import CartItem from '@/components/CartItem';
 import OrderSummary from '@/components/shared/OrderSummary';
 import { removeFromCart } from '@/endpoints/user.api';
+import { CartProduct } from '@/types/interfaces';
 
 const CartPage = () => {
   const { currentUser, isLoading, refreshCurrentUser } = useUserAuthentication();
@@ -33,7 +34,7 @@ const CartPage = () => {
       } else {
         toast.error(response.error || "Failed to remove product from cart");
       }
-    } catch (error) {
+    } catch {
       toast.error("An error occurred while removing the product");
     } finally {
       setRemovingIds((prev) => {
@@ -71,7 +72,7 @@ const CartPage = () => {
     return (
       <div className="container py-16 flex flex-col items-center justify-center min-h-[50vh] text-center">
         <h2 className="text-3xl font-bold mb-4">Your Cart is Empty</h2>
-        <p className="text-secondary mb-8">Looks like you haven't added any items to your cart yet</p>
+        <p className="text-secondary mb-8">Looks like you haven&apos;t added any items to your cart yet</p>
         <Link href="/templates" className="btn btn-primary">
           Browse Templates
         </Link>

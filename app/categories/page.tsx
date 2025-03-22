@@ -5,6 +5,7 @@ import { LoaderCircle } from 'lucide-react';
 import { useGetAllCategory } from '@/lib/react-query/queriesAndMutation';
 import { useInView } from 'react-intersection-observer';
 import CategoryCard from '@/components/CategoryCard';
+import { ICategory } from '@/types/interfaces';
 
 const AllCategoriesPage = () => {
   const { ref, inView } = useInView();
@@ -54,7 +55,7 @@ const AllCategoriesPage = () => {
       {hasCategories ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
           {data?.pages.map((page) =>
-            (page.data || []).map((category: any) => (
+            (page.data || []).map((category: ICategory) => (
               <CategoryCard key={category._id} {...category} />
             ))
           )}

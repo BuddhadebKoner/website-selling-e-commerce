@@ -5,21 +5,13 @@ import FormField from '../shared/FormField';
 import { createCategory, updateCategory } from '@/endpoints/admin.api';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
+import { CategoriesData } from '@/types/interfaces';
+import Image from 'next/image';
 
-export interface CategoriesData {
-   slug: string;
-   title: string;
-   subTitle: string;
-   description: string;
-   bannerImageUrl: string;
-   bannerImageID: string;
-   isFeatured: boolean;
-   products: string[];
-}
 
 const CategoryForm = ({ action, categoryData }: {
    action: string;
-   categoryData: any;
+   categoryData: CategoriesData | null;
 }) => {
    const initialCategoryData: CategoriesData = {
       slug: '',
@@ -333,8 +325,10 @@ const CategoryForm = ({ action, categoryData }: {
                   <div className="mt-4">
                      <p className="text-secondary text-sm mb-2">Banner Preview:</p>
                      <div className="bg-background-secondary border border-theme p-2 rounded">
-                        <img
+                        <Image
                            src={formData.bannerImageUrl}
+                           width={600}
+                           height={300}
                            alt="Banner preview"
                            className="h-32 object-cover rounded w-full"
                            onError={(e) => {

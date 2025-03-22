@@ -1,14 +1,9 @@
 "use client";
 
+import { CartProduct } from '@/types/interfaces';
 import Image from 'next/image';
 import React from 'react';
 
-export interface CartProduct {
-   _id: string;
-   title: string;
-   price: number;
-   bannerImageUrl: string;
-}
 
 interface CartItemProps {
    item: CartProduct;

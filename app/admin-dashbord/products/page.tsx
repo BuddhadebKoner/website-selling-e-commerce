@@ -10,15 +10,9 @@ import Link from "next/link";
 import { useInView } from 'react-intersection-observer';
 import ProductDataInRow from '@/components/ProductDataInRow';
 import { LoaderCircle } from 'lucide-react';
+import { IProducts } from '@/types/interfaces';
 
-export interface IProducts {
-  _id: string;
-  slug: string;
-  title: string;
-  productType: string;
-  status: string;
-  price: number;
-}
+
 
 type FilterOption = {
   type: 'status' | 'productType' | 'all';
@@ -186,7 +180,7 @@ export default function Page() {
               </tr>
             </thead>
             <tbody>
-              {data?.pages.map((page, i) =>
+              {data?.pages.map((page) =>
                 (page.data || []).map((product: IProducts) => (
                   <ProductDataInRow
                     key={product._id}

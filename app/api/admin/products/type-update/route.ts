@@ -65,7 +65,7 @@ export async function PUT(request: NextRequest) {
          },
          { status: 200 }
       );
-   } catch (error) {
+   } catch{
       return NextResponse.json(
          { error: "Error in updating product Type" },
          { status: 500 }

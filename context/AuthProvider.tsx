@@ -2,37 +2,15 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
 import { useUser } from "@clerk/nextjs";
 import { isAuthCheck } from "@/endpoints/user.api";
+import { UserData } from "@/types/interfaces";
 
-interface CartData {
-   id: string;
-   totalAmount?: number;
-   products: Array<{
-      _id: string;
-      title: string;
-      price: number;
-      bannerImageUrl: string;
-   }>;
-}
-
-interface UserData {
-   id: string;
-   userId?: string; // additional user id from API if needed
-   firstName: string;
-   lastName: string;
-   fullName: string;
-   email: string;
-   imageUrl: string;
-   isAdmin: boolean;
-   createdAt?: string;
-   cart?: CartData;
-}
 
 interface AuthContextType {
    currentUser: UserData | null;
    isLoading: boolean;
    isAdmin: boolean;
    refreshUser: () => Promise<void>;
-   refreshCurrentUser: () => Promise<void>; // Add this new function
+   refreshCurrentUser: () => Promise<void>; 
 }
 
 // Create context with proper typing
@@ -41,7 +19,7 @@ export const AuthContext = createContext<AuthContextType>({
    isLoading: true,
    isAdmin: false,
    refreshUser: async () => { },
-   refreshCurrentUser: async () => { } // Default implementation
+   refreshCurrentUser: async () => { } 
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {

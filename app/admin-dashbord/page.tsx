@@ -8,9 +8,8 @@ import {
 } from 'lucide-react'
 import { StatCard } from '@/components/StatCard'
 import { OrderRow } from '@/components/OrderRow'
-import { ProductCard } from '@/components/ProductCard'
 
-export default async function page() {
+export default async function Page() {
 
    return (
       <div className="w-full space-y-6 animate-fadeIn">

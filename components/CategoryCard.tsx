@@ -1,19 +1,7 @@
+import { ICategory } from '@/types/interfaces';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
-
-export interface ICategory {
-   _id: string;
-   title: string;
-   subTitle: string;
-   slug: string;
-   description?: string;
-   bannerImageUrl?: string;
-   bannerImageID?: string;
-   isFeatured: boolean;
-   createdAt: string;
-   productsCount?: number;
-}
 
 const CategoryCard: React.FC<ICategory> = ({
    title,

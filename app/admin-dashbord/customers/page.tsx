@@ -2,19 +2,11 @@
 
 import UserDataInRow from '@/components/UserDataInRow';
 import { useGetAllUsers } from '@/lib/react-query/queriesAndMutation';
+import { IUsers } from '@/types/interfaces';
 import React from 'react';
 import { useInView } from 'react-intersection-observer';
 
-export interface IUsers {
-   _id: string;
-   name: string;
-   email: string;
-   spent: string;
-   createdAt: string;
-   totalOrders: string;
-}
-
-export default function page() {
+export default function Page() {
    const {
       data,
       fetchNextPage,
