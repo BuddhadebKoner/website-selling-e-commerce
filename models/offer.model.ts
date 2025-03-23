@@ -27,12 +27,16 @@ const OfferSchema = new mongoose.Schema({
       default: "inactive",
    },
    type: {
-      type: String,
+      type: String,  
       enum: ["percentage", "fixed"],
       required: true
    },
    discount: {
       type: Number,
+      required: true
+   },
+   isFeatured: {
+      type: Boolean,
       required: true
    },
    offerStartDate: {

@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { CategoriesData } from '@/types/interfaces';
 import Image from 'next/image';
-
+import ProductInput from '../shared/ProductInput';
 
 const CategoryForm = ({ action, categoryData }: {
    action: string;
@@ -27,13 +27,12 @@ const CategoryForm = ({ action, categoryData }: {
    const [formData, setFormData] = useState<CategoriesData>(initialCategoryData);
    const [originalData, setOriginalData] = useState<CategoriesData>(initialCategoryData);
    const [isSubmitting, setIsSubmitting] = useState(false);
+   const [apiError, setApiError] = useState('');
 
    const router = useRouter();
 
    useEffect(() => {
       if (action === "update" && categoryData) {
-         setProductIdsInput(categoryData.products ? categoryData.products.join(', ') : '');
-
          const formattedData = {
             slug: categoryData.slug,
             title: categoryData.title,
@@ -42,19 +41,14 @@ const CategoryForm = ({ action, categoryData }: {
             bannerImageUrl: categoryData.bannerImageUrl,
             bannerImageID: categoryData.bannerImageID,
             isFeatured: categoryData.isFeatured,
-            products: categoryData.products,
+            products: categoryData.products || [],
          };
-
 
          setFormData(formattedData);
          setOriginalData(formattedData);
       }
    }, [action, categoryData]);
 
-   // New state for direct input of product IDs
-   const [productIdsInput, setProductIdsInput] = useState('');
-
-   const [apiError, setApiError] = useState('');
    const [errors, setErrors] = useState({
       slug: '',
       title: '',
@@ -62,6 +56,7 @@ const CategoryForm = ({ action, categoryData }: {
       description: '',
       bannerImageUrl: '',
       bannerImageID: '',
+      products: '',
    });
 
    // Handle general input field changes
@@ -81,32 +76,19 @@ const CategoryForm = ({ action, categoryData }: {
       }
    };
 
-   // Modify the handleProductIdsChange function
-   const handleProductIdsChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-      const value = e.target.value;
-      setProductIdsInput(value);
-
-      // Split comma-separated values, trim, and filter out empty strings
-      const productIds = value.split(',').map(id => id.trim()).filter(id => id !== '');
-
-      // Keep track of invalid IDs to show in the UI
-      const invalidIds: string[] = [];
-      const validProductIds = productIds.filter(id => {
-         const isValid = /^[0-9a-fA-F]{24}$/.test(id);
-         if (!isValid && id !== '') invalidIds.push(id);
-         return isValid;
-      });
-
+   // Handle product IDs changes from ProductInput component
+   const handleProductsChange = (products: string[]) => {
       setFormData(prev => ({
          ...prev,
-         products: validProductIds,
+         products,
       }));
 
-      // Better error messaging
-      if (invalidIds.length > 0) {
-         setApiError(`Invalid product IDs: ${invalidIds.join(', ')}. IDs must be 24 character hex strings.`);
-      } else {
-         setApiError('');
+      // Clear any product-related errors
+      if (errors.products) {
+         setErrors(prev => ({
+            ...prev,
+            products: '',
+         }));
       }
    };
 
@@ -127,8 +109,10 @@ const CategoryForm = ({ action, categoryData }: {
          description: '',
          bannerImageUrl: '',
          bannerImageID: '',
+         products: '',
       };
       let isValid = true;
+
       if (!formData.title.trim()) {
          newErrors.title = 'Title is required';
          isValid = false;
@@ -156,6 +140,14 @@ const CategoryForm = ({ action, categoryData }: {
          newErrors.bannerImageID = 'Banner image ID is required';
          isValid = false;
       }
+
+      // Validate products
+      const invalidProductIds = formData.products.filter(id => !/^[0-9a-fA-F]{24}$/.test(id));
+      if (invalidProductIds.length > 0) {
+         newErrors.products = `Invalid product IDs: ${invalidProductIds.join(', ')}. IDs must be 24 character hex strings.`;
+         isValid = false;
+      }
+
       setErrors(newErrors);
       return isValid;
    };
@@ -165,6 +157,8 @@ const CategoryForm = ({ action, categoryData }: {
       e.preventDefault();
 
       if (!validateForm()) return;
+
+      setIsSubmitting(true);
 
       if (action === "add") {
          await handleCreateCategory();
@@ -192,10 +186,10 @@ const CategoryForm = ({ action, categoryData }: {
          setIsSubmitting(false);
       }
    };
-   const handleUpdateCategory = async () => {
-      // create a shalow copy of changes feilds
-      const changes: Partial<CategoriesData> = { slug: formData.slug }; // slug is required
 
+   const handleUpdateCategory = async () => {
+      // create a shallow copy of changed fields
+      const changes: Partial<CategoriesData> = { slug: formData.slug }; 
 
       // check for changes
       if (originalData.slug !== formData.slug) {
@@ -219,29 +213,35 @@ const CategoryForm = ({ action, categoryData }: {
       if (originalData.isFeatured !== formData.isFeatured) {
          changes.isFeatured = formData.isFeatured;
       }
-      if (originalData.products.join(',') !== formData.products.join(',')) {
+
+      // Compare products arrays carefully
+      const originalProductsStr = JSON.stringify(originalData.products.sort());
+      const newProductsStr = JSON.stringify(formData.products.sort());
+
+      if (originalProductsStr !== newProductsStr) {
          changes.products = formData.products;
       }
 
       // if no changes
-      if (Object.keys(changes).length === 0) {
+      if (Object.keys(changes).length <= 1) {
          toast.info('No changes were made');
+         setIsSubmitting(false);
          return;
       }
 
       // update category
-      setIsSubmitting(true);
       try {
          const res = await updateCategory(changes);
          if (res.success) {
             toast.success('Category updated successfully');
+            router.push('/admin-dashbord/categories');
          }
          else {
             toast.error('An error occurred while updating the category. Please try again.');
          }
       } catch (error) {
-         console.error('Error updating product:', error);
-         toast.error('An error occurred while updating the product. Please try again.');
+         console.error('Error updating category:', error);
+         toast.error('An error occurred while updating the category. Please try again.');
       } finally {
          setIsSubmitting(false);
       }
@@ -360,30 +360,13 @@ const CategoryForm = ({ action, categoryData }: {
                </div>
             </div>
 
-            {/* Product IDs Input Section */}
+            {/* Product IDs Input Section - New Component Integration */}
             <div className="form-group mt-6">
-               <FormField
-                  htmlFor="productIds"
-                  labelText="Product IDs"
-                  name="productIds"
-                  isRequired={false}
-                  inputType="text"
-                  value={productIdsInput}
-                  onChange={handleProductIdsChange}
-                  placeholder="Enter product IDs separated by commas"
+               <ProductInput
+                  value={formData.products}
+                  onChange={handleProductsChange}
+                  error={errors.products}
                />
-               {formData.products.length > 0 && (
-                  <div className="mt-2">
-                     <p className="text-secondary text-sm">Product IDs:</p>
-                     <div className="flex flex-wrap gap-2">
-                        {formData.products.map((id, index) => (
-                           <span key={index} className="bg-accent-green text-primary px-2 py-1 rounded">
-                              {id}
-                           </span>
-                        ))}
-                     </div>
-                  </div>
-               )}
             </div>
 
             {/* Submit Button */}

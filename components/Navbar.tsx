@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleUser, Monitor, Moon, Search, ShieldCheck, ShoppingCart, Sun } from 'lucide-react';
+import { CircleUser, LoaderCircle, Monitor, Moon, Search, ShieldCheck, ShoppingCart, Sun } from 'lucide-react';
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useTheme } from '../context/ThemeProvider';
@@ -152,25 +152,33 @@ const Navbar = () => {
           </button>
 
           {/* Cart with badge */}
-          <Link
-            href="/cart"
-            className="p-2 hover:bg-accent rounded-full transition-colors relative"
-            aria-label="Shopping Cart"
-          >
-            <ShoppingCart className="w-5 h-5 text-primary" />
-            {showCartBadge && (
-              <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
-                {currentUser?.cart?.products?.length || 0}
-              </span>
-            )}
-          </Link>
+          {
+            isLoading ? (
+              <div className="w-8 h-8 flex items-center justify-center">
+                <LoaderCircle className="w-5 h-5 text-primary animate-spin" />
+              </div>
+            ) : (
+              <Link
+                href="/cart"
+                className="p-2 hover:bg-accent rounded-full transition-colors relative"
+                aria-label="Shopping Cart"
+              >
+                <ShoppingCart className="w-5 h-5 text-primary" />
+                {showCartBadge && (
+                  <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                    {currentUser?.cart?.products?.length || 0}
+                  </span>
+                )}
+              </Link>
+            )
+          }
 
           {/* Auth - Show based on currentUser from context */}
           {isLoading ? (
-            // Loading state
-            <div className="w-8 h-8 rounded-full bg-background-secondary animate-pulse"></div>
+            <div className="w-8 h-8 flex items-center justify-center">
+              <LoaderCircle className="w-5 h-5 text-primary animate-spin" />
+            </div>
           ) : currentUser ? (
-            // User is logged in - show user menu
             <div className="relative" ref={userMenuRef}>
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
@@ -339,12 +347,14 @@ const Navbar = () => {
       </div>
 
       {/* Search overlay */}
-      {isSearchOpen && (
-        <SearchContainer
-          setIsSearchOpen={setIsSearchOpen}
-        />
-      )}
-    </nav>
+      {
+        isSearchOpen && (
+          <SearchContainer
+            setIsSearchOpen={setIsSearchOpen}
+          />
+        )
+      }
+    </nav >
   );
 };
 

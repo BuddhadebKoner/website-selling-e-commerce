@@ -3,6 +3,8 @@
 // Interfaces related to category management and display
 // ======================================================
 
+import mongoose from "mongoose";
+
 /**
  * Data structure for creating or updating a category
  */
@@ -203,4 +205,27 @@ export interface OrderSummaryProps {
    isCheckingOut: boolean;
    discountCode?: string;
    discountAmount?: number;
+}
+
+// ======================================================
+// OFFER INTERFACES
+// Interfaces related to offer management and display
+// ======================================================
+
+export interface IOffer {
+   offerName: string;
+   description: string;
+   status: "active" | "inactive" | "expired";
+   type: "percentage" | "fixed";
+   discount: number;
+   isFeatured: boolean;
+   offerStartDate: Date;
+   offerEndDate: Date;
+   products: string[];
+}
+
+export interface OfferResponse {
+   success: boolean;
+   offer?: IOffer;
+   error?: string;
 }

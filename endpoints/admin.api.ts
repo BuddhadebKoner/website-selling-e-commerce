@@ -1,5 +1,4 @@
-import { CategoriesData } from "@/components/Forms/CategoryForm";
-import { ProductData } from "@/components/Forms/ProductForm";
+import { CategoriesData, IOffer, OfferResponse, ProductData } from "@/types/interfaces";
 
 // Define the product type to match your form data structure
 export type CreateResponse = {
@@ -167,3 +166,58 @@ export async function updateCategory(category: Partial<CategoriesData>) {
    }
 }
 
+// create offer
+export async function createOffer(offer: IOffer) { 
+   try {
+      const response = await fetch('/api/admin/offer', {
+         method: 'POST',
+         headers: {
+            'Content-Type': 'application/json',
+         },
+         body: JSON.stringify(offer),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+         throw new Error(data.error || 'Failed to create offer');
+      }
+
+      return { success: true, offer: data };
+   } catch (error) {
+      console.error('Error in creating offer:', error);
+      return {
+         success: false,
+         error: error instanceof Error ? error.message : 'Unknown error occurred while creating offer'
+      };
+   }
+};
+
+// update offer
+export async function updateOffer(offer: Partial<IOffer>) {
+   try {
+      if (!offer.offerName) {
+         throw new Error('Offer slug is required for updates');
+      }
+
+      const response = await fetch(`/api/admin/offer/${offer.offerName}`, {
+         method: 'PATCH',
+         headers: {
+            'Content-Type': 'application/json',
+         },
+         body: JSON.stringify(offer),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+         throw new Error(data.error || 'Failed to update offer');
+      }
+
+      return { success: true, offer: data };
+   } catch (error) {
+      console.error('Error in updating offer:', error);
+      return {
+         success: false,
+         error: error instanceof Error ? error.message : 'Unknown error occurred while updating offer'
+      };
+   }
+}

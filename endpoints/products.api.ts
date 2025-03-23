@@ -1,4 +1,3 @@
-// endpoints/products.api.ts
 export const getAllProducts = async (page = 1, limit = 5) => {
    try {
       const response = await fetch(`/api/public/products?page=${page}&limit=${limit}`);

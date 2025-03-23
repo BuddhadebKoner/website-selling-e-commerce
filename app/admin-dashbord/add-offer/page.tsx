@@ -3,7 +3,7 @@ import React from 'react';
 
 const Page = () => {
    return <OfferForm
-      action="add"
+      action="create"
       offerData=""
    />;
 };

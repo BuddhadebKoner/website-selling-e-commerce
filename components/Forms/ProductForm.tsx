@@ -40,7 +40,7 @@ const ProductForm = ({ action, productData }: { action: string, productData: Pro
       tags: '',
    });
 
-   const router = useRouter();
+   const router = useRouter();   
 
    // Load product data when in update mode and productData is available
    useEffect(() => {

@@ -2,10 +2,10 @@
 
 import React from 'react';
 import Link from "next/link";
-import { useGetAllCategory } from '@/lib/react-query/queriesAndMutation';
 import { useInView } from 'react-intersection-observer';
-import CategoryDataRow from '@/components/CategoryDataRow';
-import { ICategories } from '@/types/interfaces';
+import { IOffer } from '@/types/interfaces';
+import { useGetAllOffers } from '@/lib/react-query/queriesAndMutation';
+import OfferDataRow from '@/components/OfferDataRow';
 
 export default function Page() {
   const {
@@ -16,7 +16,7 @@ export default function Page() {
     isFetchingNextPage,
     isLoading,
     isError,
-  } = useGetAllCategory();
+  } = useGetAllOffers();
 
   const { ref, inView } = useInView();
 
@@ -46,19 +46,20 @@ export default function Page() {
         <table className="w-full">
           <thead className="bg-background-secondary">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium">Name</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Sub Title</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Is Featured</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Product Count</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Actions</th>
+              <th className="px-4 py-3 text-left text-sm font-medium ">Offer Name</th>
+              <th className="px-4 py-3 text-left text-sm font-medium ">Status</th>
+              <th className="px-4 py-3 text-left text-sm font-medium ">Product </th>
+              <th className="px-4 py-3 text-left text-sm font-medium ">Start Date</th>
+              <th className="px-4 py-3 text-left text-sm font-medium ">End Date</th>
+              <th className="px-4 py-3 text-left text-sm font-medium ">Action</th>
             </tr>
           </thead>
           <tbody>
             {data?.pages.map((page) =>
-              (page.data || []).map((product: ICategories) => (
-                <CategoryDataRow
-                  key={product._id}
-                  category={product}
+              (page.data || []).map((offer: IOffer) => (
+                <OfferDataRow
+                  key={offer.offerName}
+                  offer={offer}
                 />
               ))
             )}

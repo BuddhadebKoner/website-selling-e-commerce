@@ -93,7 +93,7 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
          {/* Main content */}
          <main className="flex-1 flex flex-col w-full">
             {/* Header */}
-            <header className="bg-glass sticky top-0 z-10 flex items-center justify-between p-4 shadow-sm">
+            <header className="bg-glass sticky top-0 z-10 flex items-center justify-between p-4">
                <div className="relative max-w-xs flex items-center bg-background-secondary w-full rounded-md">
                   <button
                      className="p-2 hover:bg-accent rounded-full transition-colors cursor-pointer"

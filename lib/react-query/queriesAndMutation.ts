@@ -1,8 +1,9 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { QUERY_KEYS } from "./queryKeys";
-import { getAllProducts, getProductBySlug, getProductsByStatus, getProductsByType } from "@/endpoints/products";
-import { getAllCategory, getCategoryBySlug } from "@/endpoints/category";
+import { getAllProducts, getProductBySlug, getProductsByStatus, getProductsByType } from "@/endpoints/products.api";
+import { getAllCategory, getCategoryBySlug } from "@/endpoints/category.api";
 import { getAllUsers } from "@/endpoints/user.api";
+import { getAllOffer, getOfferBySlug } from "@/endpoints/offer.api";
 
 export const useGetAllProducts = (limit = 5) => {
    return useInfiniteQuery({
@@ -116,5 +117,34 @@ export const useGetAllCategory = (limit = 10, options = {}) => {
       staleTime: 1000 * 60 * 5,
       refetchOnWindowFocus: false,
       ...options,
+   });
+};
+
+// get all offers
+export const useGetAllOffers = (limit = 10, options = {}) => { 
+   return useInfiniteQuery({
+      queryKey: [QUERY_KEYS.GET_ALL_OFFERS, limit],
+      initialPageParam: 1,
+      queryFn: ({ pageParam = 1 }: { pageParam?: number }) => getAllOffer(pageParam, limit),
+      getNextPageParam: (lastPage) => {
+         if ('error' in lastPage) return undefined;
+         if (lastPage.currentPage < lastPage.totalPages) {
+            return lastPage.currentPage + 1;
+         }
+         return undefined;
+      },
+      staleTime: 1000 * 60 * 5,
+      refetchOnWindowFocus: false,
+      ...options,
+   });
+}
+
+// get offer by slug
+export const useGetOfferBySlug = (slug: string) => { 
+   return useQuery({
+      queryKey: [QUERY_KEYS.GET_OFFER_BY_SLUG, slug],
+      queryFn: () => getOfferBySlug(slug),
+      enabled: !!slug,
+      staleTime: 1000 * 60 * 5,
    });
 };
