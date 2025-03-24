@@ -9,8 +9,6 @@ import Link from 'next/link';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 
-
-
 export function ProductCard({
    _id,
    title,

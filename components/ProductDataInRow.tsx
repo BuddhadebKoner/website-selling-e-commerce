@@ -204,7 +204,6 @@ const ProductDataInRow = ({ product }: {
                   ) : (
                      <Trash2 size={14} className="mr-1" />
                   )}
-                  Delete
                </button>
             </div>
          </td>

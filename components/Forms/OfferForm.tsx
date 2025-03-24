@@ -446,12 +446,16 @@ function OfferForm({ action, offerData }: {
           </div>
 
           {/* Featured Toggle */}
-          <ToggleField
-            label="Is Featured"
-            name="isFeatured"
-            checked={formData.isFeatured}
-            onChange={handleToggleChange("isFeatured")}
-          />
+          {
+            action === "create" && (
+              <ToggleField
+                label="Is Featured"
+                name="isFeatured"
+                checked={formData.isFeatured}
+                onChange={handleToggleChange("isFeatured")}
+              />
+            )
+          }
 
           {/* Start Date */}
           <DateField

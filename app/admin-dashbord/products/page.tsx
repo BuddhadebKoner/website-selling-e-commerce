@@ -82,6 +82,8 @@ export default function Page() {
     error
   } = activeQuery;
 
+  console.log(data);
+
   // Handle filter button clicks
   const handleFilterChange = (filter: FilterOption) => {
     setActiveFilter(filter);
