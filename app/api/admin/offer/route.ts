@@ -1,6 +1,7 @@
 import { isAdminRequest } from "@/lib/auth-admin-gard";
 import { connectToDatabase } from "@/lib/db";
 import Offer from "@/models/offer.model";
+import Product from "@/models/product.model";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -105,6 +106,20 @@ export async function POST(request: NextRequest) {
       if (!newOffer) {
          return NextResponse.json(
             { message: "Faild to create offer" },
+            { status: 500 }
+         );
+      }
+
+      // update to products offer section
+
+      const updatedProducts = await Product.updateMany(
+         { _id: { $in: products } },
+         { $set: { offer: newOffer._id } }
+      );
+
+      if (!updatedProducts) {
+         return NextResponse.json(
+            { message: "Faild to update products" },
             { status: 500 }
          );
       }

@@ -21,6 +21,8 @@ const ProductDataInRow = ({ product }: {
    // Get query client for cache invalidation
    const queryClient = useQueryClient();
 
+   console.log('product:', product);
+
    // Local state to track changes
    const [currentStatus, setCurrentStatus] = useState<string>(product.status);
    const [currentProductType, setCurrentProductType] = useState<string>(product.productType);

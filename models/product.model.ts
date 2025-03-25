@@ -23,7 +23,7 @@ export interface IProduct {
    totalRating: number;
    category: mongoose.Types.ObjectId;
    rating: mongoose.Types.ObjectId[];
-   offer: mongoose.Types.ObjectId[];
+   offer: mongoose.Types.ObjectId;
 }
 
 const ProductSchema = new mongoose.Schema({
@@ -131,12 +131,10 @@ const ProductSchema = new mongoose.Schema({
          ref: "Rating",
       },
    ],
-   offer: [
-      {
-         type: mongoose.Types.ObjectId,
-         ref: "Offer",
-      },
-   ]
+   offer: {
+      type: mongoose.Types.ObjectId,
+      ref: "Offer",
+   },
 }, { timestamps: true });
 
 const Product = mongoose.models.Product || mongoose.model<IProduct>("Product", ProductSchema);
