@@ -12,70 +12,72 @@ import ProductPrice from './shared/ProductPrice';
 
 export function ProductCard({
    _id,
-   title,
    slug,
+   title,
    subTitle,
-   price,
-   status,
-   bannerImageUrl,
+   liveLink,
    productType,
+   productAbout,
+   price,
+   websiteAge,
+   status,
+   images,
+   bannerImageUrl,
    totalSold,
+   totalRating,
+   OfferStatus,
+   OfferType,
+   discount,
+   rating: propRating,
+   comment,
+   isRatingFeatured,
+   offerStartDate,
+   offerEndDate,
    technologyStack,
-   offer,
 }: ProductCardProps) {
    const { currentUser, refreshCurrentUser, isLoading } = useUserAuthentication();
    const [addToCartLoading, setAddToCartLoading] = useState(false);
 
    // Status color mapping
-   const statusColorClass = {
-      'active': 'bg-accent-green bg-opacity-10 text-accent-green',
-      'delay': 'bg-accent-yellow bg-opacity-10 text-accent-yellow',
-      'inactive': 'bg-accent-red bg-opacity-10 text-accent-red'
-   }[status] || 'bg-background-secondary text-secondary';
+   const statusColorClass =
+      {
+         active: 'bg-accent-green bg-opacity-10 text-accent-green',
+         delay: 'bg-accent-yellow bg-opacity-10 text-accent-yellow',
+         inactive: 'bg-accent-red bg-opacity-10 text-accent-red',
+      }[status] || 'bg-background-secondary text-secondary';
 
-   // Hardcoded rating (replace with real data if available)
-   const rating = 4.5;
+   // Use provided rating or fallback to a default value
+   const rating = propRating || 4.5;
    const fullStars = Math.floor(rating);
    const halfStar = rating % 1 >= 0.5;
 
    // Handler for adding product to cart
    const handleAddToCart = async () => {
-      // Prevent action if any loading state is active
-      if (addToCartLoading || isLoading) {
-         return;
-      }
-
+      if (addToCartLoading || isLoading) return;
       setAddToCartLoading(true);
-
-      // Check if user is logged in
       if (!currentUser?.id) {
-         toast.error("Please log in to add items to cart");
+         toast.error('Please log in to add items to cart');
          setAddToCartLoading(false);
          return;
       }
-
       try {
-         // Pass cartId if it exists
          const cartId = currentUser?.cart?.id;
          const res = await addToCart(_id, cartId);
-
          if (res.success) {
             refreshCurrentUser();
-            toast.success(res.message || "Added to cart successfully");
-
+            toast.success(res.message || 'Added to cart successfully');
          } else {
-            // Handle specific error cases
-            if (res.error?.includes("Cart limit reached")) {
-               toast.error("Your cart is full (max 5 products)");
-            } else if (res.error?.includes("already in your cart")) {
-               toast.error("This product is already in your cart");
+            if (res.error?.includes('Cart limit reached')) {
+               toast.error('Your cart is full (max 5 products)');
+            } else if (res.error?.includes('already in your cart')) {
+               toast.error('This product is already in your cart');
             } else {
-               toast.error(res.error || "Failed to add to cart");
+               toast.error(res.error || 'Failed to add to cart');
             }
          }
       } catch (error) {
-         console.error("Error handling add to cart:", error);
-         toast.error("Something went wrong. Please try again.");
+         console.error('Error handling add to cart:', error);
+         toast.error('Something went wrong. Please try again.');
       } finally {
          setAddToCartLoading(false);
       }
@@ -85,14 +87,13 @@ export function ProductCard({
       <div className="group bg-box border border-theme rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 w-full">
          {/* Image Section */}
          <div className="relative h-100 bg-background-secondary overflow-hidden">
-            <Link
-               href={`/templates/${productType}/${slug}`}>
+            <Link href={`/templates/${productType}/${slug}`}>
                {bannerImageUrl ? (
                   <Image
                      src={bannerImageUrl}
                      width={600}
                      height={300}
-                     alt={title || "i"}
+                     alt={title || 'Image'}
                      className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                   />
                ) : (
@@ -107,14 +108,16 @@ export function ProductCard({
          <div className="p-4 space-y-2 relative">
             {/* Status Badge */}
             <div className="absolute top-4 right-4">
-               <span className={`inline-flex items-center text-xs px-2 py-0.5 rounded-full font-medium ${statusColorClass}`}>
-                  {status || "i"}
+               <span
+                  className={`inline-flex items-center text-xs px-2 py-0.5 rounded-full font-medium ${statusColorClass}`}
+               >
+                  {status || 'N/A'}
                </span>
             </div>
 
             {/* Title & Subtitle */}
-            <h3 className="text-xl font-semibold">{title || "i"}</h3>
-            <p className="text-sm text-secondary">{subTitle || "i"}</p>
+            <h3 className="text-xl font-semibold">{title || 'N/A'}</h3>
+            <p className="text-sm text-secondary">{subTitle || 'N/A'}</p>
 
             {/* Rating Section */}
             <div className="flex items-center text-sm text-yellow-500">
@@ -129,7 +132,7 @@ export function ProductCard({
 
             {/* Product Type */}
             <span className="inline-block text-xs bg-background-secondary border border-theme px-2 py-1 rounded-full">
-               {productType || "i"}
+               {productType || 'N/A'}
             </span>
 
             {/* Technology Stack Tags */}
@@ -145,21 +148,22 @@ export function ProductCard({
                   ))
                ) : (
                   <span className="bg-background-secondary text-xs px-2 py-1 rounded-full border border-theme text-secondary">
-                     i
+                     N/A
                   </span>
                )}
             </div>
 
-            {/* Price and Sold Count */}
+            {/* Price Section */}
             <ProductPrice
                originalPrice={price}
-               offer={offer}
+               OfferStatus={OfferStatus}
+               OfferType={OfferType}
+               discount={discount}
             />
-
 
             {/* Action Buttons */}
             <div className="flex items-center justify-between pt-2">
-               {(status === 'unavailable' || status === 'unabaliable') ? (
+               {status === 'unavailable' || status === 'unabaliable' ? (
                   <div className="flex items-center gap-2">
                      <button className="btn cursor-not-allowed btn-secondary" disabled>
                         Unavailable
@@ -177,7 +181,7 @@ export function ProductCard({
                         Expect some delay in delivery
                      </span>
                   </div>
-               ) : currentUser?.cart?.products?.some(product => product._id === _id) ? (
+               ) : currentUser?.cart?.products?.some((product) => product._id === _id) ? (
                   <Link className="btn btn-primary" href="/cart">
                      Go to Cart
                   </Link>
@@ -185,7 +189,7 @@ export function ProductCard({
                   <button
                      className="btn btn-primary"
                      onClick={handleAddToCart}
-                     disabled={addToCartLoading || isLoading} // Disable button during any loading state
+                     disabled={addToCartLoading || isLoading}
                   >
                      {addToCartLoading ? (
                         <span className="flex items-center gap-1">

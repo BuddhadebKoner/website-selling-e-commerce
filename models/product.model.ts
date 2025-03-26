@@ -136,7 +136,7 @@ const ProductSchema = new mongoose.Schema({
    //   offers
    OfferStatus: {
       type: String,
-      enum: ["live", "delay", "unabaliable"],
+      enum: ["live", "unabaliable"],
       default: "unabaliable",
    },
    OfferType: {

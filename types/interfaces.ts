@@ -116,16 +116,28 @@ export interface ProductData {
  */
 export interface ProductCardProps {
    _id: string;
-   title: string;
    slug: string;
+   title: string;
    subTitle?: string;
-   price: number;
-   status: string;
-   bannerImageUrl: string;
+   liveLink: string;
    productType: string;
+   productAbout: string;
+   technologyStack: [];
+   price: number;
+   websiteAge: number;
+   status: string;
+   images: [];
+   bannerImageUrl: string;
    totalSold: number;
-   is_featured: boolean;
-   technologyStack?: string[];
+   totalRating: number;
+   OfferStatus: string;
+   OfferType: string;
+   discount: number;
+   rating: number;
+   comment: string;
+   isRatingFeatured: boolean;
+   offerStartDate: string;
+   offerEndDate: string;
 }
 
 // ======================================================

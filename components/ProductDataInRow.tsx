@@ -209,6 +209,14 @@ const ProductDataInRow = ({ product }: {
                </button>
             </div>
          </td>
+         <td className="px-4 py-3">
+            <Link
+               href={`/admin-dashbord/products/${product.slug}`}
+               className="btn btn-secondary text-sm py-1 px-3"
+            >
+               Add Offer
+            </Link>
+         </td>
       </tr>
    )
 }
