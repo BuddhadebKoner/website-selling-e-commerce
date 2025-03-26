@@ -8,6 +8,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
+import ProductPrice from './shared/ProductPrice';
 
 export function ProductCard({
    _id,
@@ -19,11 +20,9 @@ export function ProductCard({
    bannerImageUrl,
    productType,
    totalSold,
-   technologyStack
+   technologyStack,
+   offer,
 }: ProductCardProps) {
-   // Format price from cents to dollars
-   const formattedPrice = `$${(price / 100).toFixed(2)}`;
-
    const { currentUser, refreshCurrentUser, isLoading } = useUserAuthentication();
    const [addToCartLoading, setAddToCartLoading] = useState(false);
 
@@ -45,7 +44,7 @@ export function ProductCard({
       if (addToCartLoading || isLoading) {
          return;
       }
-      
+
       setAddToCartLoading(true);
 
       // Check if user is logged in
@@ -152,13 +151,11 @@ export function ProductCard({
             </div>
 
             {/* Price and Sold Count */}
-            <div className="flex items-center justify-between pt-3 border-t border-theme">
-               <div className="flex items-baseline gap-1">
-                  <p className="font-bold text-highlight-primary text-xl">{formattedPrice}</p>
-                  <span className="text-xs text-secondary">USD</span>
-               </div>
-               <p className="text-sm text-secondary font-medium">{totalSold} sold</p>
-            </div>
+            <ProductPrice
+               originalPrice={price}
+               offer={offer}
+            />
+
 
             {/* Action Buttons */}
             <div className="flex items-center justify-between pt-2">

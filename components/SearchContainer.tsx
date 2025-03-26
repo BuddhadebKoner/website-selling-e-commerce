@@ -37,8 +37,8 @@ const mockProducts: Product[] = [
    },
    {
       id: "4",
-      title: "Landing Page Builder",
-      category: "Landing Page",
+      title: "Landing-Page Builder",
+      category: "Landing-Page",
       price: 59,
       image: "/images/landing-template.jpg"
    }
@@ -202,10 +202,10 @@ const SearchContainer = ({ setIsSearchOpen }: {
                         Blog
                      </button>
                      <button
-                        onClick={() => performSearch('landing page')}
+                        onClick={() => performSearch('Landing-Page')}
                         className="hover:text-highlight transition-colors"
                      >
-                        Landing Page
+                        Landing-Page
                      </button>
                   </div>
                </div>

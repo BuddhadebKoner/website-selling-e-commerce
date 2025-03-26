@@ -37,13 +37,13 @@ const ProductDataInRow = ({ product }: {
       "E-commerce",
       "Portfolio",
       "Business",
-      "Personal Blog",
-      "Landing Page",
+      "Personal-Blog",
+      "Landing-Page",
       "SaaS",
       "Educational",
       "Real Estate",
-      "Job Portal",
-      "Social Network"
+      "Job-Portal",
+      "Social-Network"
    ];
 
    // Status options

@@ -22,8 +22,16 @@ export interface IProduct {
    totalSold: number;
    totalRating: number;
    category: mongoose.Types.ObjectId;
-   rating: mongoose.Types.ObjectId[];
-   offer: mongoose.Types.ObjectId;
+   // offers
+   OfferStatus: string;
+   OfferType: string;
+   discount: number;
+   offerStartDate: Date;
+   offerEndDate: Date;
+   // ratings
+   rating: number;
+   comment: string;
+   isRatingFeatured: boolean;
 }
 
 const ProductSchema = new mongoose.Schema({
@@ -50,13 +58,13 @@ const ProductSchema = new mongoose.Schema({
          "E-commerce",
          "Portfolio",
          "Business",
-         "Personal Blog",
-         "Landing Page",
+         "Personal-Blog",
+         "Landing-Page",
          "SaaS",
          "Educational",
-         "Real Estate",
-         "Job Portal",
-         "Social Network"
+         "Real-Estate",
+         "Job-Portal",
+         "Social-Network"
       ],
       required: true
    },
@@ -125,16 +133,43 @@ const ProductSchema = new mongoose.Schema({
       type: mongoose.Types.ObjectId,
       ref: "Category",
    },
-   rating: [
-      {
-         type: mongoose.Types.ObjectId,
-         ref: "Rating",
-      },
-   ],
-   offer: {
-      type: mongoose.Types.ObjectId,
-      ref: "Offer",
+   //   offers
+   OfferStatus: {
+      type: String,
+      enum: ["live", "delay", "unabaliable"],
+      default: "unabaliable",
    },
+   OfferType: {
+      type: String,
+      enum: ["percentage", "fixed"],
+      default: "percentage",
+   },
+   discount: {
+      type: Number,
+      default: 0,
+   },
+   offerStartDate: {
+      type: Date,
+      default: Date.now,
+   },
+   offerEndDate: {
+      type: Date,
+      default: Date.now,
+   },
+   //   ratings
+   rating: {
+      type: Number,
+      default: 0,
+   },
+   comment: {
+      type: String,
+      default: "",
+   },
+   isRatingFeatured: {
+      type: Boolean,
+      default: false,
+   },
+
 }, { timestamps: true });
 
 const Product = mongoose.models.Product || mongoose.model<IProduct>("Product", ProductSchema);

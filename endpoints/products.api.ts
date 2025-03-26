@@ -36,7 +36,7 @@ export const getProductsByStatus = async (status: string, page = 1, limit = 5) =
 
 export const getProductsByType = async (productType: string, page = 1, limit = 5) => {
    try {
-      // Encode the productType to handle spaces in values like "Personal Blog"
+      // Encode the productType to handle spaces in values like "Personal-Blog"
       const encodedType = encodeURIComponent(productType);
       const response = await fetch(`/api/public/products/producttype?type=${encodedType}&page=${page}&limit=${limit}`);
       const result = await response.json();

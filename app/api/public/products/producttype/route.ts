@@ -27,13 +27,13 @@ export async function GET(request: NextRequest) {
          "E-commerce",
          "Portfolio",
          "Business",
-         "Personal Blog",
-         "Landing Page",
+         "Personal-Blog",
+         "Landing-Page",
          "SaaS",
          "Educational",
-         "Real Estate",
-         "Job Portal",
-         "Social Network"
+         "Real-Estate",
+         "Job-Portal",
+         "Social-Network"
       ];
 
       if (!validProductTypes.includes(productType)) {
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
       const totalPages = Math.ceil(totalCount / limit);
 
       const products = await Product.find({ productType })
-         .select("-__v -rating -offer -bannerImageID")
+         .select("-__v -bannerImageID")
          .skip(skip)
          .limit(limit);
 

@@ -27,13 +27,13 @@ export async function PUT(request: NextRequest) {
          "E-commerce",
          "Portfolio",
          "Business",
-         "Personal Blog",
-         "Landing Page",
+         "Personal-Blog",
+         "Landing-Page",
          "SaaS",
          "Educational",
-         "Real Estate",
-         "Job Portal",
-         "Social Network"
+         "Real-Estate",
+         "Job-Portal",
+         "Social-Network"
       ];
 
       if (!validateProductType.includes(productType)) {

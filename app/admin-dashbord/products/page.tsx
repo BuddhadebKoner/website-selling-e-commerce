@@ -40,7 +40,7 @@ export default function Page() {
     { type: 'productType', value: 'E-commerce', label: 'E-commerce' },
     { type: 'productType', value: 'Portfolio', label: 'Portfolio' },
     { type: 'productType', value: 'Business', label: 'Business' },
-    { type: 'productType', value: 'Personal Blog', label: 'Personal Blog' },
+    { type: 'productType', value: 'Personal-Blog', label: 'Personal-Blog' },
     { type: 'productType', value: 'SaaS', label: 'SaaS' },
   ];
 

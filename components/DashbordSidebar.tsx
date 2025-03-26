@@ -32,12 +32,6 @@ const DashbordSidebar = () => {
                   active={pathname === '/admin-dashbord/categories'}
                />
                <SidebarLink
-                  icon={<BadgePercent size={20} />}
-                  label="Offers"
-                  href="/admin-dashbord/offers"
-                  active={pathname === '/admin-dashbord/offers'}
-               />
-               <SidebarLink
                   icon={<Users size={20} />}
                   label="Customers"
                   href="/admin-dashbord/customers"

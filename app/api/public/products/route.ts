@@ -2,7 +2,6 @@ import { connectToDatabase } from "@/lib/db";
 import Product from "@/models/product.model";
 import { NextRequest, NextResponse } from "next/server";
 
-// get all products using pagination 
 export async function GET(request: NextRequest) {
    try {
       const page = parseInt(request.nextUrl.searchParams.get('page') || '1');
@@ -10,15 +9,15 @@ export async function GET(request: NextRequest) {
 
       const skip = (page - 1) * limit;
 
-      // Get total count for pagination metadata
+      await connectToDatabase();
+
       const totalCount = await Product.countDocuments();
       const totalPages = Math.ceil(totalCount / limit);
-
-      await connectToDatabase();
 
       const products = await Product.find()
          .skip(skip)
          .limit(limit);
+
 
       if (!products || products.length === 0) {
          return NextResponse.json(
@@ -40,7 +39,8 @@ export async function GET(request: NextRequest) {
          },
          { status: 200 }
       );
-   } catch {
+   } catch (error) {
+      console.error("Error fetching products:", error);
       return NextResponse.json(
          { error: "Error in getting products" },
          { status: 500 }

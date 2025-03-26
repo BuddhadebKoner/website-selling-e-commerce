@@ -18,10 +18,11 @@ const CategoryCard: React.FC<ICategory> = ({
                <div className="relative w-full h-48 overflow-hidden">
                   <Image
                      src={bannerImageUrl}
+                     width={500}
+                     height={500}
                      alt={title}
                      fill
                      className="object-cover"
-                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                   {isFeatured && (
                      <div className="absolute top-2 right-2 bg-accent px-2 py-1 rounded text-xs font-medium">
