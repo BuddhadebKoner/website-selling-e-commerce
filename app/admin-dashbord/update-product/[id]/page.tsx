@@ -7,6 +7,7 @@ import { useGetProductBySlug } from "@/lib/react-query/queriesAndMutation";
 
 const Page = () => {
   const { id: slug } = useParams<{ id: string }>();
+  console.log("slug", slug);
 
   const { data: product, isLoading, isError, error } = useGetProductBySlug(slug);
   if (isLoading) return <p>Loading product...</p>;

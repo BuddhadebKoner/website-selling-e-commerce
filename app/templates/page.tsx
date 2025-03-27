@@ -54,7 +54,7 @@ const AllProductsPage = () => {
   return (
     <div className="rounded-lg overflow-hidden">
       {hasProducts ? (
-        <div className="flex flex-col space-y-4 p-4">
+        <div className="w-full h-fit flex flex-col gap-10">
           {data?.pages.map((page) =>
             (page.data || []).map((product: ProductCardProps) => (
               <ProductCard key={product._id} {...product} />
@@ -67,6 +67,7 @@ const AllProductsPage = () => {
           <p className="text-gray-500 mb-6">Try adding new products.</p>
         </div>
       )}
+
       {/* Infinite scroll indicator */}
       {hasProducts && (
         <>
@@ -79,8 +80,9 @@ const AllProductsPage = () => {
           )}
         </>
       )}
+
       {isFetching && !isFetchingNextPage && (
-        <div className="fixed bottom-4 right-4 bg-background-secondary px-4 py-2 rounded-md shadow-lg">
+        <div className="fixed bottom-4 right-4 bg-background-secondary px-4 py-2 rounded-md shadow-lg z-10">
           <div className="flex items-center space-x-2">
             <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent"></div>
             <span>Updating...</span>

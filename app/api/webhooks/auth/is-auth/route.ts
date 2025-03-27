@@ -19,40 +19,45 @@ export async function POST(request: NextRequest) {
       const existingUserArray = await User.aggregate([
          { $match: { clerkId } },
          {
-            $lookup: {
-               from: "carts", // The collection name for carts
-               localField: "cart",
-               foreignField: "_id",
-               as: "cartData"
-            }
+         $lookup: {
+            from: "carts", // The collection name for carts
+            localField: "cart",
+            foreignField: "_id",
+            as: "cartData"
+         }
          },
          { $unwind: { path: "$cartData", preserveNullAndEmptyArrays: true } },
          {
-            $lookup: {
-               from: "products", // The collection name for products
-               localField: "cartData.products",
-               foreignField: "_id",
-               as: "cartData.productDetails"
-            }
+         $lookup: {
+            from: "products", // The collection name for products
+            localField: "cartData.products",
+            foreignField: "_id",
+            as: "cartData.productDetails"
+         }
          },
          {
-            $project: {
-               _id: 1,
-               cart: "$cartData._id",
-               totalAmount: "$cartData.totalAmount",
-               products: {
-                  $map: {
-                     input: "$cartData.productDetails",
-                     as: "product",
-                     in: {
-                        _id: "$$product._id",
-                        title: "$$product.title",
-                        price: "$$product.price",
-                        bannerImageUrl: "$$product.bannerImageUrl"
-                     }
-                  }
+         $project: {
+            _id: 1,
+            cart: "$cartData._id",
+            totalAmount: "$cartData.totalAmount",
+            products: {
+            $map: {
+               input: "$cartData.productDetails",
+               as: "product",
+               in: {
+               _id: "$$product._id",
+               title: "$$product.title",
+               price: "$$product.price",
+               bannerImageUrl: "$$product.bannerImageUrl",
+               OfferStatus: "$$product.OfferStatus",
+               OfferType: "$$product.OfferType",
+               discount: "$$product.discount",
+               offerStartDate: "$$product.offerStartDate",
+               offerEndDate: "$$product.offerEndDate"
                }
             }
+            }
+         }
          }
       ]);
 

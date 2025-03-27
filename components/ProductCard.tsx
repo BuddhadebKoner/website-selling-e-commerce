@@ -3,7 +3,7 @@
 import { useUserAuthentication } from '@/context/AuthProvider';
 import { addToCart } from '@/endpoints/user.api';
 import { ProductCardProps } from '@/types/interfaces';
-import { LoaderCircle, ShoppingBag } from 'lucide-react';
+import { ExternalLink, LoaderCircle, ShoppingBag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState } from 'react';
@@ -18,11 +18,13 @@ export function ProductCard({
    liveLink,
    productType,
    productAbout,
+   tags,
    price,
    websiteAge,
    status,
    images,
    bannerImageUrl,
+   is_featured,
    totalSold,
    totalRating,
    OfferStatus,
@@ -38,18 +40,24 @@ export function ProductCard({
    const { currentUser, refreshCurrentUser, isLoading } = useUserAuthentication();
    const [addToCartLoading, setAddToCartLoading] = useState(false);
 
-   // Status color mapping
+   // Status color mapping - updated to match product data status values
    const statusColorClass =
-      {
-         active: 'bg-accent-green bg-opacity-10 text-accent-green',
-         delay: 'bg-accent-yellow bg-opacity-10 text-accent-yellow',
-         inactive: 'bg-accent-red bg-opacity-10 text-accent-red',
-      }[status] || 'bg-background-secondary text-secondary';
+      status === 'live' ? 'bg-accent-green bg-opacity-10 text-accent-green' :
+         status === 'delay' ? 'bg-accent-yellow bg-opacity-10 text-accent-yellow' :
+            status === 'unavailable' || status === 'unabaliable' ? 'bg-accent-red bg-opacity-10 text-accent-red' :
+               'bg-background-secondary text-secondary';
 
    // Use provided rating or fallback to a default value
-   const rating = propRating || 4.5;
+   const rating = propRating || 0;
    const fullStars = Math.floor(rating);
    const halfStar = rating % 1 >= 0.5;
+   const displayRating = rating > 0 ? rating : totalRating > 0 ? totalRating : 0;
+
+   // Display "New" badge if website is less than 30 days old
+   const isNewProduct = websiteAge < 30;
+
+   // Display featured badge
+   const isFeatured = is_featured;
 
    // Handler for adding product to cart
    const handleAddToCart = async () => {
@@ -83,11 +91,22 @@ export function ProductCard({
       }
    };
 
+   // Check if offer is valid by confirming dates
+   const isOfferValid = () => {
+      if (OfferStatus !== 'live') return false;
+
+      const now = new Date();
+      const startDate = new Date(offerStartDate);
+      const endDate = new Date(offerEndDate);
+
+      return now >= startDate && now <= endDate;
+   };
+
    return (
       <div className="group bg-box border border-theme rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 w-full">
          {/* Image Section */}
          <div className="relative h-100 bg-background-secondary overflow-hidden">
-            <Link href={`/templates/${productType}/${slug}`}>
+            <Link href={`/templates/${productType.toLowerCase()}/${slug}`}>
                {bannerImageUrl ? (
                   <Image
                      src={bannerImageUrl}
@@ -102,6 +121,27 @@ export function ProductCard({
                   </div>
                )}
             </Link>
+
+            {/* Special Badges */}
+            <div className="absolute top-2 left-2 flex flex-col gap-1">
+               {isNewProduct && (
+                  <span className="bg-accent-blue text-white text-xs px-2 py-0.5 rounded-full">
+                     New
+                  </span>
+               )}
+
+               {isFeatured && (
+                  <span className="bg-accent-purple text-white text-xs px-2 py-0.5 rounded-full">
+                     Featured
+                  </span>
+               )}
+
+               {isOfferValid() && (
+                  <span className="bg-accent-green text-white text-xs px-2 py-0.5 rounded-full">
+                     Sale
+                  </span>
+               )}
+            </div>
          </div>
 
          {/* Content Section */}
@@ -111,34 +151,58 @@ export function ProductCard({
                <span
                   className={`inline-flex items-center text-xs px-2 py-0.5 rounded-full font-medium ${statusColorClass}`}
                >
-                  {status || 'N/A'}
+                  {status === 'live' ? 'Active' : status}
                </span>
             </div>
 
             {/* Title & Subtitle */}
             <h3 className="text-xl font-semibold">{title || 'N/A'}</h3>
-            <p className="text-sm text-secondary">{subTitle || 'N/A'}</p>
+            <p className="text-sm text-secondary line-clamp-2">{subTitle || 'N/A'}</p>
 
             {/* Rating Section */}
-            <div className="flex items-center text-sm text-yellow-500">
-               {Array(fullStars)
-                  .fill(0)
-                  .map((_, i) => (
-                     <span key={i}>★</span>
+            <div className="flex items-center text-sm">
+               <div className="text-yellow-500">
+                  {Array(5).fill(0).map((_, i) => (
+                     <span key={i}>{i < fullStars ? '★' : (i === fullStars && halfStar) ? '☆' : '☆'}</span>
                   ))}
-               {halfStar && <span>☆</span>}
-               <span className="text-secondary ml-1">({rating})</span>
+               </div>
+               <span className="text-secondary ml-1">({displayRating})</span>
+               {totalSold > 0 && (
+                  <span className="text-secondary ml-3 text-xs">
+                     {totalSold} sold
+                  </span>
+               )}
             </div>
 
-            {/* Product Type */}
-            <span className="inline-block text-xs bg-background-secondary border border-theme px-2 py-1 rounded-full">
-               {productType || 'N/A'}
-            </span>
+            {/* Live Link */}
+            {liveLink && (
+               <a
+                  href={liveLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center text-xs text-accent-blue hover:underline"
+               >
+                  Demo
+               </a>
+            )}
+
+            {/* Product Type & Age */}
+            <div className="flex flex-wrap gap-2 items-center">
+               <span className="inline-block text-xs bg-background-secondary border border-theme px-2 py-1 rounded-full">
+                  {productType || 'N/A'}
+               </span>
+
+               {websiteAge > 0 && (
+                  <span className="text-xs text-secondary">
+                     {websiteAge} days old
+                  </span>
+               )}
+            </div>
 
             {/* Technology Stack Tags */}
             <div className="flex flex-wrap gap-1.5">
                {technologyStack && technologyStack.length > 0 ? (
-                  technologyStack.map((tech, index) => (
+                  technologyStack.slice(0, 3).map((tech, index) => (
                      <span
                         key={index}
                         className="bg-background-secondary text-xs px-2 py-1 rounded-full border border-theme text-secondary"
@@ -151,12 +215,18 @@ export function ProductCard({
                      N/A
                   </span>
                )}
+
+               {technologyStack && technologyStack.length > 3 && (
+                  <span className="bg-background-secondary text-xs px-2 py-1 rounded-full border border-theme text-secondary">
+                     +{technologyStack.length - 3} more
+                  </span>
+               )}
             </div>
 
             {/* Price Section */}
             <ProductPrice
                originalPrice={price}
-               OfferStatus={OfferStatus}
+               OfferStatus={isOfferValid() ? OfferStatus : 'unavailable'}
                OfferType={OfferType}
                discount={discount}
             />
@@ -189,7 +259,7 @@ export function ProductCard({
                   <button
                      className="btn btn-primary"
                      onClick={handleAddToCart}
-                     disabled={addToCartLoading || isLoading}
+                     disabled={addToCartLoading || isLoading || status !== 'live'}
                   >
                      {addToCartLoading ? (
                         <span className="flex items-center gap-1">
@@ -210,7 +280,7 @@ export function ProductCard({
                   </button>
                )}
 
-               <Link href={`/templates/${slug}`} className="btn btn-secondary">
+               <Link href={`/templates/${productType.toLowerCase()}/${slug}`} className="btn btn-secondary">
                   View Details
                </Link>
             </div>

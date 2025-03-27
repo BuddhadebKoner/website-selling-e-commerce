@@ -1,28 +1,43 @@
 "use client";
 
-import { CartProduct } from '@/types/interfaces';
+import { ProcessedCartItem } from '@/types/interfaces';
 import Image from 'next/image';
+import Link from 'next/link';
 import React from 'react';
-
+import { LoaderCircle } from 'lucide-react';
 
 interface CartItemProps {
-   item: CartProduct;
+   item: ProcessedCartItem;
    isRemoving: boolean;
    onRemove: (id: string) => void;
 }
 
 const CartItem: React.FC<CartItemProps> = ({ item, isRemoving, onRemove }) => {
-   // Format price from cents to dollars
-   const formatPrice = (price: number) => `$${(price / 100).toFixed(2)}`;
+   // Format price with proper currency symbol
+   const formatPrice = (price: number) => {
+      return new Intl.NumberFormat('en-US', {
+         style: 'currency',
+         currency: 'USD',
+         maximumFractionDigits: 0
+      }).format(price);
+   };
+
+   // Determine if there's an active discount
+   const hasDiscount = item.discountedPrice !== undefined && item.discountedPrice < item.price;
+
+   // Determine the display price (either discounted or original)
+   const displayPrice = hasDiscount ? item.discountedPrice : item.price;
 
    return (
-      <div className="p-4 flex items-center hover:bg-background-secondary transition-all">
+      <div className="p-4 flex items-start hover:bg-background-secondary transition-all">
+         {/* Product Image */}
          <div className="w-24 h-24 flex-shrink-0 mr-4 rounded-md overflow-hidden bg-background-secondary relative">
-            {item.bannerImageUrl && !item.bannerImageUrl.includes("localhost") ? (
+            {item.bannerImageUrl ? (
                <Image
                   src={item.bannerImageUrl}
                   alt={item.title}
-                  fill
+                  width={96} // Fixed width for better image loading
+                  height={96} // Fixed height to match the container
                   className="object-cover"
                />
             ) : (
@@ -31,17 +46,46 @@ const CartItem: React.FC<CartItemProps> = ({ item, isRemoving, onRemove }) => {
                </div>
             )}
          </div>
+
+         {/* Product Details */}
          <div className="flex-grow">
-            <h3 className="font-medium">{item.title}</h3>
-            <p className="text-highlight-primary font-bold">{formatPrice(item.price)}</p>
-            <p className="text-sm text-secondary">Template</p>
+            <Link href={`/templates/${item._id}`} className="hover:underline">
+               <h3 className="font-medium">{item.title}</h3>
+            </Link>
+
+            {/* Price with discount if applicable */}
+            {hasDiscount ? (
+               <div className="flex items-center">
+                  <p className="text-highlight-primary font-bold">{formatPrice(displayPrice!)}</p>
+                  <p className="text-secondary text-sm line-through ml-2">{formatPrice(item.price)}</p>
+                  <span className="ml-2 text-xs bg-accent-green text-white px-1.5 py-0.5 rounded">
+                     {item.OfferType === 'percentage'
+                        ? `${item.discount}% OFF`
+                        : `${formatPrice(item.discount)} OFF`}
+                  </span>
+               </div>
+            ) : (
+               <p className="text-highlight-primary font-bold">{formatPrice(item.price)}</p>
+            )}
+
+            <p className="text-sm text-secondary">{item.isOfferActive ? 'Offer Active' : 'Template'}</p>
          </div>
+
+         {/* Remove Button */}
          <button
             onClick={() => onRemove(item._id)}
             disabled={isRemoving}
-            className="btn btn-secondary px-3 py-1 text-sm"
+            className={`btn btn-secondary px-3 py-1 text-sm ${isRemoving ? 'opacity-50' : ''}`}
+            aria-label="Remove item from cart"
          >
-            {isRemoving ? "Removing..." : "Remove"}
+            {isRemoving ? (
+               <span className="flex items-center">
+                  <LoaderCircle className="animate-spin h-3 w-3 mr-1" />
+                  Removing...
+               </span>
+            ) : (
+               "Remove"
+            )}
          </button>
       </div>
    );

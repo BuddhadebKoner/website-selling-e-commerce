@@ -122,22 +122,31 @@ export interface ProductCardProps {
    liveLink: string;
    productType: string;
    productAbout: string;
-   technologyStack: [];
+   tags?: string[];
+   technologyStack: string[];
    price: number;
    websiteAge: number;
    status: string;
-   images: [];
+   images: {
+      imageUrl: string;
+      imageId: string;
+      _id: string;
+   }[];
    bannerImageUrl: string;
+   bannerImageID?: string;
+   is_featured?: boolean;
    totalSold: number;
    totalRating: number;
-   OfferStatus: string;
-   OfferType: string;
-   discount: number;
    rating: number;
    comment: string;
    isRatingFeatured: boolean;
+   OfferStatus: string;
+   OfferType: string;
+   discount: number;
    offerStartDate: string;
    offerEndDate: string;
+   createdAt?: string;
+   updatedAt?: string;
 }
 
 // ======================================================
@@ -170,43 +179,73 @@ export interface UserData {
    imageUrl: string;
    isAdmin: boolean;
    createdAt?: string;
-   cart?: CartData;
+   cart?: Cart;
 }
+
 
 // ======================================================
 // CART AND ORDER INTERFACES
 // Interfaces related to shopping cart and checkout
 // ======================================================
 
+export interface CartTotals {
+   subtotal: number;
+   tax: number;
+   total: number;
+   discountAmount: number;
+   effectiveTotal: number;
+}
+
+export interface Cart {
+   id: string;
+   products: CartProductItem[];
+}
+
+export interface CartProductItem {
+   _id: string;
+   title: string;
+   price: number;
+   bannerImageUrl: string;
+   OfferStatus: string;
+   OfferType: string;
+   discount: number;
+   offerStartDate: string;
+   offerEndDate: string;
+}
+
+
 /**
  * Product in cart
  */
+
+export interface ProcessedCartItem extends CartProductItem {
+   discountedPrice?: number;
+   originalPrice?: number;
+   isOfferActive?: boolean;
+}
+
 export interface CartProduct {
    _id: string;
    title: string;
    price: number;
    bannerImageUrl: string;
+   OfferStatus: string;
+   OfferType: string;
+   discount: number;
+   offerStartDate: string;
+   offerEndDate: string;
+   discountedPrice?: number;
+   originalPrice?: number;
+   products: Product[];
 }
 
-/**
- * Complete cart data
- */
-export interface CartData {
-   id: string;
-   totalAmount?: number;
-   products: Array<{
-      _id: string;
-      title: string;
-      price: number;
-      bannerImageUrl: string;
-   }>;
-}
 
 /**
  * Order summary component props
  */
+
 export interface OrderSummaryProps {
-   cartItems: CartProduct[];
+   cartItems: ProcessedCartItem[];
    subtotal: number;
    tax: number;
    total: number;
@@ -215,6 +254,9 @@ export interface OrderSummaryProps {
    isCheckingOut: boolean;
    discountCode?: string;
    discountAmount?: number;
+   promoCode?: string;
+   setPromoCode?: (code: string) => void;
+   onApplyPromo?: (e: React.FormEvent) => void;
 }
 
 // ======================================================

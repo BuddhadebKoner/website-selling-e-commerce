@@ -13,16 +13,18 @@ const ProductPrice = (
     discount: number,
   }
 ) => {
-  const formatter = new Intl.NumberFormat('en-US', {
+  const formatter = new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'INR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   });
 
   let discountedPrice = originalPrice;
   let saveAmount = 0;
   let savePercentage = 0;
 
-  if (OfferStatus !== "unavailable" && discount > 0) {
+  if (OfferStatus === "live" && discount > 0) {
     if (OfferType === "percentage") {
       discountedPrice = originalPrice - (originalPrice * (discount / 100));
       savePercentage = discount;
@@ -59,10 +61,15 @@ const ProductPrice = (
         )}
       </div>
 
-      {OfferStatus === "live" && isOfferActive && (
-        <div className="flex items-center mt-1">
-          <span className="w-2 h-2 rounded-full bg-accent-green mr-2 status-live-icon"></span>
-          <span className="text-xs text-accent-green">Offer Active</span>
+      {isOfferActive && (
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center">
+            <span className="w-2 h-2 rounded-full bg-accent-green mr-2 animate-pulse"></span>
+            <span className="text-xs text-accent-green">Offer Active</span>
+          </div>
+          <div className="text-xs text-secondary">
+            Save {formatter.format(saveAmount)}
+          </div>
         </div>
       )}
     </div>
