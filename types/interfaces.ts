@@ -216,3 +216,16 @@ export interface OrderSummaryProps {
    discountCode?: string;
    discountAmount?: number;
 }
+
+// ======================================================
+// OFFER
+// Interfaces related to offer
+// ======================================================
+export interface Offer {
+   OfferStatus: string;
+   OfferType: string;
+   discount: number;
+   offerStartDate: string;
+   offerEndDate: string;
+   productSlug: string;
+}

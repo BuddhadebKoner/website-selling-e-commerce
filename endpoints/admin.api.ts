@@ -1,4 +1,4 @@
-import { CategoriesData,ProductData } from "@/types/interfaces";
+import { CategoriesData, Offer, ProductData } from "@/types/interfaces";
 
 // Define the product type to match your form data structure
 export type CreateResponse = {
@@ -162,6 +162,88 @@ export async function updateCategory(category: Partial<CategoriesData>) {
       return {
          success: false,
          error: error instanceof Error ? error.message : 'Unknown error occurred while updating category'
+      };
+   }
+}
+
+// add new offer
+export async function addOffer({ offer }: {
+   offer: {
+      OfferStatus: string;
+      OfferType: string;
+      discount: number;
+      offerStartDate: string;
+      offerEndDate: string;
+      productSlug: string;
+   }
+}) {
+   try {
+      if (!offer.productSlug) {
+         throw new Error('Product slug is required for offer creation');
+      }
+
+      const response = await fetch(`/api/admin/offer/${offer.productSlug}`, {
+         method: 'PATCH',
+         headers: {
+            'Content-Type': 'application/json',
+         },
+         body: JSON.stringify(offer),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+         throw new Error(data.error || 'Failed to create/update offer');
+      }
+
+      return { success: true, offer: data };
+   } catch (error) {
+      console.error('Error in creating/updating offer:', error);
+      return {
+         success: false,
+         error: error instanceof Error ? error.message : 'Unknown error occurred while processing offer'
+      };
+   }
+}
+
+// get offer by slug
+export async function getOffer(slug: string) {
+   try {
+      const response = await fetch(`/api/admin/offer/${slug}`, {
+         method: 'GET',
+         headers: {
+            'Content-Type': 'application/json',
+         }
+      });
+
+      if (response.status === 204) {
+         return {
+            success: true,
+            offer: {
+               OfferStatus: "unavailable",
+               OfferType: "percentage",
+               discount: 0,
+               offerStartDate: new Date().toISOString().split('T')[0],
+               offerEndDate: new Date(new Date().setDate(new Date().getDate() + 7)).toISOString().split('T')[0],
+               productId: slug
+            }
+         };
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) {
+         throw new Error(data.error || 'Failed to fetch offer');
+      }
+
+      return {
+         success: true,
+         offer: data.offer
+      };
+   } catch (error) {
+      console.error('Error in fetching offer:', error);
+      return {
+         success: false,
+         error: error instanceof Error ? error.message : 'Unknown error occurred while fetching offer'
       };
    }
 }

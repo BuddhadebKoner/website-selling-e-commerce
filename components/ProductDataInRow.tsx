@@ -21,8 +21,6 @@ const ProductDataInRow = ({ product }: {
    // Get query client for cache invalidation
    const queryClient = useQueryClient();
 
-   console.log('product:', product);
-
    // Local state to track changes
    const [currentStatus, setCurrentStatus] = useState<string>(product.status);
    const [currentProductType, setCurrentProductType] = useState<string>(product.productType);
@@ -189,6 +187,14 @@ const ProductDataInRow = ({ product }: {
          </td>
          <td className="px-4 py-3 font-medium">₹ {product.price.toLocaleString()}</td>
          <td className="px-4 py-3">
+            <Link
+               href={`/admin-dashbord/add-offer/${product.slug}`}
+               className="btn btn-secondary text-sm py-1 px-3"
+            >
+               Add Offer
+            </Link>
+         </td>
+         <td className="px-4 py-3">
             <div className="flex space-x-2">
                <Link
                   href={`/admin-dashbord/update-product/${product.slug}`}
@@ -208,14 +214,6 @@ const ProductDataInRow = ({ product }: {
                   )}
                </button>
             </div>
-         </td>
-         <td className="px-4 py-3">
-            <Link
-               href={`/admin-dashbord/products/${product.slug}`}
-               className="btn btn-secondary text-sm py-1 px-3"
-            >
-               Add Offer
-            </Link>
          </td>
       </tr>
    )

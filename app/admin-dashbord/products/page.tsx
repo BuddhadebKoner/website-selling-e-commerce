@@ -176,8 +176,8 @@ export default function Page() {
                 <th className="px-4 py-3 text-left text-sm font-medium">Product Type</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">Price</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Actions</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">Offer</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
