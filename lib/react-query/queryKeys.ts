@@ -9,4 +9,5 @@ export const QUERY_KEYS = {
    FETCH_TEMPLATES: 'fetchtemplates',
    GET_ALL_OFFERS: 'getalloffers',
    GET_OFFER_BY_SLUG: 'getofferbyslug',
+   GET_ORDERS_BY_USER_ID: 'getordersbyuserid',
 }

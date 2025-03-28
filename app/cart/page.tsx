@@ -9,29 +9,38 @@ import OrderSummary from '@/components/shared/OrderSummary';
 import { removeFromCart } from '@/endpoints/user.api';
 import { ProcessedCartItem, CartTotals } from '@/types/interfaces';
 import { LoaderCircle, ShoppingBag } from 'lucide-react';
+import { calculateCartTotals, calculateDiscountedPrice } from '@/lib/priceCalculations';
+import { createOrder } from '@/endpoints/order.api';
+import { useRouter } from 'next/navigation';
 
 const CartPage = () => {
-  const { currentUser, isLoading, refreshCurrentUser } = useUserAuthentication();
+  const { currentUser, isLoading: isAuthLoading, refreshCurrentUser } = useUserAuthentication();
   const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [processedCartItems, setProcessedCartItems] = useState<ProcessedCartItem[]>([]);
   const [cartTotals, setCartTotals] = useState<CartTotals>({
     subtotal: 0,
     tax: 0,
     total: 0,
     discountAmount: 0,
-    effectiveTotal: 0
+    originalTotal: 0
   });
 
+  const route = useRouter();
+  const TAX_RATE = 0.08;
+
   useEffect(() => {
-    if (!isLoading && currentUser?.cart?.products) {
+    if (!isAuthLoading && currentUser?.cart?.products) {
       const processedItems = processCartItems(currentUser.cart.products);
       setProcessedCartItems(processedItems);
 
-      const totals = calculateCartTotals(processedItems);
+      // Use the centralized calculation function
+      const totals = calculateCartTotals(processedItems, TAX_RATE);
       setCartTotals(totals);
+      setIsLoading(false);
     }
-  }, [currentUser?.cart?.products, isLoading]);
+  }, [currentUser?.cart?.products, isAuthLoading]);
 
   const processCartItems = (cartProducts: any[]): ProcessedCartItem[] => {
     if (!cartProducts || !Array.isArray(cartProducts)) {
@@ -41,11 +50,13 @@ const CartPage = () => {
     const currentDate = new Date();
 
     return cartProducts.map(item => {
-      const offerStart = new Date(item.offerStartDate);
-      const offerEnd = new Date(item.offerEndDate);
+      const offerStart = item.offerStartDate ? new Date(item.offerStartDate) : null;
+      const offerEnd = item.offerEndDate ? new Date(item.offerEndDate) : null;
 
+      // Check if offer is active based on dates and status
       const isOfferActive =
-        item.OfferStatus === 'live' &&
+        item.offerStatus === 'live' && // Fixed: changed 'OfferStatus' to 'offerStatus' 
+        offerStart && offerEnd &&
         currentDate >= offerStart &&
         currentDate <= offerEnd &&
         item.discount > 0;
@@ -56,34 +67,17 @@ const CartPage = () => {
         isOfferActive
       };
 
+      // Calculate discounted price if offer is active
       if (isOfferActive) {
-        if (item.OfferType === 'percentage') {
-          processedItem.discountedPrice = Math.round(item.price - (item.price * (item.discount / 100)));
-        } else if (item.OfferType === 'fixed') {
-          processedItem.discountedPrice = Math.round(item.price - item.discount);
-        }
+        processedItem.discountedPrice = calculateDiscountedPrice(
+          item.price,
+          item.discount,
+          item.offerType === 'percentage' ? 'percentage' : 'fixed' // Fixed: changed 'OfferType' to 'offerType'
+        );
       }
 
       return processedItem;
     });
-  };
-
-  const calculateCartTotals = (items: ProcessedCartItem[]): CartTotals => {
-    const taxRate = 0.08; // 8%
-
-    const subtotal = items.reduce((sum, item) =>
-      sum + (item.discountedPrice !== undefined ? item.discountedPrice : item.price), 0);
-
-    const tax = Math.round(subtotal * taxRate);
-    const total = subtotal + tax;
-
-    return {
-      subtotal,
-      tax,
-      total,
-      discountAmount: 0,
-      effectiveTotal: total
-    };
   };
 
   const handleRemoveItem = async (productId: string) => {
@@ -98,7 +92,12 @@ const CartPage = () => {
       const response = await removeFromCart(productId, currentUser.cart.id);
 
       if (response.success) {
-        setProcessedCartItems(prev => prev.filter(item => item._id !== productId));
+        const updatedItems = processedCartItems.filter(item => item._id !== productId);
+        setProcessedCartItems(updatedItems);
+
+        // Recalculate totals after removing item
+        const updatedTotals = calculateCartTotals(updatedItems, TAX_RATE);
+        setCartTotals(updatedTotals);
 
         await refreshCurrentUser();
         toast.success(response.message || "Product removed from cart successfully");
@@ -117,17 +116,69 @@ const CartPage = () => {
     }
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     setIsCheckingOut(true);
 
-    setTimeout(() => {
-      toast.success("Your order has been placed successfully!");
+    // Validate required fields
+    if (
+      !currentUser?.id ||
+      cartTotals.originalTotal === undefined ||
+      cartTotals.total === undefined ||
+      cartTotals.discountAmount === undefined ||
+      cartTotals.tax === undefined ||
+      cartTotals.subtotal === undefined ||
+      !processedCartItems || !Array.isArray(processedCartItems)
+    ) {
+      toast.error("All fields are required");
       setIsCheckingOut(false);
+      return;
+    }
 
-    }, 2000);
+    // Validate numeric values
+    if (
+      isNaN(cartTotals.originalTotal) ||
+      isNaN(cartTotals.total) ||
+      isNaN(cartTotals.discountAmount) ||
+      isNaN(cartTotals.tax) ||
+      isNaN(cartTotals.subtotal)
+    ) {
+      toast.error("All amounts must be valid numbers");
+      setIsCheckingOut(false);
+      return;
+    }
+
+    // Use the centralized cart totals for the checkout process
+    const orderData = {
+      owner: currentUser?.id || '',
+      totalOriginalAmount: cartTotals.originalTotal,
+      payableAmount: cartTotals.total,
+      discountAmount: cartTotals.discountAmount,
+      taxAmount: cartTotals.tax,
+      subtotal: cartTotals.subtotal,
+      products: [...processedCartItems.map(item => item._id)],
+    };
+
+    try {
+      const res = await createOrder(orderData);
+      console.log('Order Response:', res);
+      if (res.success) {
+        toast.success("Order placed successfully");
+        // Optionally refresh the user data or redirect to an order confirmation page
+        // /orders page
+        route
+        
+      } else {
+        toast.error(res.error || "Failed to place order");
+      }
+    } catch (error) {
+      console.error('Error placing order:', error);
+      toast.error("An error occurred while placing the order");
+    } finally {
+      setIsCheckingOut(false);
+    }
   };
 
-  if (isLoading) {
+  if (isAuthLoading || isLoading) {
     return (
       <div className="container py-16 flex flex-col items-center justify-center min-h-[50vh]">
         <LoaderCircle className="animate-spin h-12 w-12 mb-4 text-primary" />
@@ -225,6 +276,7 @@ const CartPage = () => {
             onCheckout={handleCheckout}
             isLoading={isLoading}
             isCheckingOut={isCheckingOut}
+            discountAmount={cartTotals.discountAmount}
           />
         </div>
       </div>

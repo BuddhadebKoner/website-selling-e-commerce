@@ -1,17 +1,9 @@
 "use client";
 
-import { ProcessedCartItem, OrderSummaryProps } from '@/types/interfaces';
+import { OrderSummaryProps } from '@/types/interfaces';
 import React, { useState } from 'react';
 import { LoaderCircle, CreditCard, LockIcon } from 'lucide-react';
-
-// Format price with proper currency symbol
-const formatPrice = (price: number) => {
-   return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0
-   }).format(price);
-};
+import { formatPrice } from '@/lib/priceCalculations';
 
 const OrderSummary: React.FC<OrderSummaryProps> = ({
    cartItems,
@@ -24,10 +16,9 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
    discountAmount = 0,
 }) => {
    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-   const effectiveTotal = Math.max(0, total - discountAmount);
 
-   // Get today's date in YYYY-MM-DD format
-   const today = new Date().toISOString().split('T')[0];
+   // We don't need to recalculate total here - it's already correctly calculated in the parent
+   // The total already accounts for discounts and taxes
 
    return (
       <div className="bg-box border border-theme rounded-lg overflow-hidden shadow-sm sticky top-24">
@@ -86,27 +77,39 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 
             {/* Price calculation */}
             <div className="space-y-2">
+               {/* Original price total (before discounts) */}
+               {discountAmount > 0 && (
+                  <div className="flex justify-between text-secondary">
+                     <span>Original Price</span>
+                     <span>{isLoading ? 'Loading...' : formatPrice(subtotal + discountAmount)}</span>
+                  </div>
+               )}
+
+               {/* Discount display */}
+               {discountAmount > 0 && (
+                  <div className="flex justify-between text-accent-green">
+                     <span>Total Savings</span>
+                     <span>-{formatPrice(discountAmount)}</span>
+                  </div>
+               )}
+
+               {/* Subtotal (after discounts, before tax) */}
                <div className="flex justify-between">
                   <span className="text-secondary">Subtotal</span>
                   <span>{isLoading ? 'Loading...' : formatPrice(subtotal)}</span>
                </div>
 
+               {/* Tax calculation */}
                <div className="flex justify-between">
                   <span className="text-secondary">Tax (8%)</span>
                   <span>{isLoading ? 'Loading...' : formatPrice(tax)}</span>
                </div>
 
-               {discountAmount > 0 && (
-                  <div className="flex justify-between text-accent-green">
-                     <span>Discount</span>
-                     <span>-{formatPrice(discountAmount)}</span>
-                  </div>
-               )}
-
+               {/* Final total to pay */}
                <div className="border-t border-theme pt-2 mt-2 flex justify-between font-bold">
                   <span>Total</span>
                   <span className="text-highlight-primary">
-                     {isLoading ? 'Loading...' : formatPrice(effectiveTotal)}
+                     {isLoading ? 'Loading...' : formatPrice(total)}
                   </span>
                </div>
             </div>
@@ -134,7 +137,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                ) : (
                   <span className="flex items-center">
                      <CreditCard className="h-4 w-4 mr-2" />
-                     Proceed to Checkout
+                     Place Order
                   </span>
                )}
             </button>

@@ -3,6 +3,7 @@ import { QUERY_KEYS } from "./queryKeys";
 import { getAllProducts, getProductBySlug, getProductsByStatus, getProductsByType } from "@/endpoints/products.api";
 import { getAllCategory, getCategoryBySlug } from "@/endpoints/category.api";
 import { getAllUsers } from "@/endpoints/user.api";
+import { getOrderListById } from "@/endpoints/order.api";
 
 export const useGetAllProducts = (limit = 5) => {
    return useInfiniteQuery({
@@ -116,5 +117,15 @@ export const useGetAllCategory = (limit = 10, options = {}) => {
       staleTime: 1000 * 60 * 5,
       refetchOnWindowFocus: false,
       ...options,
+   });
+};
+
+
+export const useGetOrdersListByUserId = (userId: string) => {
+   return useQuery({
+      queryKey: [QUERY_KEYS.GET_ORDERS_BY_USER_ID, userId],
+      queryFn: () => getOrderListById(userId),
+      enabled: !!userId,
+      staleTime: 1000 * 60 * 5,
    });
 };

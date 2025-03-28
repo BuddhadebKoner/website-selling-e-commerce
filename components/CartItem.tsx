@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 import { LoaderCircle } from 'lucide-react';
+import { formatPrice } from '@/lib/priceCalculations';
 
 interface CartItemProps {
    item: ProcessedCartItem;
@@ -13,15 +14,6 @@ interface CartItemProps {
 }
 
 const CartItem: React.FC<CartItemProps> = ({ item, isRemoving, onRemove }) => {
-   // Format price with proper currency symbol
-   const formatPrice = (price: number) => {
-      return new Intl.NumberFormat('en-US', {
-         style: 'currency',
-         currency: 'USD',
-         maximumFractionDigits: 0
-      }).format(price);
-   };
-
    // Determine if there's an active discount
    const hasDiscount = item.discountedPrice !== undefined && item.discountedPrice < item.price;
 

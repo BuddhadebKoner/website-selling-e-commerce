@@ -189,11 +189,11 @@ export interface UserData {
 // ======================================================
 
 export interface CartTotals {
+   originalTotal: number;
    subtotal: number;
    tax: number;
    total: number;
    discountAmount: number;
-   effectiveTotal: number;
 }
 
 export interface Cart {
@@ -222,6 +222,35 @@ export interface ProcessedCartItem extends CartProductItem {
    discountedPrice?: number;
    originalPrice?: number;
    isOfferActive?: boolean;
+}
+
+export interface CartTotals {
+   originalTotal: number;  // Sum of original prices without discounts
+   subtotal: number;       // Sum after discounts but before tax
+   tax: number;            // Tax amount
+   total: number;          // Final payable amount (subtotal + tax)
+   discountAmount: number; // Total amount saved due to discounts
+}
+
+export interface OrderSummaryProps {
+   cartItems: ProcessedCartItem[];
+   subtotal: number;
+   tax: number;
+   total: number;
+   discountAmount?: number;
+   onCheckout: () => void;
+   isLoading: boolean;
+   isCheckingOut: boolean;
+}
+
+export interface OrderCreateData {
+   owner: string;
+   totalOriginalAmount: number;
+   payableAmount: number;
+   discountAmount: number;
+   taxAmount: number
+   subtotal: number
+   products: [string]
 }
 
 export interface CartProduct {
@@ -271,3 +300,4 @@ export interface Offer {
    offerEndDate: string;
    productSlug: string;
 }
+

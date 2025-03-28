@@ -3,12 +3,14 @@ import mongoose from "mongoose";
 export interface IOrder {
    owner: mongoose.Types.ObjectId;
    products: mongoose.Types.ObjectId[];
-   totalAmount: number;
-   discount: Number;
-   payAableAmount: number;
+   totalOriginalAmount: number;
+   payableAmount: number;
+   discountAmount: number;
+   taxAmount: number;
+   subtotal: number;
    status: string;
    paymentStatus: string;
-   orderdate: Date;
+   orderDate: Date; 
    paymentDate: Date;
    deliveryDate: Date;
    trackId: string;
@@ -28,17 +30,25 @@ const OrderSchema = new mongoose.Schema({
          ref: "Product",
       },
    ],
-   totalAmount: {
+   totalOriginalAmount: {
       type: Number,
-      required: true
+      required: true,
    },
-   discount: {
+   payableAmount: {
       type: Number,
-      default: 0
+      required: true,
    },
-   payAableAmount: {
+   discountAmount: {
       type: Number,
-      required: true
+      required: true,
+   },
+   taxAmount: {
+      type: Number,
+      required: true,
+   },
+   subtotal: {
+      type: Number,
+      required: true,
    },
    status: {
       type: String,
@@ -50,7 +60,7 @@ const OrderSchema = new mongoose.Schema({
       enum: ["pending", "processing", "completed", "cancelled"],
       default: "pending",
    },
-   orderdate: {
+   orderDate: {
       type: Date,
       default: Date.now
    },
