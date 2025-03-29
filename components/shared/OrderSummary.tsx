@@ -17,9 +17,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 }) => {
    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
-   // We don't need to recalculate total here - it's already correctly calculated in the parent
-   // The total already accounts for discounts and taxes
-
    return (
       <div className="bg-box border border-theme rounded-lg overflow-hidden shadow-sm sticky top-24">
          <div className="p-4 border-b border-theme bg-background-secondary">

@@ -30,12 +30,13 @@ const CartPage = () => {
   const route = useRouter();
   const TAX_RATE = 0.08;
 
+  // console.log(currentUser)
+
   useEffect(() => {
     if (!isAuthLoading && currentUser?.cart?.products) {
       const processedItems = processCartItems(currentUser.cart.products);
       setProcessedCartItems(processedItems);
 
-      // Use the centralized calculation function
       const totals = calculateCartTotals(processedItems, TAX_RATE);
       setCartTotals(totals);
       setIsLoading(false);
@@ -53,9 +54,8 @@ const CartPage = () => {
       const offerStart = item.offerStartDate ? new Date(item.offerStartDate) : null;
       const offerEnd = item.offerEndDate ? new Date(item.offerEndDate) : null;
 
-      // Check if offer is active based on dates and status
       const isOfferActive =
-        item.offerStatus === 'live' && // Fixed: changed 'OfferStatus' to 'offerStatus' 
+        item.offerStatus === 'live' &&
         offerStart && offerEnd &&
         currentDate >= offerStart &&
         currentDate <= offerEnd &&
@@ -67,12 +67,11 @@ const CartPage = () => {
         isOfferActive
       };
 
-      // Calculate discounted price if offer is active
       if (isOfferActive) {
         processedItem.discountedPrice = calculateDiscountedPrice(
           item.price,
           item.discount,
-          item.offerType === 'percentage' ? 'percentage' : 'fixed' // Fixed: changed 'OfferType' to 'offerType'
+          item.offerType === 'percentage' ? 'percentage' : 'fixed'
         );
       }
 
@@ -95,7 +94,6 @@ const CartPage = () => {
         const updatedItems = processedCartItems.filter(item => item._id !== productId);
         setProcessedCartItems(updatedItems);
 
-        // Recalculate totals after removing item
         const updatedTotals = calculateCartTotals(updatedItems, TAX_RATE);
         setCartTotals(updatedTotals);
 
@@ -119,7 +117,6 @@ const CartPage = () => {
   const handleCheckout = async () => {
     setIsCheckingOut(true);
 
-    // Validate required fields
     if (
       !currentUser?.id ||
       cartTotals.originalTotal === undefined ||
@@ -134,7 +131,6 @@ const CartPage = () => {
       return;
     }
 
-    // Validate numeric values
     if (
       isNaN(cartTotals.originalTotal) ||
       isNaN(cartTotals.total) ||
@@ -147,7 +143,6 @@ const CartPage = () => {
       return;
     }
 
-    // Use the centralized cart totals for the checkout process
     const orderData = {
       owner: currentUser?.id || '',
       totalOriginalAmount: cartTotals.originalTotal,
@@ -160,13 +155,9 @@ const CartPage = () => {
 
     try {
       const res = await createOrder(orderData);
-      console.log('Order Response:', res);
       if (res.success) {
         toast.success("Order placed successfully");
-        // Optionally refresh the user data or redirect to an order confirmation page
-        // /orders page
-        route
-        
+        route.push("/orders"); // Redirect to orders page after success
       } else {
         toast.error(res.error || "Failed to place order");
       }
@@ -232,7 +223,6 @@ const CartPage = () => {
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Cart Items Section */}
         <div className="lg:col-span-2">
           <div className="bg-box border border-theme rounded-lg overflow-hidden shadow-sm mb-4">
             <div className="p-4 border-b border-theme bg-background-secondary flex justify-between">
@@ -266,7 +256,6 @@ const CartPage = () => {
           </div>
         </div>
 
-        {/* Order Summary Section */}
         <div className="lg:col-span-1">
           <OrderSummary
             cartItems={processedCartItems}

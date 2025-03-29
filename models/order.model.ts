@@ -2,7 +2,14 @@ import mongoose from "mongoose";
 
 export interface IOrder {
    owner: mongoose.Types.ObjectId;
-   products: mongoose.Types.ObjectId[];
+   products: {
+      title: string;
+      productType: string;
+      price: number;
+      OfferStatus: string;
+      OfferType: string;
+      discount: number;
+   }[];
    totalOriginalAmount: number;
    payableAmount: number;
    discountAmount: number;
@@ -10,7 +17,7 @@ export interface IOrder {
    subtotal: number;
    status: string;
    paymentStatus: string;
-   orderDate: Date; 
+   orderDate: Date;
    paymentDate: Date;
    deliveryDate: Date;
    trackId: string;
@@ -26,9 +33,45 @@ const OrderSchema = new mongoose.Schema({
    },
    products: [
       {
-         type: mongoose.Types.ObjectId,
-         ref: "Product",
-      },
+         title: {
+            type: String,
+            required: true,
+         },
+         productType: {
+            type: String,
+            enum: [
+               "E-commerce",
+               "Portfolio",
+               "Business",
+               "Personal-Blog",
+               "Landing-Page",
+               "SaaS",
+               "Educational",
+               "Real-Estate",
+               "Job-Portal",
+               "Social-Network"
+            ],
+            required: true
+         },
+         price: {
+            type: Number,
+            required: true
+         },
+         OfferStatus: {
+            type: String,
+            enum: ["live", "unabaliable"],
+            default: "unabaliable",
+         },
+         OfferType: {
+            type: String,
+            enum: ["percentage", "fixed"],
+            default: "percentage",
+         },
+         discount: {
+            type: Number,
+            default: 0,
+         },
+      }
    ],
    totalOriginalAmount: {
       type: Number,

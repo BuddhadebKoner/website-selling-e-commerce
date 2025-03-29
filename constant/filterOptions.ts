@@ -11,7 +11,7 @@ export const PRODUCT_TYPES = [
    "Landing-Page",
    "SaaS",
    "Educational",
-   "Real Estate",
+   "Real-Estate",
    "Job-Portal",
    "Social-Network"
 ] as const;
@@ -36,7 +36,7 @@ export const productTypeFilters: FilterOption[] = [
    { type: 'productType', value: 'Landing-Page', label: 'Landing-Page' },
    { type: 'productType', value: 'SaaS', label: 'SaaS' },
    { type: 'productType', value: 'Educational', label: 'Educational' },
-   { type: 'productType', value: 'Real Estate', label: 'Real Estate' },
+   { type: 'productType', value: 'Real-Estate', label: 'Real-Estate' },
    { type: 'productType', value: 'Job-Portal', label: 'Job-Portal' },
    { type: 'productType', value: 'Social-Network', label: 'Social-Network' }
 ];

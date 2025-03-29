@@ -39,7 +39,7 @@ const ProductDataInRow = ({ product }: {
       "Landing-Page",
       "SaaS",
       "Educational",
-      "Real Estate",
+      "Real-Estate",
       "Job-Portal",
       "Social-Network"
    ];

@@ -346,7 +346,7 @@ const ProductForm = ({ action, productData }: { action: string, productData: Pro
                      { value: 'Landing-Page', label: 'Landing-Page' },
                      { value: 'SaaS', label: 'SaaS' },
                      { value: 'Educational', label: 'Educational' },
-                     { value: 'Real Estate', label: 'Real Estate' },
+                     { value: 'Real-Estate', label: 'Real-Estate' },
                      { value: 'Job-Portal', label: 'Job-Portal' },
                      { value: 'Social-Network', label: 'Social-Network' },
                   ]}
