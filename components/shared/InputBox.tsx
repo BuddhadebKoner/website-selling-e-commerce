@@ -9,7 +9,7 @@ const InputBox = ({ divClass, htmlFor, lableClass, lableText, isRequired, inputT
    inputType: string,
    inputName: string,
    inputValue: string,
-   handleInputChange: any,
+   handleInputChange: React.ChangeEventHandler<HTMLInputElement>,
    inputClass: string,
    inputPlaceholder: string,
    Error: string

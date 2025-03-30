@@ -1,4 +1,4 @@
-import { BadgePercent, BarChart, ChartColumnStacked, Package, Settings, ShoppingBag, Users } from 'lucide-react'
+import { BarChart, ChartColumnStacked, Package, Settings, ShoppingBag, Users } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React from 'react'

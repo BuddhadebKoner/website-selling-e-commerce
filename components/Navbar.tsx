@@ -126,12 +126,6 @@ const Navbar = () => {
               <span>Categories</span>
             </Link>
             <Link
-              href="/resource"
-              className="text-primary hover:text-highlight flex items-center space-x-2 px-3 py-2 rounded-md transition-colors"
-            >
-              <span>Resources</span>
-            </Link>
-            <Link
               href="/offers"
               className="text-primary hover:text-highlight flex items-center space-x-2 px-3 py-2 rounded-md transition-colors"
             >

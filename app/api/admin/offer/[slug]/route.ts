@@ -120,7 +120,6 @@ export async function PATCH(
    }
 }
 
-// get product 
 export async function GET(
    req: NextRequest,
    context: { params: { slug: string } }

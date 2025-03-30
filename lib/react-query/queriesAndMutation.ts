@@ -2,8 +2,17 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { QUERY_KEYS } from "./queryKeys";
 import { getAllProducts, getProductBySlug, getProductsByStatus, getProductsByType } from "@/endpoints/products.api";
 import { getAllCategory, getCategoryBySlug } from "@/endpoints/category.api";
-import { getAllUsers } from "@/endpoints/user.api";
+import { getAllUsers, isAuthCheck } from "@/endpoints/user.api";
 import { getOrderListById } from "@/endpoints/order.api";
+import { getAllOffers } from "@/endpoints/offer.api";
+
+export const useGetIsAuthCheck = (clerkId: string, email: string, fullName: string) => {
+   return useQuery({
+      queryKey: [QUERY_KEYS.IS_AUTH_CHECK, clerkId],
+      queryFn: () => isAuthCheck({ clerkId, email, fullName }),
+      enabled: !!clerkId,
+   });
+};
 
 export const useGetAllProducts = (limit = 5) => {
    return useInfiniteQuery({
@@ -126,6 +135,20 @@ export const useGetOrdersListByUserId = (userId: string) => {
       queryKey: [QUERY_KEYS.GET_ORDERS_BY_USER_ID, userId],
       queryFn: () => getOrderListById(userId),
       enabled: !!userId,
+      staleTime: 1000 * 60 * 5,
+   });
+};
+
+export const useGetOrderByTrackId = (trackId: string) => {
+
+};
+
+// get offer 
+export const useGetAllOffers = () => { 
+   return useQuery({
+      queryKey: [QUERY_KEYS.GET_OFFERS],
+      queryFn: () => getAllOffers(),
+      enabled: true,
       staleTime: 1000 * 60 * 5,
    });
 };

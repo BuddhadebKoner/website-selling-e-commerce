@@ -225,11 +225,11 @@ export interface ProcessedCartItem extends CartProductItem {
 }
 
 export interface CartTotals {
-   originalTotal: number;  // Sum of original prices without discounts
-   subtotal: number;       // Sum after discounts but before tax
-   tax: number;            // Tax amount
-   total: number;          // Final payable amount (subtotal + tax)
-   discountAmount: number; // Total amount saved due to discounts
+   originalTotal: number;
+   subtotal: number;
+   tax: number;
+   total: number;
+   discountAmount: number;
 }
 
 export interface OrderSummaryProps {
@@ -250,7 +250,7 @@ export interface OrderCreateData {
    discountAmount: number;
    taxAmount: number
    subtotal: number
-   products: [string]
+   products: string[]
 }
 
 export interface CartProduct {
@@ -292,6 +292,17 @@ export interface OrderSummaryProps {
 // OFFER
 // Interfaces related to offer
 // ======================================================
+
+export interface OfferData {
+   id?: string;
+   OfferStatus: string;
+   OfferType: string;
+   discount: number;
+   offerStartDate: string;
+   offerEndDate: string;
+   productId?: string;
+}
+
 export interface Offer {
    OfferStatus: string;
    OfferType: string;
@@ -301,3 +312,40 @@ export interface Offer {
    productSlug: string;
 }
 
+// interfaces/OrderTypes.ts
+
+// Product interface
+export interface Product {
+   _id: string;
+   title: string;
+   productType: string;
+   price: number;
+   OfferStatus: string;
+   OfferType?: 'percentage' | 'fixed';
+   discount?: number;
+}
+
+// Order interface
+export interface Order {
+   _id: string;
+   owner: string;
+   products: Product[];
+   totalOriginalAmount: number;
+   payableAmount: number;
+   discountAmount: number;
+   taxAmount: number;
+   subtotal: number;
+   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+   paymentStatus: 'pending' | 'paid' | 'refunded';
+   orderDate: string;
+   trackId: string;
+   invoiceId: string;
+   createdAt: string;
+   updatedAt: string;
+   __v: number;
+}
+
+// Props interface for OrderCard component
+export interface OrderCardProps {
+   orders: Order[];
+}

@@ -1,20 +1,13 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import FormField from '../shared/FormField';
 import { toast } from 'react-toastify';
 import { useRouter, useParams } from 'next/navigation';
 import { addOffer } from '@/endpoints/admin.api';
+import { OfferData } from '@/types/interfaces';
 
-interface OfferData {
-  id?: string;
-  OfferStatus: string; // Changed to match schema casing
-  OfferType: string; // Changed to match schema casing
-  discount: number;
-  offerStartDate: string;
-  offerEndDate: string;
-  productId?: string;
-}
+
 
 const OfferForm = ({ action, offerData }: {
   action: string;
@@ -23,14 +16,14 @@ const OfferForm = ({ action, offerData }: {
   const params = useParams();
   const productId = params.id as string;
 
-  const initialOfferData: OfferData = {
-    OfferStatus: 'unavailable', // Changed to match schema values
+  const initialOfferData = useMemo(() => ({
+    OfferStatus: 'unavailable',
     OfferType: 'percentage',
     discount: 0,
     offerStartDate: new Date().toISOString().split('T')[0],
     offerEndDate: new Date(new Date().setDate(new Date().getDate() + 7)).toISOString().split('T')[0],
     productId: productId || '',
-  };
+  }), [productId]);
 
   const [formData, setFormData] = useState<OfferData>(initialOfferData);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,7 +49,7 @@ const OfferForm = ({ action, offerData }: {
         productId
       });
     }
-  }, [action, offerData, productId]);
+  }, [initialOfferData, action, offerData, productId]);
 
   // Handle input field changes
   const handleChange = (
@@ -209,7 +202,7 @@ const OfferForm = ({ action, offerData }: {
               <p className="text-red-500 text-sm mt-1">{errors.OfferStatus}</p>
             )}
             <p className="text-gray-500 text-xs mt-1">
-              Set to "Live" to activate the offer or "Unavailable" to disable it
+              Set to &quot;Live&quot; to activate the offer or &quot;Unavailable&quot; to disable it
             </p>
           </div>
 
@@ -232,7 +225,7 @@ const OfferForm = ({ action, offerData }: {
               <p className="text-red-500 text-sm mt-1">{errors.OfferType}</p>
             )}
             <p className="text-gray-500 text-xs mt-1">
-              "Percentage" for % off, "Fixed" for specific amount off
+              &quot;Percentage&quot; for % off, &quot;Fixed&quot; for specific amount off
             </p>
           </div>
         </div>

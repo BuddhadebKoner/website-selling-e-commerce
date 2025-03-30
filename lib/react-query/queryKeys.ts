@@ -1,4 +1,5 @@
 export const QUERY_KEYS = {
+   IS_AUTH_CHECK: 'isAuthCheck',
    GET_ALL_PRODUCTS: 'getallproducts',
    GET_ALL_USERS: 'getallusers',
    GET_PRODUCTS_BY_STATUS: 'getproductsbystatus',
@@ -10,4 +11,5 @@ export const QUERY_KEYS = {
    GET_ALL_OFFERS: 'getalloffers',
    GET_OFFER_BY_SLUG: 'getofferbyslug',
    GET_ORDERS_BY_USER_ID: 'getordersbyuserid',
+   GET_OFFERS: 'getoffers',
 }

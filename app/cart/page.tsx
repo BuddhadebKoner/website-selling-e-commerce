@@ -7,7 +7,7 @@ import { useUserAuthentication } from '@/context/AuthProvider';
 import CartItem from '@/components/CartItem';
 import OrderSummary from '@/components/shared/OrderSummary';
 import { removeFromCart } from '@/endpoints/user.api';
-import { ProcessedCartItem, CartTotals } from '@/types/interfaces';
+import { ProcessedCartItem, CartTotals, CartProductItem } from '@/types/interfaces';
 import { LoaderCircle, ShoppingBag } from 'lucide-react';
 import { calculateCartTotals, calculateDiscountedPrice } from '@/lib/priceCalculations';
 import { createOrder } from '@/endpoints/order.api';
@@ -43,7 +43,7 @@ const CartPage = () => {
     }
   }, [currentUser?.cart?.products, isAuthLoading]);
 
-  const processCartItems = (cartProducts: any[]): ProcessedCartItem[] => {
+  const processCartItems = (cartProducts: CartProductItem[]): ProcessedCartItem[] => {
     if (!cartProducts || !Array.isArray(cartProducts)) {
       return [];
     }
@@ -54,8 +54,9 @@ const CartPage = () => {
       const offerStart = item.offerStartDate ? new Date(item.offerStartDate) : null;
       const offerEnd = item.offerEndDate ? new Date(item.offerEndDate) : null;
 
+      // Fixed: Using OfferStatus (uppercase) instead of offerStatus
       const isOfferActive =
-        item.offerStatus === 'live' &&
+        item.OfferStatus === 'live' &&
         offerStart && offerEnd &&
         currentDate >= offerStart &&
         currentDate <= offerEnd &&
@@ -64,14 +65,15 @@ const CartPage = () => {
       const processedItem: ProcessedCartItem = {
         ...item,
         originalPrice: item.price,
-        isOfferActive
+        isOfferActive: isOfferActive || undefined
       };
 
       if (isOfferActive) {
+        // Fixed: Using OfferType (uppercase) instead of offerType
         processedItem.discountedPrice = calculateDiscountedPrice(
           item.price,
           item.discount,
-          item.offerType === 'percentage' ? 'percentage' : 'fixed'
+          item.OfferType === 'percentage' ? 'percentage' : 'fixed'
         );
       }
 
@@ -219,7 +221,7 @@ const CartPage = () => {
   return (
     <div className="container py-8">
       <h1 className="text-3xl font-bold mb-8">
-        {currentUser?.fullName}'s Shopping Cart
+        {currentUser?.fullName}&apos;s Shopping Cart
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

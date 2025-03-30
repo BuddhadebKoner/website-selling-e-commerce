@@ -3,7 +3,7 @@
 import { useUserAuthentication } from '@/context/AuthProvider';
 import { addToCart } from '@/endpoints/user.api';
 import { ProductCardProps } from '@/types/interfaces';
-import { ExternalLink, LoaderCircle, ShoppingBag } from 'lucide-react';
+import { LoaderCircle, ShoppingBag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState } from 'react';
@@ -17,12 +17,9 @@ export function ProductCard({
    subTitle,
    liveLink,
    productType,
-   productAbout,
-   tags,
    price,
    websiteAge,
    status,
-   images,
    bannerImageUrl,
    is_featured,
    totalSold,
@@ -31,8 +28,6 @@ export function ProductCard({
    OfferType,
    discount,
    rating: propRating,
-   comment,
-   isRatingFeatured,
    offerStartDate,
    offerEndDate,
    technologyStack,

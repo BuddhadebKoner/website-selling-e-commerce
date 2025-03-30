@@ -28,10 +28,7 @@ export interface IProduct {
    discount: number;
    offerStartDate: Date;
    offerEndDate: Date;
-   // ratings
-   rating: number;
-   comment: string;
-   isRatingFeatured: boolean;
+   rating: mongoose.Types.ObjectId[];
 }
 
 const ProductSchema = new mongoose.Schema({
@@ -156,19 +153,12 @@ const ProductSchema = new mongoose.Schema({
       type: Date,
       default: Date.now,
    },
-   //   ratings
-   rating: {
-      type: Number,
-      default: 0,
-   },
-   comment: {
-      type: String,
-      default: "",
-   },
-   isRatingFeatured: {
-      type: Boolean,
-      default: false,
-   },
+   rating: [
+      {
+         type: mongoose.Types.ObjectId,
+         ref: "Rating",
+      }
+   ]
 
 }, { timestamps: true });
 

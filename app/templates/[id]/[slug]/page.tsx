@@ -1,20 +1,19 @@
 "use client"
 
 import { useGetProductBySlug } from '@/lib/react-query/queriesAndMutation';
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useUserAuthentication } from '@/context/AuthProvider';
-import { AlertCircle, ExternalLink, LoaderCircle } from 'lucide-react';
+import { AlertCircle, LoaderCircle } from 'lucide-react';
 import ProductImageGallery from '@/components/ProductImageGalleryProps';
 import ProductPriceDetails from '@/components/ProductPriceDetails';
 import ProductReviews from '@/components/ProductReviews';
-import { Product, ProductCardProps } from '@/types/interfaces';
+import { ProductCardProps } from '@/types/interfaces';
 import { toast } from 'react-toastify';
 
 const ProductDetailsPage = () => {
    const { slug, id: productType } = useParams();
-   const router = useRouter();
    const [activeTab, setActiveTab] = useState('description');
    const { currentUser, refreshCurrentUser, isLoading: isAuthLoading } = useUserAuthentication();
    const [isOfferActive, setIsOfferActive] = useState(false);
@@ -51,16 +50,6 @@ const ProductDetailsPage = () => {
    const handleRetry = () => {
       refetch();
       toast.info("Retrying to fetch product data...");
-   };
-
-   // Format current date for display
-   const formatDate = (dateString: string) => {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', {
-         year: 'numeric',
-         month: 'long',
-         day: 'numeric'
-      });
    };
 
    // Loading state

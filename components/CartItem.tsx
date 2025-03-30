@@ -15,7 +15,7 @@ interface CartItemProps {
 
 const CartItem: React.FC<CartItemProps> = ({ item, isRemoving, onRemove }) => {
    // Determine if there's an active discount
-   const hasDiscount = item.discountedPrice !== undefined && item.discountedPrice < item.price;
+   const hasDiscount = item.isOfferActive && item.discountedPrice !== undefined && item.discountedPrice < item.price;
 
    // Determine the display price (either discounted or original)
    const displayPrice = hasDiscount ? item.discountedPrice : item.price;
@@ -28,8 +28,8 @@ const CartItem: React.FC<CartItemProps> = ({ item, isRemoving, onRemove }) => {
                <Image
                   src={item.bannerImageUrl}
                   alt={item.title}
-                  width={96} // Fixed width for better image loading
-                  height={96} // Fixed height to match the container
+                  width={96}
+                  height={96}
                   className="object-cover"
                />
             ) : (
@@ -60,7 +60,9 @@ const CartItem: React.FC<CartItemProps> = ({ item, isRemoving, onRemove }) => {
                <p className="text-highlight-primary font-bold">{formatPrice(item.price)}</p>
             )}
 
-            <p className="text-sm text-secondary">{item.isOfferActive ? 'Offer Active' : 'Template'}</p>
+            <p className="text-sm text-secondary">
+               {item.isOfferActive ? 'Offer Active' : 'Template'}
+            </p>
          </div>
 
          {/* Remove Button */}

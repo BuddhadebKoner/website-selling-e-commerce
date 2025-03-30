@@ -16,10 +16,10 @@ export async function POST(request: NextRequest) {
    }
 
    try {
-      const { productId, cartId } = await request.json();
-      const user = userId;
+      const { productId } = await request.json();
+      
       // Validate required fields
-      if (!user || !productId) {
+      if (!userId || !productId) {
          return NextResponse.json(
             { success: false, error: "User and Product ID are required" },
             { status: 400 }
@@ -27,8 +27,8 @@ export async function POST(request: NextRequest) {
       }
 
       // Check if the user exists
-      const isUserExist = await User.findOne({ clerkId: user }).select("_id");
-      if (!isUserExist) {
+      const existingUser = await User.findOne({ clerkId: userId }).select("_id cart");
+      if (!existingUser) {
          return NextResponse.json(
             { success: false, error: "User does not exist" },
             { status: 400 }
@@ -36,26 +36,24 @@ export async function POST(request: NextRequest) {
       }
 
       // Check if the product exists
-      const isProductExist = await Product.findById(productId).select("_id price");
-      if (!isProductExist) {
+      const existingProduct = await Product.findById(productId).select("_id price");
+      if (!existingProduct) {
          return NextResponse.json(
             { success: false, error: "Product does not exist" },
             { status: 400 }
          );
       }
-
-      if (cartId) {
-         // First check if cart exists and how many products it has
-         const existingCart = await Cart.findById(cartId);
-         if (!existingCart) {
-            return NextResponse.json(
-               { success: false, error: "Cart not found" },
-               { status: 404 }
-            );
-         }
-
+      
+      // Check if user already has a cart
+      let userCart;
+      if (existingUser.cart) {
+         userCart = await Cart.findById(existingUser.cart);
+      }
+      
+      // If user has a cart
+      if (userCart) {
          // Check if product is already in cart
-         if (existingCart.products.includes(isProductExist._id)) {
+         if (userCart.products.includes(existingProduct._id)) {
             return NextResponse.json(
                { success: false, error: "This product is already in your cart" },
                { status: 400 }
@@ -63,24 +61,24 @@ export async function POST(request: NextRequest) {
          }
 
          // Check if cart already has 5 products
-         if (existingCart.products.length >= 5) {
+         if (userCart.products.length >= 5) {
             return NextResponse.json(
                {
                   success: false,
                   error: "Cart limit reached. Maximum 5 products allowed.",
-                  productsCount: existingCart.products.length,
+                  productsCount: userCart.products.length,
                   maxAllowed: 5
                },
                { status: 400 }
             );
          }
 
-         // Update existing cart: add product and update total amount in one operation
+         // Update existing cart: add product and update total amount
          const updatedCart = await Cart.findByIdAndUpdate(
-            cartId,
+            userCart._id,
             {
-               $push: { products: isProductExist._id },
-               $inc: { totalAmount: isProductExist.price }
+               $push: { products: existingProduct._id },
+               $inc: { totalAmount: existingProduct.price }
             },
             { new: true }
          ).select("_id products");
@@ -88,20 +86,6 @@ export async function POST(request: NextRequest) {
          if (!updatedCart) {
             return NextResponse.json(
                { success: false, error: "Failed to update cart. Please try again." },
-               { status: 500 }
-            );
-         }
-
-         // Update the user's cart id , cart is not array there , only one id is there
-         const updatedUser = await User.findByIdAndUpdate(
-            isUserExist._id,
-            { cart: updatedCart._id },
-            { new: true }
-         ).select("_id");
-
-         if (!updatedUser) {
-            return NextResponse.json(
-               { success: false, error: "Failed to update user. Please try again." },
                { status: 500 }
             );
          }
@@ -115,13 +99,12 @@ export async function POST(request: NextRequest) {
             },
             { status: 200 }
          );
-
       } else {
-         // Create a new cart if no cartId provided
+         // Create a new cart if user doesn't have one
          const newCart = await Cart.create({
-            user: isUserExist._id,
-            products: [isProductExist._id],
-            totalAmount: isProductExist.price
+            user: existingUser._id,
+            products: [existingProduct._id],
+            totalAmount: existingProduct.price
          });
 
          if (!newCart) {
@@ -131,10 +114,10 @@ export async function POST(request: NextRequest) {
             );
          }
 
-         // Update user with new cart reference
+         // Update user with new cart reference (single reference, not an array)
          const updatedUser = await User.findByIdAndUpdate(
-            isUserExist._id,
-            { $push: { cart: newCart._id } },
+            existingUser._id,
+            { cart: newCart._id }, // Set cart field to single ID
             { new: true }
          ).select("_id");
 
@@ -149,6 +132,7 @@ export async function POST(request: NextRequest) {
             {
                success: true,
                message: "New cart created successfully",
+               cartId: newCart._id,
                productsCount: 1,
                remainingSlots: 4
             },
@@ -156,6 +140,7 @@ export async function POST(request: NextRequest) {
          );
       }
    } catch (error) {
+      console.error("Cart operation error:", error);
       return NextResponse.json(
          { success: false, error: "Internal Server Error" },
          { status: 500 }
