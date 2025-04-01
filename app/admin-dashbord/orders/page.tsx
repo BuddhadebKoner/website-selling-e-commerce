@@ -3,15 +3,6 @@
 export default function OrdersPage() {
   return (
     <div className="space-y-6 animate-fadeIn">
-      <h2 className="text-2xl font-bold">Orders</h2>
-
-      <div className="flex space-x-2 mb-4">
-        <button className="btn btn-secondary">All Orders</button>
-        <button className="btn btn-secondary">Processing</button>
-        <button className="btn btn-secondary">Shipped</button>
-        <button className="btn btn-secondary">Delivered</button>
-        <button className="btn btn-secondary">Cancelled</button>
-      </div>
 
       <div className="bg-box rounded-lg overflow-hidden border border-theme">
         <table className="w-full">
@@ -22,7 +13,7 @@ export default function OrdersPage() {
               <th className="px-4 py-3 text-left text-sm font-medium">Date</th>
               <th className="px-4 py-3 text-left text-sm font-medium">Amount</th>
               <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Actions</th>
+              <th className="px-4 py-3 text-left text-sm font-medium">Payment Status</th>
             </tr>
           </thead>
           <tbody>
@@ -46,9 +37,6 @@ export default function OrdersPage() {
                     }`}>
                     {order.status}
                   </span>
-                </td>
-                <td className="px-4 py-3">
-                  <button className="btn btn-secondary text-sm py-1 px-3">View</button>
                 </td>
               </tr>
             ))}

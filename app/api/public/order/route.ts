@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
          );
       }
 
-      // FIXED: Correct cart population
+      // Check if user exists and populate the cart
       const user = await User.findOne({ clerkId: userId })
          .select("_id cart")
          .populate({
@@ -76,8 +76,7 @@ export async function POST(request: NextRequest) {
             populate: {
                path: 'products'
             }
-         })
-         .exec();
+         });
 
       if (!user) {
          return NextResponse.json(
@@ -85,7 +84,6 @@ export async function POST(request: NextRequest) {
             { status: 404 }
          );
       }
-
 
       // Check if cart or cart products exist
       if (!user.cart || !user.cart.products || user.cart.products.length === 0) {
@@ -109,8 +107,6 @@ export async function POST(request: NextRequest) {
          }
       }
 
-      // check for processing orders
-
       // Build a map of cart products for validation
       const cartProductMap = new Map();
 
@@ -119,11 +115,10 @@ export async function POST(request: NextRequest) {
          cartProductMap.set(productId, product);
       });
 
-      // FIXED: Handle products as array of IDs or objects with _id
+      // Handle products as array of IDs or objects with _id
       const productIds = products.map(product =>
          typeof product === 'string' ? product : product._id
       );
-
 
       // Validate each product ID is in the cart
       for (const productId of productIds) {
@@ -152,10 +147,9 @@ export async function POST(request: NextRequest) {
          };
       });
 
-
       const currentDate = new Date();
       const formattedDate = `${currentDate.getFullYear()}${(currentDate.getMonth() + 1).toString().padStart(2, '0')}${currentDate.getDate().toString().padStart(2, '0')}`;
-      const uniqueCode = `${user._id.toString().slice(-4)}${formattedDate}`;
+      const uniqueCode = `${user._id.toString().slice(-4)}${formattedDate}${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
       const trackId = `UR-${uniqueCode}`;
 
       const orderData = {
@@ -170,16 +164,22 @@ export async function POST(request: NextRequest) {
          orderDate: new Date()
       };
 
-
       const order = new Order(orderData);
 
       const savedOrder = await order.save();
-      if (!savedOrder) { 
+      if (!savedOrder) {
          return NextResponse.json(
             { success: false, error: "Failed to save order" },
             { status: 500 }
          );
       }
+
+      // save to order id to users order array
+      const updateUserOrders = await User.findByIdAndUpdate(
+         user._id,
+         { $push: { orders: savedOrder._id } },
+         { new: true }
+      )
 
       // Return success response
       return NextResponse.json(

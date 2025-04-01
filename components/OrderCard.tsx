@@ -138,8 +138,8 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
                      <span>+₹{validatedOrder.taxAmount.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between font-bold text-highlight text-sm border-t border-border-color pt-1">
-                     <span>Payable Amount:</span>
-                     <span>₹{validatedOrder.payableAmount.toFixed(2)}</span>
+                     <span>Payable Amount :</span>
+                     <span>{" "}₹{validatedOrder.payableAmount.toFixed(2)}</span>
                   </div>
                </div>
             </div>

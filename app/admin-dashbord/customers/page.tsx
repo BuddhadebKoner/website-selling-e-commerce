@@ -28,6 +28,8 @@ export default function Page() {
    if (isLoading) return <div>Loading...</div>;
    if (isError) return <div>Error...</div>;
 
+   console.log('data', data);
+
 
    return (
       <div className="space-y-6 animate-fadeIn">
@@ -56,7 +58,8 @@ export default function Page() {
                               name: users.name,
                               email: users.email,
                               spent: users.spent.toString(),
-                              totalOrders: users.totalOrders.toString(),
+                              // calculate total order from orders array 
+                              totalOrders: users.orders.length.toString(),
                               createdAt: new Date(users.createdAt).toLocaleDateString(
                                  'en-IN',
                                  {

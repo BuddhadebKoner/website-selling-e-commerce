@@ -163,7 +163,7 @@ export interface IUsers {
    email: string;
    spent: string;
    createdAt: string;
-   totalOrders: string;
+   orders: string[];
 }
 
 /**

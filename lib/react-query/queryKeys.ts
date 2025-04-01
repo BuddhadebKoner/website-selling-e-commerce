@@ -12,4 +12,5 @@ export const QUERY_KEYS = {
    GET_OFFER_BY_SLUG: 'getofferbyslug',
    GET_ORDERS_BY_USER_ID: 'getordersbyuserid',
    GET_OFFERS: 'getoffers',
+   GET_ALL_ORDERS_BY_STATUS: 'getallordersbystatus',
 }

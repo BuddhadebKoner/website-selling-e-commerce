@@ -247,3 +247,35 @@ export async function getOffer(slug: string) {
       };
    }
 }
+
+// get order based upon status 
+export async function getOrderByStatus(status: string) {
+   try {
+      const response = await fetch(`/api/admin/order/${status}`, {
+         method: 'GET',
+         headers: {
+            'Content-Type': 'application/json',
+         }
+      });
+
+      // if status is 203 then show proper error of not order have this status 
+      if (response.status === 203) {
+         return {
+            message: "No orders found!",
+            success: true,
+            orders: []
+         };
+      }
+      if (!response.ok) {
+         throw new Error('Failed to fetch orders');
+      }
+
+      const data = await response.json();
+      return data;
+   } catch (error) {
+      console.error('Error in fetching orders:', error);
+      return {
+         error: error instanceof Error ? error.message : 'Unknown error occurred while fetching orders'
+      };
+   }
+};

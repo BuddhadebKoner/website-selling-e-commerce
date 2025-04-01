@@ -8,8 +8,6 @@ export async function GET(request: NextRequest, context: { params: { slug: strin
       const params = await context.params;
       const { slug } = params;
 
-      console.log("slug", slug);
-
       if (!slug) {
          return NextResponse.json(
             { error: "Slug is required" },

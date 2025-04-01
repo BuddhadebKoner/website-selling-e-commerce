@@ -5,6 +5,7 @@ import { getAllCategory, getCategoryBySlug } from "@/endpoints/category.api";
 import { getAllUsers, isAuthCheck } from "@/endpoints/user.api";
 import { getOrderListById } from "@/endpoints/order.api";
 import { getAllOffers } from "@/endpoints/offer.api";
+import { getOrderByStatus } from "@/endpoints/admin.api";
 
 export const useGetIsAuthCheck = (clerkId: string, email: string, fullName: string) => {
    return useQuery({
@@ -159,3 +160,13 @@ export const useGetAllOffers = (limit = 10) => {
       staleTime: 1000 * 60 * 5,
    });
 };
+
+// get all orders based upon status
+export const useGetAllOrdersByStatus = (status: string) => {
+   return useQuery({
+      queryKey: [QUERY_KEYS.GET_ALL_ORDERS_BY_STATUS, status],
+      queryFn: () => getOrderByStatus(status),
+      enabled: !!status,
+      staleTime: 1000 * 60 * 5,
+   });
+ }
