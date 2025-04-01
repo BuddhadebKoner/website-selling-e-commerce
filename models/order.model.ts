@@ -115,6 +115,8 @@ const OrderSchema = new mongoose.Schema({
    },
    trackId: {
       type: String,
+      required: true,
+      unique: true,
    },
    invoiceId: {
       type: String,

@@ -157,9 +157,16 @@ const CartPage = () => {
 
     try {
       const res = await createOrder(orderData);
+
+      if (res.status === 403) {
+        toast.warning(res.error || "You already have a pending order");
+        route.push("/orders");
+        return;
+      }
+
       if (res.success) {
         toast.success("Order placed successfully");
-        route.push("/orders"); // Redirect to orders page after success
+        route.push("/orders");
       } else {
         toast.error(res.error || "Failed to place order");
       }

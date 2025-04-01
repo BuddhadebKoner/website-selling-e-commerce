@@ -1,3 +1,4 @@
+import { connectToDatabase } from "@/lib/db";
 import Cart from "@/models/cart.model";
 import Product from "@/models/product.model";
 import User from "@/models/user.model";
@@ -25,6 +26,8 @@ export async function POST(request: NextRequest) {
             { status: 400 }
          );
       }
+
+      await connectToDatabase();
 
       // Check if the user exists
       const existingUser = await User.findOne({ clerkId: userId }).select("_id cart");

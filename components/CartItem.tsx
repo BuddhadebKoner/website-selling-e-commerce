@@ -2,7 +2,6 @@
 
 import { ProcessedCartItem } from '@/types/interfaces';
 import Image from 'next/image';
-import Link from 'next/link';
 import React from 'react';
 import { LoaderCircle } from 'lucide-react';
 import { formatPrice } from '@/lib/priceCalculations';
@@ -41,9 +40,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, isRemoving, onRemove }) => {
 
          {/* Product Details */}
          <div className="flex-grow">
-            <Link href={`/templates/${item._id}`} className="hover:underline">
-               <h3 className="font-medium">{item.title}</h3>
-            </Link>
+            <h3 className="font-medium">{item.title}</h3>
 
             {/* Price with discount if applicable */}
             {hasDiscount ? (

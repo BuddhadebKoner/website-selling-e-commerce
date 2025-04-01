@@ -4,6 +4,7 @@ interface CreateResponse {
    success: boolean;
    order?: any;
    error?: string;
+   status?: number;
 }
 
 export async function createOrder(order: OrderCreateData): Promise<CreateResponse> {
@@ -17,6 +18,14 @@ export async function createOrder(order: OrderCreateData): Promise<CreateRespons
       });
 
       const data = await response.json();
+
+      if (response.status === 403) {
+         return {
+            success: false,
+            error: data.error || 'Allready Have Pending Orders',
+            status: 403,
+         };
+      }
 
       if (!response.ok) {
          throw new Error(data.error || 'Failed to create order');

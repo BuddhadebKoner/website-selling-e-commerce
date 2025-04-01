@@ -4,13 +4,43 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
    try {
+      // Extract pagination parameters from URL
+      const { searchParams } = new URL(request.url);
+      const page = parseInt(searchParams.get("page") || "1");
+      const limit = parseInt(searchParams.get("limit") || "10");
+
+      // Validate pagination parameters
+      if (isNaN(page) || page < 1 || isNaN(limit) || limit < 1 || limit > 100) {
+         return NextResponse.json(
+            {
+               success: false,
+               error: "Invalid pagination parameters",
+               totalOffers: 0
+            },
+            { status: 400 }
+         );
+      }
+
+      // Calculate skip value for pagination
+      const skip = (page - 1) * limit;
+
       // Connect to the database
       await connectToDatabase();
 
       // Get current date to check for valid offers
       const currentDate = new Date();
 
-      // Fetch products with active offers
+      // Fetch total count for pagination metadata
+      const totalOffers = await Product.countDocuments({
+         status: "live",
+         OfferStatus: "live",
+         OfferType: "percentage",
+         discount: { $gt: 0 },
+         offerStartDate: { $lte: currentDate },
+         offerEndDate: { $gte: currentDate },
+      });
+
+      // Fetch products with active offers with pagination
       const offers = await Product.find({
          status: "live",
          OfferStatus: "live",
@@ -20,8 +50,9 @@ export async function GET(request: NextRequest) {
          offerEndDate: { $gte: currentDate },
       })
          .sort({ discount: -1 })
-         .limit(10)
-         .select("title price discount offerStartDate offerEndDate")  // Only select minimal required fields
+         .skip(skip)
+         .limit(limit)
+         .select("title price discount offerStartDate offerEndDate slug productType")
          .lean()
          .exec();
 
@@ -30,7 +61,10 @@ export async function GET(request: NextRequest) {
             {
                success: false,
                error: "No active offers found",
-               totalOffers: 0
+               totalOffers: 0,
+               page,
+               limit,
+               totalPages: 0
             },
             { status: 404 }
          );
@@ -40,13 +74,15 @@ export async function GET(request: NextRequest) {
          {
             success: true,
             offers,
-            totalOffers: offers.length
+            totalOffers,
+            page,
+            limit,
+            totalPages: Math.ceil(totalOffers / limit)
          },
          { status: 200 }
       );
    } catch (error) {
       console.error("Error fetching offers:", error);
-
       return NextResponse.json(
          {
             success: false,

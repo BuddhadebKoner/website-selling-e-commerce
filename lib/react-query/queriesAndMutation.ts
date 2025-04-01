@@ -143,12 +143,19 @@ export const useGetOrderByTrackId = (trackId: string) => {
 
 };
 
-// get offer 
-export const useGetAllOffers = () => { 
-   return useQuery({
-      queryKey: [QUERY_KEYS.GET_OFFERS],
-      queryFn: () => getAllOffers(),
-      enabled: true,
+// React Query hook using useInfiniteQuery
+export const useGetAllOffers = (limit = 10) => {
+   return useInfiniteQuery({
+      queryKey: [QUERY_KEYS.GET_ALL_OFFERS, limit],
+      initialPageParam: 1,
+      queryFn: ({ pageParam = 1 }) => getAllOffers({ page: pageParam, limit }),
+      getNextPageParam: (lastPage) => {
+         if ('error' in lastPage) return undefined;
+         if (lastPage.currentPage < lastPage.totalPages) {
+            return lastPage.currentPage + 1;
+         }
+         return undefined;
+      },
       staleTime: 1000 * 60 * 5,
    });
 };

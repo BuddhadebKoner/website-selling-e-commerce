@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.12.5",
+    "@stripe/stripe-js": "^6.1.0",
     "@tabler/icons-react": "^3.31.0",
     "@tanstack/react-query": "^5.68.0",
     "lucide-react": "^0.479.0",
@@ -20,7 +21,8 @@
     "react-dom": "^19.0.0",
     "react-intersection-observer": "^9.16.0",
     "react-switch": "^7.1.0",
-    "react-toastify": "^11.0.5"
+    "react-toastify": "^11.0.5",
+    "stripe": "^17.7.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

@@ -335,8 +335,8 @@ export interface Order {
    discountAmount: number;
    taxAmount: number;
    subtotal: number;
-   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-   paymentStatus: 'pending' | 'paid' | 'refunded';
+   status: "pending" | "processing" | "completed" | "cancelled";
+   paymentStatus: "pending" | "processing" | "completed" | "cancelled";
    orderDate: string;
    trackId: string;
    invoiceId: string;

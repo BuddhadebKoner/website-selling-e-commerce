@@ -101,10 +101,10 @@ export async function POST(request: NextRequest) {
       if (orders.length > 0) {
          const lastOrder = orders[0];
 
-         if (lastOrder.status === "pending" || lastOrder.paymentStatus === "pending" || lastOrder.paymentStatus === "processing" || lastOrder.paymentStatus === "processing" || lastOrder.paymentStatus === "cancelled") {
+         if (lastOrder.status === "pending" || lastOrder.paymentStatus === "pending" || lastOrder.paymentStatus === "processing" || lastOrder.paymentStatus === "processing") {
             return NextResponse.json(
-               { success: false, error: "You have a pending order or payment, please complete it before placing a new order" },
-               { status: 400 }
+               { success: false, error: "Allready Have Pending Orders" },
+               { status: 403 }
             );
          }
       }
@@ -153,8 +153,10 @@ export async function POST(request: NextRequest) {
       });
 
 
-      const invoiceId = `INV-${Date.now()}`;
-      const trackId = `TRACK-${Date.now()}`;
+      const currentDate = new Date();
+      const formattedDate = `${currentDate.getFullYear()}${(currentDate.getMonth() + 1).toString().padStart(2, '0')}${currentDate.getDate().toString().padStart(2, '0')}`;
+      const uniqueCode = `${user._id.toString().slice(-4)}${formattedDate}`;
+      const trackId = `UR-${uniqueCode}`;
 
       const orderData = {
          owner: user._id,
@@ -165,9 +167,6 @@ export async function POST(request: NextRequest) {
          taxAmount,
          subtotal,
          trackId,
-         invoiceId,
-         status: "pending",
-         paymentStatus: "pending",
          orderDate: new Date()
       };
 
@@ -175,6 +174,12 @@ export async function POST(request: NextRequest) {
       const order = new Order(orderData);
 
       const savedOrder = await order.save();
+      if (!savedOrder) { 
+         return NextResponse.json(
+            { success: false, error: "Failed to save order" },
+            { status: 500 }
+         );
+      }
 
       // Return success response
       return NextResponse.json(
