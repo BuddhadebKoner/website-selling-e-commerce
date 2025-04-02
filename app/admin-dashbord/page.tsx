@@ -10,8 +10,9 @@ import {
 } from 'lucide-react'
 import { StatCard } from '@/components/StatCard'
 import { OrderRow } from '@/components/OrderRow'
-import { useAllOrders } from '@/lib/react-query/queriesAndMutation';
+import { useAllOrders, useGetAllOffers } from '@/lib/react-query/queriesAndMutation';
 import { useEffect, useRef, useState } from 'react'
+import OfferRow from '@/components/OfferRow';
 
 export default function Page() {
    const {
@@ -23,6 +24,17 @@ export default function Page() {
       hasNextPage,
       isFetchingNextPage,
    } = useAllOrders();
+
+   const {
+      data: offersData,
+      fetchNextPage: fetchNextOffersPage,
+      hasNextPage: hasNextOffersPage,
+      isFetchingNextPage: isFetchingNextOffersPage,
+      isLoading: isLoadingOffers,
+      isError: isErrorOffers,
+      error: offersError,
+      refetch: refetchOffers
+   } = useGetAllOffers();
 
    const observerRef = useRef(null);
    const [isVisible, setIsVisible] = useState(false);
@@ -57,8 +69,27 @@ export default function Page() {
       }
    }, [isVisible, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+   // Function to handle offer deletion
+   const handleDeleteOffer = async (id: string) => {
+      try {
+         // Implement your delete API call here
+         // For example:
+         // await fetch(`/api/offers/${id}`, { method: 'DELETE' });
+
+         // After successful deletion, refetch offers
+         alert("Offer deleted successfully!");
+         refetchOffers();
+      } catch (error) {
+         console.error("Error deleting offer:", error);
+         alert("Failed to delete offer. Please try again.");
+      }
+   };
+
    // Extract all orders from all pages
    const allOrders = ordersData?.pages.flatMap(page => page.data) || [];
+
+   // Extract all offers from all pages
+   const allOffers = offersData?.pages.flatMap(page => page.offers) || [];
 
    return (
       <div className="w-full space-y-6 animate-fadeIn">
@@ -161,17 +192,66 @@ export default function Page() {
             )}
          </div>
 
-         {/* Top selling products */}
+         {/* Top offers live */}
          <div>
             <div className="flex items-center justify-between mb-4">
-               <h3 className="text-xl font-bold">Top Selling Products</h3>
-               <Link href="/admin-dashbord/products" className="text-highlight-primary hover:text-highlight">
-                  View all
+               <h3 className="text-xl font-bold">Top Offers Live</h3>
+               <Link href="/admin-dashbord/offers" className="text-highlight-primary hover:text-highlight">
+                  Manage offers
                </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-               products
-            </div>
+
+            {isLoadingOffers ? (
+               <div className="bg-box rounded-lg p-8 text-center border border-theme">
+                  <div className="animate-pulse">Loading active offers...</div>
+               </div>
+            ) : isErrorOffers ? (
+               <div className="bg-box rounded-lg p-6 border border-accent-red">
+                  <div className="flex items-center text-accent-red gap-2">
+                     <AlertCircle size={20} />
+                     <p>Error loading offers: {offersError?.message || 'Unknown error'}</p>
+                  </div>
+               </div>
+            ) : (
+               <div className="bg-box rounded-lg overflow-hidden border border-theme">
+                  <table className="w-full">
+                     <thead className="bg-background-secondary">
+                        <tr>
+                           <th className="px-4 py-3 text-left text-sm font-medium">Type</th>
+                           <th className="px-4 py-3 text-left text-sm font-medium">Discount</th>
+                           <th className="px-4 py-3 text-left text-sm font-medium">Original Price</th>
+                           <th className="px-4 py-3 text-left text-sm font-medium">Final Price</th>
+                           <th className="px-4 py-3 text-left text-sm font-medium">Actions</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        {allOffers.length === 0 ? (
+                           <tr>
+                              <td colSpan={5} className="px-4 py-8 text-center text-secondary">No active offers found</td>
+                           </tr>
+                        ) : (
+                           allOffers.map((offer) => (
+                              <OfferRow
+                                 key={offer._id}
+                                 offer={offer}
+                                 onDelete={handleDeleteOffer}
+                              />
+                           ))
+                        )}
+                     </tbody>
+                  </table>
+
+                  {/* Pagination/loading indicator */}
+                  <div className="h-10 flex items-center justify-center">
+                     {isFetchingNextOffersPage && (
+                        <div className="text-secondary py-2">Loading more offers...</div>
+                     )}
+                     {!hasNextOffersPage && allOffers.length > 0 && (
+                        <div className="text-secondary py-2 text-sm">No more offers to load</div>
+                     )}
+                  </div>
+               </div>
+            )}
          </div>
       </div>
    )

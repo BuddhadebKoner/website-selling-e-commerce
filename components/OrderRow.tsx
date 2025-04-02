@@ -15,7 +15,6 @@ export interface Order {
 
 // Fix props by using proper interface and destructuring
 export function OrderRow({ order }: { order: Order }) {
-  // Map status to color classes
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'completed': return 'accent-green';
@@ -45,7 +44,7 @@ export function OrderRow({ order }: { order: Order }) {
       <td className="px-4 py-3 font-medium">{order.trackId}</td>
       <td className="px-4 py-3">{order.owner?.name || "Unknown"}</td>
       <td className="px-4 py-3 text-secondary">{formatDate(order.orderDate)}</td>
-      <td className="px-4 py-3 font-medium">{formatCurrency(order.payableAmount)}</td>
+      <td className="px-4 py-3 font-medium">₹ {formatCurrency(order.payableAmount)}</td>
       <td className="px-4 py-3">
         <span className={`inline-block px-2 py-1 rounded text-xs bg-opacity-10 ${`bg-${getStatusColor(order.status)} text-${getStatusColor(order.status)}`}`}>
           {order.status.charAt(0).toUpperCase() + order.status.slice(1)}

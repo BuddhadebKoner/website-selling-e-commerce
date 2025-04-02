@@ -18,7 +18,7 @@ const Page = () => {
         {/* Free Plan Card */}
         <div className="card free-card p-6 rounded-lg transition-all">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold">Gods Plan</h2>
+            <h2 className="text-2xl font-bold">Free Plan</h2>
             <span className="bg-highlight-primary text-background-primary px-3 py-1 rounded-full text-sm font-medium">
               Popular
             </span>
