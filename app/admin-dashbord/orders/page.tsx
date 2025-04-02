@@ -1,9 +1,60 @@
-'use client'
+"use client"
 
-export default function OrdersPage() {
+import { OrderRow } from '@/components/OrderRow';
+import { useAllOrders } from '@/lib/react-query/queriesAndMutation';
+import React, { useEffect, useRef, useState } from 'react';
+
+const OrdersTable = () => {
+  const observerRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  const {
+    data: ordersData,
+    isLoading,
+    isError,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useAllOrders();
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    // Store the current element in a variable
+    const currentElement = observerRef.current;
+
+    if (currentElement) {
+      observer.observe(currentElement);
+    }
+
+    return () => {
+      // Use the stored variable in cleanup instead of observerRef.current
+      if (currentElement) {
+        observer.unobserve(currentElement);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isVisible && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [isVisible, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  if (isLoading) return <div className="text-center py-10">Loading orders...</div>
+  if (isError) return <div className="text-center text-accent-red py-10">Error loading orders: {error?.message}</div>
+
+  // Extract all orders from all pages
+  const allOrders = ordersData?.pages.flatMap(page => page.data) || [];
+
   return (
-    <div className="space-y-6 animate-fadeIn">
-
+    <div className="space-y-4">
       <div className="bg-box rounded-lg overflow-hidden border border-theme">
         <table className="w-full">
           <thead className="bg-background-secondary">
@@ -17,32 +68,33 @@ export default function OrdersPage() {
             </tr>
           </thead>
           <tbody>
-            {[
-              { id: "#ORD-1082", customer: "John Smith", date: "Mar 12, 2025", amount: "$125.00", status: "Delivered", statusColor: "accent-green" },
-              { id: "#ORD-1081", customer: "Lisa Johnson", date: "Mar 11, 2025", amount: "$245.99", status: "Processing", statusColor: "accent-yellow" },
-              { id: "#ORD-1080", customer: "Ryan Cooper", date: "Mar 10, 2025", amount: "$89.50", status: "Shipped", statusColor: "highlight-primary" },
-              { id: "#ORD-1079", customer: "Emma Wilson", date: "Mar 10, 2025", amount: "$312.75", status: "Delivered", statusColor: "accent-green" },
-              { id: "#ORD-1078", customer: "Michael Davis", date: "Mar 09, 2025", amount: "$78.25", status: "Cancelled", statusColor: "accent-red" },
-              { id: "#ORD-1077", customer: "Sarah Lee", date: "Mar 08, 2025", amount: "$149.99", status: "Delivered", statusColor: "accent-green" },
-              { id: "#ORD-1076", customer: "David Brown", date: "Mar 07, 2025", amount: "$199.50", status: "Processing", statusColor: "accent-yellow" },
-              { id: "#ORD-1075", customer: "Jennifer Miller", date: "Mar 06, 2025", amount: "$67.25", status: "Shipped", statusColor: "highlight-primary" },
-            ].map((order, i) => (
-              <tr key={i} className="border-t border-theme">
-                <td className="px-4 py-3 font-medium">{order.id}</td>
-                <td className="px-4 py-3">{order.customer}</td>
-                <td className="px-4 py-3 text-secondary">{order.date}</td>
-                <td className="px-4 py-3 font-medium">{order.amount}</td>
-                <td className="px-4 py-3">
-                  <span className={`inline-block px-2 py-1 rounded text-sm bg-opacity-10 ${`bg-${order.statusColor} text-${order.statusColor}`
-                    }`}>
-                    {order.status}
-                  </span>
-                </td>
+            {allOrders.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-4 py-8 text-center text-secondary">No orders found</td>
               </tr>
-            ))}
+            ) : (
+              allOrders.map((order) => (
+                <OrderRow
+                  key={order._id}
+                  order={order}
+                />
+              ))
+            )}
           </tbody>
         </table>
       </div>
+
+      {/* Intersection Observer Trigger */}
+      <div
+        ref={observerRef}
+        className="h-10 flex items-center justify-center"
+      >
+        {isFetchingNextPage && (
+          <div className="text-secondary">Loading more...</div>
+        )}
+      </div>
     </div>
-  )
+  );
 }
+
+export default OrdersTable;

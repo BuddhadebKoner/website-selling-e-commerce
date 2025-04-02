@@ -30,31 +30,48 @@ export async function GET(request: NextRequest) {
       // Get current date to check for valid offers
       const currentDate = new Date();
 
-      // Fetch total count for pagination metadata
-      const totalOffers = await Product.countDocuments({
+      // Match criteria for active offers
+      const matchCriteria = {
          status: "live",
          OfferStatus: "live",
          OfferType: "percentage",
          discount: { $gt: 0 },
          offerStartDate: { $lte: currentDate },
          offerEndDate: { $gte: currentDate },
-      });
+      };
 
-      // Fetch products with active offers with pagination
-      const offers = await Product.find({
-         status: "live",
-         OfferStatus: "live",
-         OfferType: "percentage",
-         discount: { $gt: 0 },
-         offerStartDate: { $lte: currentDate },
-         offerEndDate: { $gte: currentDate },
-      })
-         .sort({ discount: -1 })
-         .skip(skip)
-         .limit(limit)
-         .select("title price discount offerStartDate offerEndDate slug productType")
-         .lean()
-         .exec();
+      // Get total count using aggregation
+      const countResult = await Product.aggregate([
+         { $match: matchCriteria },
+         { $count: "total" }
+      ]);
+      
+      const totalOffers = countResult.length > 0 ? countResult[0].total : 0;
+
+      // Fetch products with active offers using aggregation pipeline
+      const offers = await Product.aggregate([
+         // Match active offers
+         { $match: matchCriteria },
+         // Sort by discount (highest first)
+         { $sort: { discount: -1 } },
+         // Skip for pagination
+         { $skip: skip },
+         // Limit results
+         { $limit: limit },
+         // Project only needed fields
+         { 
+            $project: {
+               _id: 1,
+               title: 1,
+               price: 1,
+               discount: 1,
+               offerStartDate: 1,
+               offerEndDate: 1,
+               slug: 1,
+               productType: 1
+            }
+         }
+      ]);
 
       if (!offers || offers.length === 0) {
          return NextResponse.json(

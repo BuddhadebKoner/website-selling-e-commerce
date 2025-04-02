@@ -9,7 +9,7 @@ interface FormFieldProps {
    isRequired?: boolean;
    inputType?: string;
    name: string;
-   value: any;
+   value: string | number;
    onChange: (
       e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
    ) => void;

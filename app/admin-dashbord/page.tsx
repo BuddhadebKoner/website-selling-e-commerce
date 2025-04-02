@@ -1,15 +1,64 @@
+"use client"
 
 import Link from 'next/link'
 import {
    DollarSign,
    ShoppingBag,
    Users,
-   Package
+   Package,
+   AlertCircle
 } from 'lucide-react'
 import { StatCard } from '@/components/StatCard'
 import { OrderRow } from '@/components/OrderRow'
+import { useAllOrders } from '@/lib/react-query/queriesAndMutation';
+import { useEffect, useRef, useState } from 'react'
 
-export default async function Page() {
+export default function Page() {
+   const {
+      data: ordersData,
+      isLoading,
+      isError,
+      error,
+      fetchNextPage,
+      hasNextPage,
+      isFetchingNextPage,
+   } = useAllOrders();
+
+   const observerRef = useRef(null);
+   const [isVisible, setIsVisible] = useState(false);
+
+   useEffect(() => {
+      const observer = new IntersectionObserver(
+         ([entry]) => {
+            setIsVisible(entry.isIntersecting);
+         },
+         { threshold: 0.1 }
+      );
+
+      // Store the current element in a variable
+      const currentElement = observerRef.current;
+
+      if (currentElement) {
+         observer.observe(currentElement);
+      }
+
+      return () => {
+         // Use the stored variable in cleanup
+         if (currentElement) {
+            observer.unobserve(currentElement);
+         }
+      };
+   }, []);
+
+   // Trigger fetchNextPage when intersection observed
+   useEffect(() => {
+      if (isVisible && hasNextPage && !isFetchingNextPage) {
+         fetchNextPage();
+      }
+   }, [isVisible, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+   // Extract all orders from all pages
+   const allOrders = ordersData?.pages.flatMap(page => page.data) || [];
 
    return (
       <div className="w-full space-y-6 animate-fadeIn">
@@ -55,61 +104,61 @@ export default async function Page() {
                   View all
                </Link>
             </div>
-            <div className="bg-box rounded-lg overflow-hidden border border-theme">
-               <table className="w-full">
-                  <thead className="bg-background-secondary">
-                     <tr>
-                        <th className="px-4 py-3 text-left text-sm font-medium">Order ID</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium">Customer</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium">Date</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium">Amount</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
-                     </tr>
-                  </thead>
-                  <tbody>
-                     <OrderRow
-                        id="#ORD-1082"
-                        customer="John Smith"
-                        date="Mar 12, 2025"
-                        amount="$125.00"
-                        status="Delivered"
-                        statusColor="accent-green"
-                     />
-                     <OrderRow
-                        id="#ORD-1081"
-                        customer="Lisa Johnson"
-                        date="Mar 11, 2025"
-                        amount="$245.99"
-                        status="Processing"
-                        statusColor="accent-yellow"
-                     />
-                     <OrderRow
-                        id="#ORD-1080"
-                        customer="Ryan Cooper"
-                        date="Mar 10, 2025"
-                        amount="$89.50"
-                        status="Shipped"
-                        statusColor="highlight-primary"
-                     />
-                     <OrderRow
-                        id="#ORD-1079"
-                        customer="Emma Wilson"
-                        date="Mar 10, 2025"
-                        amount="$312.75"
-                        status="Delivered"
-                        statusColor="accent-green"
-                     />
-                     <OrderRow
-                        id="#ORD-1078"
-                        customer="Michael Davis"
-                        date="Mar 09, 2025"
-                        amount="$78.25"
-                        status="Cancelled"
-                        statusColor="accent-red"
-                     />
-                  </tbody>
-               </table>
-            </div>
+
+            {isLoading ? (
+               <div className="bg-box rounded-lg p-8 text-center border border-theme">
+                  <div className="animate-pulse">Loading recent orders...</div>
+               </div>
+            ) : isError ? (
+               <div className="bg-box rounded-lg p-6 border border-accent-red">
+                  <div className="flex items-center text-accent-red gap-2">
+                     <AlertCircle size={20} />
+                     <p>Error loading orders: {error?.message || 'Unknown error'}</p>
+                  </div>
+               </div>
+            ) : (
+               <div className="bg-box rounded-lg overflow-hidden border border-theme">
+                  <table className="w-full">
+                     <thead className="bg-background-secondary">
+                        <tr>
+                           <th className="px-4 py-3 text-left text-sm font-medium">Order ID</th>
+                           <th className="px-4 py-3 text-left text-sm font-medium">Customer</th>
+                           <th className="px-4 py-3 text-left text-sm font-medium">Date</th>
+                           <th className="px-4 py-3 text-left text-sm font-medium">Amount</th>
+                           <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
+                           <th className="px-4 py-3 text-left text-sm font-medium">Payment Status</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        {allOrders.length === 0 ? (
+                           <tr>
+                              <td colSpan={6} className="px-4 py-8 text-center text-secondary">No orders found</td>
+                           </tr>
+                        ) : (
+                           allOrders.map((order) => (
+                              <OrderRow
+                                 key={order._id}
+                                 order={order}
+                              />
+                           ))
+                        )}
+                     </tbody>
+                  </table>
+
+                  {/* Intersection Observer Trigger - outside of table for better layout */}
+                  <div
+                     ref={observerRef}
+                     className="h-10 flex items-center justify-center"
+                  >
+                     {isFetchingNextPage && (
+                        <div className="text-secondary py-2">Loading more orders...</div>
+                     )}
+                     {!hasNextPage && allOrders.length > 0 && (
+                        <div className="text-secondary py-2 text-sm">No more orders to load</div>
+                     )}
+                  </div>
+               </div>
+            )}
          </div>
 
          {/* Top selling products */}

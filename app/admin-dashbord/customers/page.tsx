@@ -28,9 +28,6 @@ export default function Page() {
    if (isLoading) return <div>Loading...</div>;
    if (isError) return <div>Error...</div>;
 
-   console.log('data', data);
-
-
    return (
       <div className="space-y-6 animate-fadeIn">
          <div className="flex items-center justify-between">

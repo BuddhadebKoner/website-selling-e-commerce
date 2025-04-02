@@ -31,7 +31,7 @@ export const roundPrice = (price: number): number => {
 };
 
 // Calculate all cart totals in one place to ensure consistency
-export const calculateCartTotals = (items: any[], taxRate: number = 0.08) => {
+export const calculateCartTotals = (items: CartProductItem[], taxRate: number = 0.08) => {
    // Calculate original total (before any discounts)
    const originalTotal = items.reduce((sum, item) => sum + item.price, 0);
 
@@ -56,3 +56,16 @@ export const calculateCartTotals = (items: any[], taxRate: number = 0.08) => {
       discountAmount: roundPrice(discountAmount) // Total amount saved due to discounts
    };
 };
+
+interface CartProductItem { 
+   _id: string;
+   title: string;
+   price: number;
+   bannerImageUrl: string;
+   OfferStatus: string;
+   OfferType: string;
+   discount: number;
+   offerStartDate: string;
+   offerEndDate: string;
+   discountedPrice?: number;
+}

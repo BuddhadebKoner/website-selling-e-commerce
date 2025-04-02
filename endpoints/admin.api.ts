@@ -279,3 +279,42 @@ export async function getOrderByStatus(status: string) {
       };
    }
 };
+
+// get all orders
+export const getAllOrders = async (page = 1, limit = 5) => {
+   try {
+      const response = await fetch(`/api/admin/order?page=${page}&limit=${limit}`);
+      const result = await response.json();
+      if (!response.ok) {
+         throw new Error(result.error || "Failed to fetch");
+      }
+      return {
+         data: result.data,
+         currentPage: result.pagination?.currentPage,
+         totalPages: result.pagination?.totalPages
+      };
+   } catch (error) {
+      console.error("Failed to get orders", error);
+      return { error: error instanceof Error ? error.message : "Internal Server Error" };
+   }
+};
+
+export const getAllUsers = async (page = 1, limit = 10) => {
+   try {
+      const response = await fetch(`/api/admin/users?page=${page}&limit=${limit}`);
+      const result = await response.json();
+
+      if (!response.ok) {
+         throw new Error(result.error || "Failed to fetch");
+      }
+
+      return {
+         data: result.data,
+         currentPage: result.pagination?.currentPage,
+         totalPages: result.pagination?.totalPages
+      };
+   } catch (error) {
+      console.error("Failed to get users", error);
+      return { error: error instanceof Error ? error.message : "Internal Server Error" };
+   }
+};

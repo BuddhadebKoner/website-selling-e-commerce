@@ -28,15 +28,40 @@ export async function GET(request: NextRequest) {
     }
 
     await connectToDatabase();
-    
+
     // Get total count for pagination metadata
     const totalCount = await Product.countDocuments({ status });
     const totalPages = Math.ceil(totalCount / limit);
 
-    const products = await Product.find({ status })
-      .select("-__v -rating -offer -bannerImageID")
-      .skip(skip)
-      .limit(limit);
+    // Using aggregation pipeline instead of simple find
+    const products = await Product.aggregate([
+      // Match products by status
+      { $match: { status: status } },
+
+      // Example lookup to categories (assuming there's a categoryId in products)
+      {
+        $lookup: {
+          from: "categories",
+          localField: "categoryId",
+          foreignField: "_id",
+          as: "category"
+        }
+      },
+
+      // Project to exclude fields (equivalent to select)
+      {
+        $project: {
+          __v: 0,
+          rating: 0,
+          offer: 0,
+          bannerImageID: 0
+        }
+      },
+
+      // Pagination
+      { $skip: skip },
+      { $limit: limit }
+    ]);
 
     if (!products || products.length === 0) {
       return NextResponse.json(
@@ -58,7 +83,8 @@ export async function GET(request: NextRequest) {
       },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    console.error("Error fetching products:", error);
     return NextResponse.json(
       { error: "Error in getting products by status" },
       { status: 500 }

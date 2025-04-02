@@ -17,6 +17,17 @@ export interface CategoriesData {
    products: string[];
 }
 
+export interface ProductsData {
+   slug: string;
+   title: string;
+   subTitle: string;
+   description: string;
+   bannerImageUrl: string;
+   bannerImageID: string;
+   isFeatured: boolean;
+   products: string[];
+}
+
 /**
  * Interface for category listings
  */
@@ -95,20 +106,24 @@ export interface Product {
  * Product data for forms or API requests
  */
 export interface ProductData {
-   slug: string;
-   title: string;
-   subTitle: string;
-   liveLink: string;
-   productType: string;
-   productAbout: string;
-   tags: string[];
-   _tagsInput: string;
-   price: string;
-   websiteAge: string;
-   images: { imageUrl: string; imageId: string }[];
-   bannerImageUrl: string;
-   bannerImageID: string;
-   technologyStack: string;
+  slug: string;
+  title: string;
+  subTitle: string;
+  liveLink: string;
+  productType: string;
+  productAbout: string;
+  tags: string[];
+  _tagsInput: string;
+  price: string;
+  websiteAge: string;
+  images: {
+    imageUrl: string;
+    imageId: string;
+  }[];
+  bannerImageUrl: string;
+  bannerImageID: string;
+  technologyStack: string | string[];
+  [key: string]: string | string[] | { imageUrl: string; imageId: string; }[]; // For any other fields
 }
 
 /**

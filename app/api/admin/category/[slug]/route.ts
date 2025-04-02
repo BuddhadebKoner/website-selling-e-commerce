@@ -8,7 +8,6 @@ export async function PATCH(
    context: { params: { slug: string } }
 ) {
    try {
-
       // the the user is authenticated or not
       const isAdmin = isAdminRequest(request);
       if (!isAdmin) {
@@ -20,7 +19,7 @@ export async function PATCH(
 
       const params = await context.params;
       const { slug } = params;
-      
+
       if (!slug) {
          return NextResponse.json(
             { error: "Category slug is required" },

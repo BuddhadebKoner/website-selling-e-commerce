@@ -189,7 +189,7 @@ export function ProductCard({
 
                {websiteAge > 0 && (
                   <span className="text-xs text-secondary">
-                     {websiteAge} Year's old
+                     {websiteAge} Year&apos;s old
                   </span>
                )}
             </div>

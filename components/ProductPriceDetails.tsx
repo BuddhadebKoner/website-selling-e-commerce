@@ -14,7 +14,23 @@ interface ProductPriceDetailsProps {
    isOfferActive: boolean;
    statusColorClass: string;
    isInCart: boolean;
-   currentUser: any;
+   currentUser: {
+      id: string;
+      cart?: {
+         id: string;
+         products: {
+            _id: string;
+            title: string;
+            price: number;
+            bannerImageUrl: string;
+            OfferStatus: string;
+            OfferType: string;
+            discount: number;
+            offerStartDate: string;
+            offerEndDate: string;
+         }[];
+      };
+   };
    isAuthLoading: boolean;
    refreshCurrentUser: () => void;
    isMobile: boolean;

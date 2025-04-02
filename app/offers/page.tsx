@@ -2,7 +2,7 @@
 
 import { useGetAllOffers } from '@/lib/react-query/queriesAndMutation'
 import React, { useEffect, useRef } from 'react'
-import { CalendarDays, Percent, ShoppingBag, Tag } from 'lucide-react'
+import { CalendarDays, LoaderCircle, Percent, ShoppingBag, Tag } from 'lucide-react'
 import Link from 'next/link'
 import { formatDate } from '@/lib/utils/formatDate'
 
@@ -11,7 +11,6 @@ export const OffersPage = () => {
     data,
     fetchNextPage,
     hasNextPage,
-    isFetching,
     isFetchingNextPage,
     isLoading,
     isError,
@@ -53,7 +52,7 @@ export const OffersPage = () => {
       <div className="container mx-auto py-12 px-4">
         <div className="flex flex-col items-center justify-center min-h-[50vh]">
           <div className="animate-pulse w-12 h-12 rounded-full bg-accent-alpha mb-4"></div>
-          <p className="text-secondary">Loading offers...</p>
+         <LoaderCircle className='w-10 h-10 animate-spin text-accent-alpha mb-4' />
         </div>
       </div>
     );

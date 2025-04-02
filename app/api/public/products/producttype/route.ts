@@ -49,10 +49,50 @@ export async function GET(request: NextRequest) {
       const totalCount = await Product.countDocuments({ productType });
       const totalPages = Math.ceil(totalCount / limit);
 
-      const products = await Product.find({ productType })
-         .select("-__v -bannerImageID")
-         .skip(skip)
-         .limit(limit);
+      // Using aggregation pipeline instead of simple find
+      const products = await Product.aggregate([
+         // Match products by product type
+         { $match: { productType } },
+
+         // Optional: Lookup related collections if needed
+         // Example: If products have categories
+         /* 
+         {
+            $lookup: {
+               from: "categories",
+               localField: "categoryId",
+               foreignField: "_id",
+               as: "category"
+            }
+         },
+         */
+
+         // Example: If products have reviews
+         /*
+         {
+            $lookup: {
+               from: "reviews",
+               localField: "_id",
+               foreignField: "productId",
+               as: "reviews"
+            }
+         },
+         */
+
+         // Skip for pagination
+         { $skip: skip },
+
+         // Limit results
+         { $limit: limit },
+
+         // Project to select or exclude fields
+         {
+            $project: {
+               __v: 0,
+               bannerImageID: 0
+            }
+         }
+      ]);
 
       if (!products || products.length === 0) {
          return NextResponse.json(
@@ -74,7 +114,8 @@ export async function GET(request: NextRequest) {
          },
          { status: 200 }
       );
-   } catch {
+   } catch (error) {
+      console.error("Error fetching products by type:", error);
       return NextResponse.json(
          { error: "Error in getting products by type" },
          { status: 500 }

@@ -1,5 +1,3 @@
-// fetch order based on sttus slug
-
 import Order from "@/models/order.model";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -32,23 +30,46 @@ export async function GET(
          );
       }
 
-      // Fetch orders based on status
-      const orders = await Order.find(
-         { status },
-      )
-         // populate owner with only name field
-         .populate(
+      // Fetch orders based on status using aggregation pipeline
+      const orders = await Order.aggregate([
+         // Match orders with the specified status
          {
-            path: "owner",
-            select: "name"
+            $match: { status }
+         },
+         // Lookup owner information
+         {
+            $lookup: {
+               from: "users", // Assuming the collection name is 'users'
+               localField: "owner",
+               foreignField: "_id",
+               as: "ownerData"
+            }
+         },
+         // Unwind the owner array
+         {
+            $unwind: {
+               path: "$ownerData",
+               preserveNullAndEmptyArrays: true
+            }
+         },
+         // Project to shape the response
+         {
+            $project: {
+               __v: 0,
+               updatedAt: 0,
+               "owner": {
+                  _id: "$owner",
+                  name: "$ownerData.name"
+               }
+            }
+         },
+         // Sort by creation date descending
+         {
+            $sort: { createdAt: -1 }
          }
-         )
-         .select(
-         "-__v -updatedAt"
-         )
-         .sort({ createdAt: -1 });
+      ]);
 
-      if (!orders) {
+      if (!orders || orders.length === 0) {
          return NextResponse.json(
             { message: "No orders found!" },
             { status: 203 }
@@ -63,8 +84,8 @@ export async function GET(
          { status: 200 }
       );
 
-
    } catch (error) {
+      console.error(error);
       return NextResponse.json(
          { error: "Internal Server Error!" },
          { status: 500 }

@@ -40,7 +40,7 @@ const ProductForm = ({ action, productData }: { action: string, productData: Pro
       tags: '',
    });
 
-   const router = useRouter();   
+   const router = useRouter();
 
    // Load product data when in update mode and productData is available
    useEffect(() => {
@@ -94,7 +94,7 @@ const ProductForm = ({ action, productData }: { action: string, productData: Pro
       setFormData(prev => ({
          ...prev,
          _tagsInput: value,
-         tags: value.split(',').map(tag => tag.trim()).filter(tag => tag !== ''), // Filter out empty tags
+         tags: value.split(',').map(tag => tag.trim()).filter(tag => tag !== ''),
       }));
       setErrors(prev => ({
          ...prev,
@@ -195,10 +195,8 @@ const ProductForm = ({ action, productData }: { action: string, productData: Pro
       setIsSubmitting(true);
 
       try {
-         // Prepare product data without conversion so all fields remain as strings
-         const dataToSubmit = { ...formData };
-         // Remove temporary field
-         delete (dataToSubmit as any)._tagsInput;
+         // Better approach: Use destructuring to omit the _tagsInput field
+         const { ...dataToSubmit } = { ...formData };
 
          console.log('Submitting product data:', dataToSubmit);
 
@@ -220,9 +218,15 @@ const ProductForm = ({ action, productData }: { action: string, productData: Pro
       }
    };
 
+   // Define types for the different array elements that could be in the product data
+   type ImageItem = {
+      imageUrl: string;
+      imageId: string;
+   };
+
    const handleUpdateProduct = async () => {
       // Create a shallow copy of changed fields
-      const changes: Partial<ProductData> = { slug: formData.slug }; // Always include slug for routing
+      const changes: Partial<ProductData> = { slug: formData.slug };
 
       Object.keys(formData).forEach((key) => {
          const typedKey = key as keyof ProductData;
@@ -231,33 +235,44 @@ const ProductForm = ({ action, productData }: { action: string, productData: Pro
 
          // Check if arrays are different
          if (Array.isArray(formData[typedKey]) && Array.isArray(originalData[typedKey])) {
-            const formArray = formData[typedKey] as any[];
-            const origArray = originalData[typedKey] as any[];
+            if (typedKey === 'images') {
+               const formArray = formData[typedKey] as ImageItem[];
+               const origArray = originalData[typedKey] as ImageItem[];
 
-            // Better array comparison - handles objects within arrays
-            if (formArray.length !== origArray.length ||
-               formArray.some((item, idx) =>
-                  JSON.stringify(item) !== JSON.stringify(origArray[idx]))) {
-               changes[typedKey] = formData[typedKey] as any;
+               // Better array comparison - handles objects within arrays
+               if (formArray.length !== origArray.length ||
+                  formArray.some((item, idx) =>
+                     JSON.stringify(item) !== JSON.stringify(origArray[idx]))) {
+                  changes[typedKey] = formData[typedKey];
+               }
+            } else {
+               // For other array types (tags, technologyStack)
+               const formArray = formData[typedKey] as string[];
+               const origArray = originalData[typedKey] as string[];
+
+               if (formArray.length !== origArray.length ||
+                  formArray.some((item, idx) => item !== origArray[idx])) {
+                  changes[typedKey] = formData[typedKey];
+               }
             }
          }
          // Check if primitive values are different
          else if (formData[typedKey] !== originalData[typedKey]) {
-            changes[typedKey] = formData[typedKey] as any;
+            changes[typedKey] = formData[typedKey];
          }
       });
 
       // Remove the slug from changes if it wasn't actually changed
       // (we keep it in changes for routing but don't want to update it unnecessarily)
       if (formData.slug === originalData.slug && Object.keys(changes).length > 1) {
-         const { slug, ...changesWithoutSlug } = changes;
+         const { ...changesWithoutSlug } = changes;
 
          if (Object.keys(changesWithoutSlug).length === 0) {
             console.log('No changes made. Nothing to update.');
             toast.info('No changes detected');
             return;
          }
-      } else if (Object.keys(changes).length <= 1) { // Only slug is present
+      } else if (Object.keys(changes).length <= 1) {
          console.log('No changes made. Nothing to update.');
          toast.info('No changes detected');
          return;
@@ -324,7 +339,7 @@ const ProductForm = ({ action, productData }: { action: string, productData: Pro
                      name={field.name}
                      isRequired={field.required}
                      inputType={field.type}
-                     value={(formData as any)[field.name]}
+                     value={formData[field.name as keyof ProductData] as string}
                      onChange={handleInputChange}
                      placeholder={field.placeholder}
                      error={field.error}

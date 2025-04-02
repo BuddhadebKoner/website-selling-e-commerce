@@ -2,10 +2,10 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { QUERY_KEYS } from "./queryKeys";
 import { getAllProducts, getProductBySlug, getProductsByStatus, getProductsByType } from "@/endpoints/products.api";
 import { getAllCategory, getCategoryBySlug } from "@/endpoints/category.api";
-import { getAllUsers, isAuthCheck } from "@/endpoints/user.api";
+import { isAuthCheck } from "@/endpoints/user.api";
 import { getOrderListById } from "@/endpoints/order.api";
 import { getAllOffers } from "@/endpoints/offer.api";
-import { getOrderByStatus } from "@/endpoints/admin.api";
+import { getAllOrders, getAllUsers, getOrderByStatus } from "@/endpoints/admin.api";
 
 export const useGetIsAuthCheck = (clerkId: string, email: string, fullName: string) => {
    return useQuery({
@@ -130,7 +130,6 @@ export const useGetAllCategory = (limit = 10, options = {}) => {
    });
 };
 
-
 export const useGetOrdersListByUserId = (userId: string) => {
    return useQuery({
       queryKey: [QUERY_KEYS.GET_ORDERS_BY_USER_ID, userId],
@@ -138,10 +137,6 @@ export const useGetOrdersListByUserId = (userId: string) => {
       enabled: !!userId,
       staleTime: 1000 * 60 * 5,
    });
-};
-
-export const useGetOrderByTrackId = (trackId: string) => {
-
 };
 
 // React Query hook using useInfiniteQuery
@@ -169,4 +164,22 @@ export const useGetAllOrdersByStatus = (status: string) => {
       enabled: !!status,
       staleTime: 1000 * 60 * 5,
    });
- }
+}
+
+//  get all orders
+export const useAllOrders = (limit = 5) => {
+   return useInfiniteQuery({
+      queryKey: [QUERY_KEYS.GET_ALL_ORDERS, limit],
+      initialPageParam: 1,
+      queryFn: ({ pageParam = 1 }: { pageParam?: number }) => getAllOrders(pageParam, limit),
+      getNextPageParam: (lastPage) => {
+         if ('error' in lastPage) return undefined;
+         if (lastPage.currentPage < lastPage.totalPages) {
+            return lastPage.currentPage + 1;
+         }
+         return undefined;
+      },
+      staleTime: 1000 * 60 * 5,
+      refetchOnWindowFocus: false,
+   });
+};

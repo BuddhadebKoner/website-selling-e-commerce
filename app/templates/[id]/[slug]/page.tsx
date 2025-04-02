@@ -26,7 +26,7 @@ const ProductDetailsPage = () => {
       error,
       refetch
    } = useGetProductBySlug(slug as string);
-
+   
    const product: ProductCardProps | undefined = data?.product;
 
    // Check if offer is active

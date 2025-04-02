@@ -7,7 +7,9 @@ const TextAreaBox = ({ divClass, htmlFor, lableClass, inputName, isRequired, inp
    lableClass: string,
    isRequired: boolean,
    inputValue: string,
-   handleInputChange: any,
+   handleInputChange: {
+      (e: React.ChangeEvent<HTMLTextAreaElement>): void
+   },
    inputClass: string,
    inputPlaceholder: string,
 }) => {

@@ -55,13 +55,6 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
       });
    };
 
-   const statusColors: Record<Order['status'], string> = {
-      pending: 'bg-accent-yellow text-background-primary',
-      processing: 'bg-accent-orange text-background-primary',
-      completed: 'bg-accent-green text-background-primary',
-      cancelled: 'bg-accent-red text-background-primary'
-   };
-
    const getStatusColor = (status: Order['status']): string => {
       switch (status) {
          case 'pending': return 'bg-accent-yellow';

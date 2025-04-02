@@ -6,6 +6,7 @@ import React from 'react';
 import OrderCard from '@/components/OrderCard';
 import Link from 'next/link';
 import { Order } from '@/types/interfaces';
+import { LoaderCircle } from 'lucide-react';
 
 const OrderPage = () => {
   const { currentUser, isLoading: isAuthLoading } = useUserAuthentication();
@@ -17,12 +18,10 @@ const OrderPage = () => {
     error,
   } = useGetOrdersListByUserId(currentUser?.id || '');
 
-  console.log('Orders List:', ordersList);
-
   if (isAuthLoading || isOrdersLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-background text-primary">
-        <div className="animate-fadeIn text-lg">Loading...</div>
+        <LoaderCircle className='animate-spin h-8 w-8' />
       </div>
     );
   }

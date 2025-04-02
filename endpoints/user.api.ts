@@ -27,29 +27,9 @@ export async function isAuthCheck({ clerkId, email, fullName }: AuthCheckParams)
    }
 }
 
-export const getAllUsers = async (page = 1, limit = 10) => {
-   try {
-      const response = await fetch(`/api/public/users?page=${page}&limit=${limit}`);
-      const result = await response.json();
-
-      if (!response.ok) {
-         throw new Error(result.error || "Failed to fetch");
-      }
-
-      return {
-         data: result.data,
-         currentPage: result.pagination?.currentPage,
-         totalPages: result.pagination?.totalPages
-      };
-   } catch (error) {
-      console.error("Failed to get users", error);
-      return { error: error instanceof Error ? error.message : "Internal Server Error" };
-   }
-};
-
 export const addToCart = async (productId: string, cartId?: string) => {
    try {
-      const response = await fetch('/api/public/users/cart', {
+      const response = await fetch('/api/public/cart', {
          method: 'POST',
          headers: {
             'Content-Type': 'application/json',
@@ -78,7 +58,7 @@ export const addToCart = async (productId: string, cartId?: string) => {
 
 export const removeFromCart = async (productId: string, cartId?: string) => { 
    try {
-      const response = await fetch('/api/public/users/cart/', {
+      const response = await fetch('/api/public/cart/', {
          method: 'DELETE',
          headers: {
             'Content-Type': 'application/json',

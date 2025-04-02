@@ -68,15 +68,47 @@ export async function POST(request: NextRequest) {
          );
       }
 
-      // Check if user exists and populate the cart
-      const user = await User.findOne({ clerkId: userId })
-         .select("_id cart")
-         .populate({
-            path: 'cart',
-            populate: {
-               path: 'products'
+      // Find user with aggregation pipeline instead of populate
+      const userAggregation = await User.aggregate([
+         // Match the user by clerkId
+         { $match: { clerkId: userId } },
+         
+         // Project only necessary fields
+         { $project: { _id: 1, cart: 1 } },
+         
+         // Lookup cart details
+         { $lookup: {
+               from: "carts", // Assuming collection name is "carts"
+               localField: "cart",
+               foreignField: "_id",
+               as: "cartDetails"
             }
-         });
+         },
+         
+         // Unwind the cart array
+         { $unwind: { path: "$cartDetails", preserveNullAndEmptyArrays: true } },
+         
+         // Lookup products in the cart
+         { $lookup: {
+               from: "products", // Assuming collection name is "products"
+               localField: "cartDetails.products",
+               foreignField: "_id",
+               as: "cartProducts"
+            }
+         },
+         
+         // Reshape the result to match original structure
+         { $addFields: {
+               "cart": {
+                  "_id": "$cartDetails._id",
+                  "products": "$cartProducts"
+               }
+            }
+         }
+      ]);
+      
+      // Get the first user from results
+      const user = userAggregation[0];
 
       if (!user) {
          return NextResponse.json(
@@ -180,6 +212,13 @@ export async function POST(request: NextRequest) {
          { $push: { orders: savedOrder._id } },
          { new: true }
       )
+
+      if(!updateUserOrders) {
+         return NextResponse.json(
+            { success: false, error: "Failed to update user orders" },
+            { status: 500 }
+         );
+      }
 
       // Return success response
       return NextResponse.json(
