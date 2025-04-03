@@ -27,7 +27,6 @@ export default function Page() {
 
    const {
       data: offersData,
-      fetchNextPage: fetchNextOffersPage,
       hasNextPage: hasNextOffersPage,
       isFetchingNextPage: isFetchingNextOffersPage,
       isLoading: isLoadingOffers,
@@ -72,6 +71,7 @@ export default function Page() {
    // Function to handle offer deletion
    const handleDeleteOffer = async (id: string) => {
       try {
+         console.log("Deleting offer with ID:", id);
          // Implement your delete API call here
          // For example:
          // await fetch(`/api/offers/${id}`, { method: 'DELETE' });

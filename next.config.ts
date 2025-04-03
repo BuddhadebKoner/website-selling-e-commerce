@@ -10,6 +10,9 @@ const nextConfig: NextConfig = {
     ],
     unoptimized: true,
   },
+  env: {
+    NEXT_PUBLIC_STRIPE_PUBLIC_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY,
+  },
 };
 
 export default nextConfig;

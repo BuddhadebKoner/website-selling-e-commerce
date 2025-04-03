@@ -59,3 +59,29 @@ export async function getOrderListById(id: string) {
       };
    }
 }
+
+// update payment status 
+export async function updatePaymentStatus(id: string, amount: number) {
+   try {
+      const response = await fetch(`/api/public/order/${id}`, {
+         method: 'PATCH',
+         headers: {
+            'Content-Type': 'application/json',
+         },
+         body: JSON.stringify({ amount }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+         throw new Error(data.error || 'Failed to update payment status');
+      }
+
+      return data;
+   } catch (error) {
+      console.error('Error in updating payment status:', error);
+      return {
+         success: false,
+         error: error instanceof Error ? error.message : 'Unknown error occurred while updating payment status',
+      };
+   }
+}

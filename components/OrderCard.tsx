@@ -2,6 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { Order } from '@/types/interfaces';
+import PaymentButton from './buttons/PaymentButton';
+import CancelOrderButton from './buttons/CancelOrderButton';
+import RateYourOrderButton from './buttons/RateYourOrderButton';
 
 interface OrderCardProps {
    order: Order;
@@ -33,20 +36,10 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
       setError(null);
    }, [order]);
 
-   const handlePayment = () => {
-      // Handle payment logic
-      console.log("Payment processing...");
-   };
-
-   const handleCancel = () => {
-      // Handle order cancel logic
-      console.log("Order cancelled.");
-   };
-
    // Format date with time
    const formatDateTime = (dateString: string) => {
       const date = new Date(dateString);
-      return date.toLocaleString('en-US', {
+      return date.toLocaleString('en-IN', {
          year: 'numeric',
          month: 'short',
          day: 'numeric',
@@ -89,7 +82,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
    }
 
    return (
-      <div className="card p-4 transition-all shadow-sm hover:shadow-md border-l-4"
+      <div className="p-4 transition-all shadow-sm hover:shadow-md border-l-4"
          style={{ borderLeftColor: `var(--accent-${validatedOrder.status === 'completed' ? 'green' : validatedOrder.status === 'pending' ? 'yellow' : validatedOrder.status === 'processing' ? 'orange' : 'red'})` }}>
          {/* First row - Tracking ID, Order Date, Products */}
          <div className="flex flex-wrap justify-between items-start mb-4">
@@ -156,9 +149,12 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
          <div className="mt-4 pt-3 flex justify-end border-t border-border-color">
             {validatedOrder.status === 'pending' && (
                <div className="flex gap-2">
-                  <button onClick={handleCancel} className="btn btn-secondary text-xs py-1.5 px-3">Cancel Order</button>
+                  <CancelOrderButton />
                   {validatedOrder.paymentStatus === 'pending' && (
-                     <button onClick={handlePayment} className="btn btn-primary text-xs py-1.5 px-3">Complete Payment</button>
+                     <PaymentButton
+                        trackId={validatedOrder.trackId}
+                        payableAmount={validatedOrder.payableAmount}
+                     />
                   )}
                   {validatedOrder.paymentStatus === 'processing' && (
                      <div className="flex items-center">
@@ -170,7 +166,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
             )}
 
             {validatedOrder.status === 'completed' && validatedOrder.paymentStatus === 'completed' && (
-               <button className="btn btn-primary bg-accent-green hover:bg-accent-green-light text-xs py-1.5 px-3">Rate Your Order</button>
+               <RateYourOrderButton />
             )}
 
             {validatedOrder.status === 'processing' && (
