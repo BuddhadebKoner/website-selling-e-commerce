@@ -1,3 +1,4 @@
+import { connectToDatabase } from "@/lib/db";
 import Order from "@/models/order.model";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -30,6 +31,7 @@ export async function GET(
          );
       }
 
+      await connectToDatabase();
       // Fetch orders based on status using aggregation pipeline
       const orders = await Order.aggregate([
          // Match orders with the specified status
@@ -55,12 +57,17 @@ export async function GET(
          // Project to shape the response
          {
             $project: {
-               __v: 0,
-               updatedAt: 0,
-               "owner": {
+               _id: 1,
+               trackId: 1,
+               orderDate: "$createdAt", 
+               payableAmount: 1,
+               status: 1,
+               paymentStatus: 1,
+               owner: {
                   _id: "$owner",
                   name: "$ownerData.name"
-               }
+               },
+               createdAt: 1
             }
          },
          // Sort by creation date descending
@@ -91,4 +98,4 @@ export async function GET(
          { status: 500 }
       );
    }
-};
+}

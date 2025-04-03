@@ -14,4 +14,6 @@ export const QUERY_KEYS = {
    GET_OFFERS: 'getoffers',
    GET_ALL_ORDERS_BY_STATUS: 'getallordersbystatus',
    GET_ALL_ORDERS: 'getallorders',
+   GET_PENDING_PROCESSING_ORDERS: 'getpendingprocessingorders',
+   UPDATE_ORDER_ACTION: 'updateorderaction',
 }

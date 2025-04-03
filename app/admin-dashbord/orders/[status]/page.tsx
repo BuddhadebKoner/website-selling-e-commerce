@@ -4,6 +4,7 @@ import { OrderRow } from '@/components/OrderRow'
 import { useGetAllOrdersByStatus } from '@/lib/react-query/queriesAndMutation'
 import { useParams } from 'next/navigation'
 import React from 'react'
+import { Order } from '@/components/OrderRow' // Import the Order interface from OrderRow
 
 const Page = () => {
   const { status } = useParams()
@@ -14,16 +15,6 @@ const Page = () => {
     isError,
     error,
   } = useGetAllOrdersByStatus(status as string)
-
-  interface Order {
-    _id: string;
-    trackId: string;
-    owner?: { name: string };
-    orderDate: string;
-    payableAmount: number;
-    status: string;
-    paymentStatus: string;
-  }
 
   const orders: Order[] = data?.orders || []
 

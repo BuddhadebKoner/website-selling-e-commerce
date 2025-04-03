@@ -82,7 +82,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
    }
 
    return (
-      <div className="p-4 transition-all shadow-sm hover:shadow-md border-l-4"
+      <div className="p-4 transition-all shadow-sm hover:shadow-md border-l-4 bg-[var(--card-bg)] rounded-[var(--card-border-radius)] overflow-hidden border border-[var(--card-border-color)] relative"
          style={{ borderLeftColor: `var(--accent-${validatedOrder.status === 'completed' ? 'green' : validatedOrder.status === 'pending' ? 'yellow' : validatedOrder.status === 'processing' ? 'orange' : 'red'})` }}>
          {/* First row - Tracking ID, Order Date, Products */}
          <div className="flex flex-wrap justify-between items-start mb-4">

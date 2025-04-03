@@ -5,7 +5,7 @@ import { getAllCategory, getCategoryBySlug } from "@/endpoints/category.api";
 import { isAuthCheck } from "@/endpoints/user.api";
 import { getOrderListById } from "@/endpoints/order.api";
 import { getAllOffers } from "@/endpoints/offer.api";
-import { getAllOrders, getAllUsers, getOrderByStatus } from "@/endpoints/admin.api";
+import { fetchPendingProcessingOrders, getAllOrders, getAllUsers, getOrderByStatus, updateOrderStatus } from "@/endpoints/admin.api";
 
 export const useGetIsAuthCheck = (clerkId: string, email: string, fullName: string) => {
    return useQuery({
@@ -183,3 +183,30 @@ export const useAllOrders = (limit = 5) => {
       refetchOnWindowFocus: false,
    });
 };
+
+export const useGetPendingProcessingOrders = (limit = 5) => {
+   return useInfiniteQuery({
+      queryKey: [QUERY_KEYS.GET_PENDING_PROCESSING_ORDERS, limit],
+      initialPageParam: 1,
+      queryFn: ({ pageParam = 1 }) => fetchPendingProcessingOrders(pageParam, limit),
+      getNextPageParam: (lastPage) => {
+         if ('error' in lastPage) return undefined;
+         // Match backend pagination field names
+         if (lastPage.currentPage < lastPage.totalPages) { // Updated field names
+            return lastPage.currentPage + 1;
+         }
+         return undefined;
+      },
+      staleTime: 1000 * 60 * 5,
+      refetchOnWindowFocus: false,
+   });
+}
+
+export const useUpdateOrderAction = (orderId: string) => {
+   return useQuery({
+      queryKey: [QUERY_KEYS.UPDATE_ORDER_ACTION, orderId],
+      queryFn: () => updateOrderStatus(orderId),
+      enabled: false,
+      staleTime: 1000 * 60 * 5,
+   });
+}

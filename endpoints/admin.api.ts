@@ -318,3 +318,45 @@ export const getAllUsers = async (page = 1, limit = 10) => {
       return { error: error instanceof Error ? error.message : "Internal Server Error" };
    }
 };
+
+
+// Renamed to match what it actually fetches
+export const fetchPendingProcessingOrders = async (page = 1, limit = 5) => {
+   try {
+      const response = await fetch(`/api/admin/order/pending-processing?page=${page}&limit=${limit}`);
+      const result = await response.json();
+      if (!response.ok) {
+         throw new Error(result.error || "Failed to fetch");
+      }
+      return {
+         data: result.data,
+         currentPage: result.pagination?.currentPage, // Match API response field name
+         totalPages: result.pagination?.totalPages, // Match API response field name
+         hasMore: result.pagination?.hasMore
+      };
+   } catch (error) {
+      console.error("Failed to get orders", error);
+      return { error: error instanceof Error ? error.message : "Internal Server Error" };
+   }
+}
+
+// Change order action
+export const updateOrderStatus = async (id: string) => {
+   try {
+      const response = await fetch(`/api/admin/order/action/${id}`, {
+         method: 'PATCH',
+         headers: {
+            'Content-Type': 'application/json',
+         }
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+         throw new Error(result.error || "Failed to update order status");
+      }
+      return result;
+   } catch (error) {
+      console.error("Failed to update order status", error);
+      return { error: error instanceof Error ? error.message : "Internal Server Error" };
+   }
+}

@@ -36,7 +36,9 @@ export default function Page() {
    } = useGetAllOffers();
 
    const observerRef = useRef(null);
+   const offersObserverRef = useRef(null);
    const [isVisible, setIsVisible] = useState(false);
+   const [isOffersVisible, setIsOffersVisible] = useState(false);
 
    useEffect(() => {
       const observer = new IntersectionObserver(
@@ -61,12 +63,42 @@ export default function Page() {
       };
    }, []);
 
+   // Add new effect for offers observer
+   useEffect(() => {
+      const observer = new IntersectionObserver(
+         ([entry]) => {
+            setIsOffersVisible(entry.isIntersecting);
+         },
+         { threshold: 0.1 }
+      );
+
+      const currentElement = offersObserverRef.current;
+
+      if (currentElement) {
+         observer.observe(currentElement);
+      }
+
+      return () => {
+         if (currentElement) {
+            observer.unobserve(currentElement);
+         }
+      };
+   }, []);
+
    // Trigger fetchNextPage when intersection observed
    useEffect(() => {
       if (isVisible && hasNextPage && !isFetchingNextPage) {
          fetchNextPage();
       }
    }, [isVisible, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+   // Add new effect to fetch next page of offers
+   useEffect(() => {
+      if (isOffersVisible && hasNextOffersPage && !isFetchingNextOffersPage) {
+         // You need to add fetchNextPage to your offers query hook result
+         fetchNextPage();
+      }
+   }, [isOffersVisible, hasNextOffersPage, isFetchingNextOffersPage, offersData]);
 
    // Function to handle offer deletion
    const handleDeleteOffer = async (id: string) => {
@@ -128,7 +160,7 @@ export default function Page() {
          </div>
 
          {/* Recent orders */}
-         <div>
+         <div className='w-full h-[30vh] overflow-auto px-2'>
             <div className="flex items-center justify-between mb-4">
                <h3 className="text-xl font-bold">Recent Orders</h3>
                <Link href="/admin-dashbord/orders" className="text-highlight-primary hover:text-highlight">
@@ -158,6 +190,7 @@ export default function Page() {
                            <th className="px-4 py-3 text-left text-sm font-medium">Amount</th>
                            <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
                            <th className="px-4 py-3 text-left text-sm font-medium">Payment Status</th>
+                           <th className="px-4 py-3 text-left text-sm font-medium">Action</th>
                         </tr>
                      </thead>
                      <tbody>
@@ -242,7 +275,10 @@ export default function Page() {
                   </table>
 
                   {/* Pagination/loading indicator */}
-                  <div className="h-10 flex items-center justify-center">
+                  <div
+                     ref={offersObserverRef}
+                     className="h-10 flex items-center justify-center"
+                  >
                      {isFetchingNextOffersPage && (
                         <div className="text-secondary py-2">Loading more offers...</div>
                      )}
