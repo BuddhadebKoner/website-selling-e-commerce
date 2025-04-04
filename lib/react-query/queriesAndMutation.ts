@@ -5,7 +5,7 @@ import { getAllCategory, getCategoryBySlug } from "@/endpoints/category.api";
 import { isAuthCheck } from "@/endpoints/user.api";
 import { getOrderListById } from "@/endpoints/order.api";
 import { getAllOffers } from "@/endpoints/offer.api";
-import { fetchPendingProcessingOrders, getAllOrders, getAllUsers, getOrderByStatus, updateOrderStatus } from "@/endpoints/admin.api";
+import { fetchPendingProcessingOrders, getAllOrders, getAllUsers, getNotificationCount, getOrderByStatus, updateOrderStatus } from "@/endpoints/admin.api";
 
 export const useGetIsAuthCheck = (clerkId: string, email: string, fullName: string) => {
    return useQuery({
@@ -203,10 +203,21 @@ export const useGetPendingProcessingOrders = (limit = 5) => {
 }
 
 export const useUpdateOrderAction = (orderId: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.UPDATE_ORDER_ACTION, orderId],
+    queryFn: () => updateOrderStatus(orderId),
+    enabled: false,
+    staleTime: 1000 * 60 * 5,
+  });
+};
+
+
+// get notification count getNotificationCount
+export const useGetNotificationCount = () => {
    return useQuery({
-      queryKey: [QUERY_KEYS.UPDATE_ORDER_ACTION, orderId],
-      queryFn: () => updateOrderStatus(orderId),
-      enabled: false,
+      queryKey: [QUERY_KEYS.GET_NOTIFICATION_COUNT],
+      queryFn: () => getNotificationCount(),
+      enabled: true,
       staleTime: 1000 * 60 * 5,
    });
-}
+ }

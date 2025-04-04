@@ -360,3 +360,19 @@ export const updateOrderStatus = async (id: string) => {
       return { error: error instanceof Error ? error.message : "Internal Server Error" };
    }
 }
+
+
+// notification count
+export const getNotificationCount = async () => { 
+   try {
+      const response = await fetch(`/api/admin/notification`);
+      const result = await response.json();
+      if (!response.ok) {
+         throw new Error(result.error || "Failed to fetch notification count");
+      }
+      return result;
+   } catch (error) {
+      console.error("Failed to get notification count", error);
+      return { error: error instanceof Error ? error.message : "Internal Server Error" };
+   }
+}

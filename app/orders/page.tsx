@@ -38,7 +38,7 @@ const OrderPage = () => {
   const totalOrders = orders.length;
 
   return (
-    <div className="w-full min-h-screen bg-background pb-12 pt-8">
+    <div className="w-full h-fit bg-background pb-12 pt-8">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {totalOrders > 0 ? (
           <div className="mb-10">

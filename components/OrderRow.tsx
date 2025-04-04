@@ -1,7 +1,7 @@
 'use client'
 
 import { Check, CircleMinus, Loader2 } from "lucide-react";
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useUpdateOrderAction } from "@/lib/react-query/queriesAndMutation";
 import { QUERY_KEYS } from "@/lib/react-query/queryKeys";
 import { useState } from "react";
@@ -21,8 +21,7 @@ export interface Order {
   paymentStatus: string;
 }
 
-// Fix props by using proper interface and destructuring
-export function OrderRow({ order }: { order: Order }) {
+export function OrderRow({ order, index }: { order: Order; index: number }) {
   const queryClient = useQueryClient();
   const { refetch } = useUpdateOrderAction(order._id);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,7 +30,7 @@ export function OrderRow({ order }: { order: Order }) {
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'completed': return 'accent-green';
-      case 'processing': return 'highlight-primary';
+      case 'processing': return 'accent-orange';
       case 'pending': return 'accent-yellow';
       case 'cancelled': return 'accent-red';
       default: return 'accent-yellow';
@@ -71,8 +70,17 @@ export function OrderRow({ order }: { order: Order }) {
     }
   }
 
+  // Check if order can be updated
+  const canUpdateOrder = () => {
+    return (
+      (order.status.toLowerCase() === 'processing' && order.paymentStatus.toLowerCase() === 'pending') ||
+      (order.status.toLowerCase() === 'processing' && order.paymentStatus.toLowerCase() === 'completed')
+    );
+  }
+
   return (
     <tr key={order._id} className="border-t border-theme hover:bg-background-secondary/30 transition-colors">
+      <td className="px-4 py-3 font-medium">{index}</td>
       <td className="px-4 py-3 font-medium">{order.trackId}</td>
       <td className="px-4 py-3">{order.owner?.name || "Unknown"}</td>
       <td className="px-4 py-3 text-secondary">{formatDate(order.orderDate)}</td>
@@ -89,13 +97,13 @@ export function OrderRow({ order }: { order: Order }) {
       </td>
       <td className="px-4 py-3">
         {
-          order.status.toLowerCase() === 'processing' && order.paymentStatus.toLowerCase() === 'pending' ? (
+          canUpdateOrder() ? (
             <button
               onClick={handleChangeStatus}
               disabled={isLoading}
-              className={`flex items-center justify-center w-8 h-8 rounded-full transition-colors ${hasError
-                  ? "bg-accent-red/10 hover:bg-accent-red/20"
-                  : "bg-background-secondary hover:bg-background-secondary/80"
+              className={`cursor-pointer flex items-center justify-center w-8 h-8 rounded-full transition-colors ${hasError
+                ? "bg-accent-red/10 hover:bg-accent-red/20"
+                : "bg-background-secondary hover:bg-background-secondary/80"
                 }`}>
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin text-highlight-primary" />
@@ -108,7 +116,7 @@ export function OrderRow({ order }: { order: Order }) {
           ) : (
             <button
               disabled={true}
-              className="flex items-center justify-center w-8 h-8 rounded-full bg-background-secondary hover:bg-background-secondary/80 transition-colors">
+              className="cursor-pointer flex items-center justify-center w-8 h-8 rounded-full bg-background-secondary hover:bg-background-secondary/80 transition-colors">
               <CircleMinus
                 className="w-5 h-5 text-accent-green hover:text-accent-green/80 transition-colors"
               />

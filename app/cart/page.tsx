@@ -231,7 +231,7 @@ const CartPage = () => {
         {currentUser?.fullName}&apos;s Shopping Cart
       </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="w-full h-fit p-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2">
           <div className="bg-box border border-theme rounded-lg overflow-hidden shadow-sm mb-4">
             <div className="p-4 border-b border-theme bg-background-secondary flex justify-between">

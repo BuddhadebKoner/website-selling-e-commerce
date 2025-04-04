@@ -48,7 +48,6 @@ export default function Page() {
          { threshold: 0.1 }
       );
 
-      // Store the current element in a variable
       const currentElement = observerRef.current;
 
       if (currentElement) {
@@ -56,14 +55,12 @@ export default function Page() {
       }
 
       return () => {
-         // Use the stored variable in cleanup
          if (currentElement) {
             observer.unobserve(currentElement);
          }
       };
    }, []);
 
-   // Add new effect for offers observer
    useEffect(() => {
       const observer = new IntersectionObserver(
          ([entry]) => {
@@ -85,30 +82,22 @@ export default function Page() {
       };
    }, []);
 
-   // Trigger fetchNextPage when intersection observed
    useEffect(() => {
       if (isVisible && hasNextPage && !isFetchingNextPage) {
          fetchNextPage();
       }
    }, [isVisible, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-   // Add new effect to fetch next page of offers
    useEffect(() => {
       if (isOffersVisible && hasNextOffersPage && !isFetchingNextOffersPage) {
-         // You need to add fetchNextPage to your offers query hook result
          fetchNextPage();
       }
-   }, [isOffersVisible, hasNextOffersPage, isFetchingNextOffersPage, offersData]);
+   }, [isOffersVisible, hasNextOffersPage, isFetchingNextOffersPage, offersData, fetchNextPage]);
 
-   // Function to handle offer deletion
    const handleDeleteOffer = async (id: string) => {
       try {
          console.log("Deleting offer with ID:", id);
-         // Implement your delete API call here
-         // For example:
-         // await fetch(`/api/offers/${id}`, { method: 'DELETE' });
-
-         // After successful deletion, refetch offers
+        
          alert("Offer deleted successfully!");
          refetchOffers();
       } catch (error) {
@@ -117,10 +106,10 @@ export default function Page() {
       }
    };
 
-   // Extract all orders from all pages
+   // order data
    const allOrders = ordersData?.pages.flatMap(page => page.data) || [];
 
-   // Extract all offers from all pages
+   // offer data
    const allOffers = offersData?.pages.flatMap(page => page.offers) || [];
 
    return (
@@ -184,6 +173,7 @@ export default function Page() {
                   <table className="w-full">
                      <thead className="bg-background-secondary">
                         <tr>
+                           <th className="px-4 py-3 text-left text-sm font-medium">Index</th>
                            <th className="px-4 py-3 text-left text-sm font-medium">Order ID</th>
                            <th className="px-4 py-3 text-left text-sm font-medium">Customer</th>
                            <th className="px-4 py-3 text-left text-sm font-medium">Date</th>
@@ -199,10 +189,11 @@ export default function Page() {
                               <td colSpan={6} className="px-4 py-8 text-center text-secondary">No orders found</td>
                            </tr>
                         ) : (
-                           allOrders.map((order) => (
+                           allOrders.map((order, idx) => (
                               <OrderRow
                                  key={order._id}
                                  order={order}
+                                 index={idx + 1}
                               />
                            ))
                         )}

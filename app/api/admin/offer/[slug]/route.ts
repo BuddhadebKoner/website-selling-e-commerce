@@ -1,12 +1,13 @@
 import { isAdminRequest } from "@/lib/auth-admin-gard";
 import { connectToDatabase } from "@/lib/db";
 import Product from "@/models/product.model";
+import { NextApiRequest } from "next";
 import { NextRequest, NextResponse } from "next/server";
 
 // add or update offer
 export async function PATCH(
    req: NextRequest,
-   context: { params: { slug: string } }
+   request: NextApiRequest,
 ) {
    const isAdmin = isAdminRequest(req);
    if (!isAdmin) {
@@ -17,8 +18,7 @@ export async function PATCH(
    }
 
    try {
-      const params = await context.params;
-      const { slug } = params;
+      const { slug } = request.query
       const {
          OfferStatus,
          OfferType,

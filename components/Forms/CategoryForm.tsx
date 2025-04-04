@@ -11,7 +11,7 @@ import ProductInput from '../shared/ProductInput';
 
 const CategoryForm = ({ action, categoryData }: {
    action: string;
-   categoryData: CategoriesData | null;
+   categoryData: CategoriesData | "";
 }) => {
    const initialCategoryData: CategoriesData = {
       slug: '',

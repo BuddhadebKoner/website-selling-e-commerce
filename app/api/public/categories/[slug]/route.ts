@@ -8,8 +8,6 @@ export async function GET(request: NextRequest, context: { params: { slug: strin
       const params = await context.params;
       const { slug } = params;
 
-      console.log("slug", slug);
-
       if (!slug) {
          return NextResponse.json(
             { error: "Slug is required" },
@@ -18,11 +16,9 @@ export async function GET(request: NextRequest, context: { params: { slug: strin
       }
 
       const categories = await Category.aggregate([
-         // Match the category by slug
          {
             $match: { slug: slug }
          },
-         // Lookup products (assuming products is an array of references)
          {
             $lookup: {
                from: "products",
@@ -31,7 +27,6 @@ export async function GET(request: NextRequest, context: { params: { slug: strin
                as: "productsData"
             }
          },
-         // Project only the fields we need
          {
             $project: {
                slug: 1,
@@ -46,11 +41,9 @@ export async function GET(request: NextRequest, context: { params: { slug: strin
                _id: 1
             }
          },
-         // Sort by creation date
          {
             $sort: { createdAt: -1 }
          },
-         // Limit to one result
          {
             $limit: 1
          }

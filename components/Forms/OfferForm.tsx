@@ -285,21 +285,6 @@ const OfferForm = ({ action, offerData }: {
           </div>
         </div>
 
-        {/* Preview section */}
-        <div className="mt-6 p-4 border border-dashed border-gray-300 rounded-lg bg-gray-50">
-          <h3 className="font-medium text-gray-700 mb-2">Offer Preview</h3>
-          <div className="text-sm">
-            <p><span className="font-medium">Status:</span> {formData.OfferStatus}</p>
-            <p><span className="font-medium">Type:</span> {formData.OfferType}</p>
-            <p><span className="font-medium">Discount:</span> {formData.OfferType === 'percentage'
-              ? `${formData.discount}%`
-              : `$${formData.discount.toFixed(2)}`}
-            </p>
-            <p><span className="font-medium">Duration:</span> {formData.offerStartDate} to {formData.offerEndDate}</p>
-            <p><span className="font-medium">Product ID:</span> {productId || formData.productId || 'None'}</p>
-          </div>
-        </div>
-
         {/* Submit Button */}
         <div className="mt-8 flex justify-end gap-4">
           <button

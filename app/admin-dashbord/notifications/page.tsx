@@ -57,6 +57,7 @@ const ProcessingOrdersPage = () => {
                <table className="w-full">
                   <thead className="bg-background-secondary">
                      <tr>
+                        <th className="px-4 py-3 text-left text-sm font-medium">Index</th>
                         <th className="px-4 py-3 text-left text-sm font-medium">Order ID</th>
                         <th className="px-4 py-3 text-left text-sm font-medium">Customer</th>
                         <th className="px-4 py-3 text-left text-sm font-medium">Date</th>
@@ -72,10 +73,11 @@ const ProcessingOrdersPage = () => {
                            <td colSpan={6} className="px-4 py-8 text-center text-secondary">No orders found</td>
                         </tr>
                      ) : (
-                        allOrders.map((order) => (
+                        allOrders.map((order,idx) => (
                            <OrderRow
                               key={order._id}
                               order={order}
+                              index={idx+1}
                            />
                         ))
                      )}

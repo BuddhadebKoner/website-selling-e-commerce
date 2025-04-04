@@ -1,13 +1,13 @@
 "use client"
 import React, { useState, useEffect } from 'react'
 import { Elements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
+import { loadStripe, Stripe } from '@stripe/stripe-js';
 import PaymentForm from '../Forms/PaymentForm';
 
 const PaymentButton = ({ payableAmount, trackId }: { payableAmount: number, trackId: string }) => {
    // Use state to track modal visibility
    const [showPaymentForm, setShowPaymentForm] = useState(false);
-   const [stripePromise, setStripePromise] = useState<any>(null);
+   const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null);
    const [isLoading, setIsLoading] = useState(false);
 
    // Load Stripe only once when component mounts
@@ -18,7 +18,7 @@ const PaymentButton = ({ payableAmount, trackId }: { payableAmount: number, trac
             setIsLoading(true);
             try {
                const instance = await loadStripe(key);
-               setStripePromise(instance);
+               setStripePromise(Promise.resolve(instance));
             } catch (error) {
                console.error("Failed to load Stripe:", error);
             } finally {

@@ -11,6 +11,7 @@ import Image from 'next/image'
 import DashbordSidebar from '@/components/DashbordSidebar'
 import { useUserAuthentication } from '@/context/AuthProvider'
 import { useEffect, useState } from 'react'
+import { useGetNotificationCount } from '@/lib/react-query/queriesAndMutation'
 
 // Session timeout in milliseconds (15 minutes)
 const SESSION_TIMEOUT = 15 * 60 * 1000
@@ -20,6 +21,11 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
    const { currentUser, isAdmin, isLoading } = useUserAuthentication()
    const [lastActivity, setLastActivity] = useState<number>(Date.now())
    // const [notificationCount, setNotificationCount] = useState<number>(3)
+
+   const {
+      data: notificationCount,
+      isLoading: isNotificationLoading,
+   } = useGetNotificationCount()
 
    // Handle session timeout
    useEffect(() => {
@@ -114,9 +120,15 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
                         onClick={() => navigate.push('/admin-dashbord/notifications')}
                         className="p-2 hover:bg-accent rounded-full transition-colors cursor-pointer">
                         <Bell className="w-5 h-5 text-primary" />
-                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                           10
-                        </span>
+                        {isNotificationLoading ? (
+                           <span className="absolute -top-1 -right-1 bg-gray-300 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                              <LoaderCircle className="w-3 h-3 animate-spin" />
+                           </span>
+                        ) : notificationCount && notificationCount.notificationCount > 0 ? (
+                           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                              {notificationCount.notificationCount}
+                           </span>
+                        ) : null}
                      </button>
                   </div>
 

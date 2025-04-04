@@ -5,10 +5,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(
    request: NextRequest,
-   context: { params: { slug: string } }
+   { params }: { params: { slug: string } }
 ) {
    try {
-      // the the user is authenticated or not
       const isAdmin = isAdminRequest(request);
       if (!isAdmin) {
          return NextResponse.json(
@@ -17,8 +16,7 @@ export async function PATCH(
          );
       }
 
-      const params = await context.params;
-      const { slug } = params;
+      const { slug } =  await params;
 
       if (!slug) {
          return NextResponse.json(

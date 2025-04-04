@@ -14,9 +14,9 @@ export const getAllCategory = async (page = 1, limit = 10) => {
    }
 };
 
-export const getCategoryBySlug = async (slug: string) => {
+export const getCategoryBySlug = async (id: string) => {
    try {
-      const response = await fetch(`/api/public/categories/${slug}`);
+      const response = await fetch(`/api/public/categories/${id}`);
       const result = await response.json();
       if (!response.ok) {
          throw new Error(result.error || "Failed to fetch");
