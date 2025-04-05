@@ -7,7 +7,6 @@ import { QUERY_KEYS } from "@/lib/react-query/queryKeys";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-// Define proper Order interface
 export interface Order {
   _id: string;
   trackId: string;

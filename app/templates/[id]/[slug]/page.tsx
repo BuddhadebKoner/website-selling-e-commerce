@@ -210,7 +210,7 @@ const ProductDetailsPage = () => {
                         isOfferActive={isOfferActive}
                         statusColorClass={statusColorClass}
                         isInCart={isInCart}
-                        currentUser={currentUser}
+                        currentUser={currentUser ?? { id: '', cart: { id: '', products: [] } }}
                         isAuthLoading={isAuthLoading}
                         refreshCurrentUser={refreshCurrentUser}
                         isMobile={true}
@@ -250,7 +250,7 @@ const ProductDetailsPage = () => {
                            isOfferActive={isOfferActive}
                            statusColorClass={statusColorClass}
                            isInCart={isInCart}
-                           currentUser={currentUser}
+                           currentUser={currentUser ?? { id: '', cart: { id: '', products: [] } }}
                            isAuthLoading={isAuthLoading}
                            refreshCurrentUser={refreshCurrentUser}
                            isMobile={false}

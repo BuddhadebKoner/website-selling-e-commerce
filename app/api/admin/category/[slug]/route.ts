@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(
    request: NextRequest,
-   context: { params: { slug: string } }
+   context: { params: Promise<{ slug: string }> }
 ) {
    try {
       const isAdmin = isAdminRequest(request);
@@ -16,7 +16,9 @@ export async function PATCH(
          );
       }
 
-      const { slug } = context.params;
+      const { params } = context;
+      const resolvedParams = await params;
+      const { slug } = resolvedParams;
 
       if (!slug) {
          return NextResponse.json(
@@ -35,19 +37,16 @@ export async function PATCH(
 
       await connectToDatabase();
 
-      // If isFeatured is included, validate it's a boolean or convert from string
       if (updates.isFeatured !== undefined) {
          if (typeof updates.isFeatured === "string") {
             updates.isFeatured = updates.isFeatured === "true";
          }
       }
 
-      // If slug is being updated, remove spaces
       if (updates.slug) {
          updates.slug = updates.slug.replace(/\s+/g, "");
       }
 
-      // Find the category by slug and update it
       const updatedCategory = await Category.findOneAndUpdate(
          { slug },
          { $set: updates },

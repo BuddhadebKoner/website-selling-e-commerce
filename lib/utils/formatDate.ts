@@ -4,9 +4,9 @@
  * @param {boolean} includeTime - Whether to include time in the formatted string
  * @returns {string} - Formatted date string
  */
-export const formatDate = (dateString, includeTime = true) => {
+export const formatDate = (dateString: string | Date, includeTime: boolean = true): string => {
    try {
-      const options = {
+      const options: Intl.DateTimeFormatOptions = {
          year: 'numeric',
          month: 'short',
          day: 'numeric',
@@ -31,7 +31,7 @@ export const formatDate = (dateString, includeTime = true) => {
  * @param {string|Date} dateString - The date to format
  * @returns {string} - Relative time string
  */
-export const getRelativeTimeString = (dateString) => {
+export const getRelativeTimeString = (dateString: string | Date) => {
    try {
       const date = new Date(dateString);
       const now = new Date();
@@ -40,7 +40,7 @@ export const getRelativeTimeString = (dateString) => {
       const dateIST = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
       const nowIST = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
 
-      const diffInMs = nowIST - dateIST;
+      const diffInMs = nowIST.getTime() - dateIST.getTime();
       const diffInSecs = Math.floor(diffInMs / 1000);
       const diffInMins = Math.floor(diffInSecs / 60);
       const diffInHours = Math.floor(diffInMins / 60);

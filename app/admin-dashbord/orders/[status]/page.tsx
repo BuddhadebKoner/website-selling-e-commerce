@@ -40,9 +40,10 @@ const Page = () => {
               <td colSpan={7} className="px-4 py-8 text-center text-secondary">No orders found</td>
             </tr>
           ) : (
-            orders.map((order) => (
+            orders.map((order, idx) => (
               <OrderRow
                 key={order._id}
+                index={idx + 1}
                 order={order}
               />
             ))

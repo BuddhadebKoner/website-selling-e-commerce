@@ -113,7 +113,14 @@
 
 import React from 'react'
 
-const ProductReviews = () => {
+const ProductReviews = ({ productId, totalRating, rating }: {
+  productId: string;
+  totalRating: number;
+  rating: number;
+}) => {
+
+  console.log('ProductReviews', productId, totalRating, rating);
+
   return (
     <div>ProductReviews</div>
   )

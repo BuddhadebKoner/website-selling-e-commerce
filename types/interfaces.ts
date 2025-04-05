@@ -123,7 +123,7 @@ export interface ProductData {
   bannerImageUrl: string;
   bannerImageID: string;
   technologyStack: string | string[];
-  [key: string]: string | string[] | { imageUrl: string; imageId: string; }[]; // For any other fields
+  [key: string]: string | string[] | { imageUrl: string; imageId: string; }[];
 }
 
 /**

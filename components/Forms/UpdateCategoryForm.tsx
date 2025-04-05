@@ -181,7 +181,7 @@ const UpdateCategoryForm = () => {
               name={field.name}
               isRequired={field.required}
               inputType={field.type}
-              value={formData[field.name as keyof CategoriesData]}
+              value={String(formData[field.name as keyof CategoriesData])}
               onChange={handleChange}
               placeholder={field.placeholder}
               error={field.error}

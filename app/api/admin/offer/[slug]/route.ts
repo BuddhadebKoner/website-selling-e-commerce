@@ -1,31 +1,32 @@
 import { isAdminRequest } from "@/lib/auth-admin-gard";
 import { connectToDatabase } from "@/lib/db";
 import Product from "@/models/product.model";
-import { NextApiRequest } from "next";
 import { NextRequest, NextResponse } from "next/server";
 
-// add or update offer
 export async function PATCH(
-   req: NextRequest,
-   request: NextApiRequest,
+   request: NextRequest,
+   context: { params: Promise<{ slug: string }> }
 ) {
-   const isAdmin = isAdminRequest(req);
-   if (!isAdmin) {
-      return NextResponse.json(
-         { success: false, error: "Unauthorized" },
-         { status: 401 }
-      );
-   }
-
    try {
-      const { slug } = request.query
+      const isAdmin = isAdminRequest(request);
+      if (!isAdmin) {
+         return NextResponse.json(
+            { error: "Unauthorized" },
+            { status: 401 }
+         );
+      }
+
+      const { params } = context;
+      const resolvedParams = await params;
+      const { slug } = resolvedParams;
+
       const {
          OfferStatus,
          OfferType,
          discount,
          offerStartDate,
          offerEndDate
-      } = await req.json();
+      } = await request.json();
 
       if (!OfferStatus || !OfferType || !discount || !offerStartDate || !offerEndDate) {
          return NextResponse.json(
@@ -122,7 +123,7 @@ export async function PATCH(
 
 export async function GET(
    req: NextRequest,
-   context: { params: { slug: string } }
+   context: { params: Promise<{ slug: string }> }
 ) {
    // Verify admin authentication
    const isAdmin = isAdminRequest(req);
@@ -134,8 +135,9 @@ export async function GET(
    }
 
    try {
-      const params = await context.params;
-      const { slug } = params;
+      const { params } = context;
+      const resolvedParams = await params;
+      const { slug } = resolvedParams;
 
       if (!slug) {
          return NextResponse.json(

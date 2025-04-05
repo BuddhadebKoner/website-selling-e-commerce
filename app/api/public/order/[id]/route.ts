@@ -6,11 +6,12 @@ import { getAuth } from "@clerk/nextjs/server";
 
 export async function GET(
    request: NextRequest,
-   context: { params: { id: string } }
+   context: { params: Promise<{ id: string }> }
 ) {
    try {
-      const params = await context.params;
-      const { id } = params;
+      const { params } = context;
+      const resolvedParams = await params;
+      const { id } = resolvedParams;
 
       if (!id) {
          return NextResponse.json(
@@ -50,7 +51,7 @@ export async function GET(
 // update payment status of a specific order
 export async function PATCH(
    request: NextRequest,
-   context: { params: { id: string } }
+   context: { params: Promise<{ id: string }> }
 ) {
    try {
       await connectToDatabase();
@@ -64,8 +65,9 @@ export async function PATCH(
          );
       }
 
-      const params = await context.params;
-      const { id } = params;
+      const { params } = context;
+      const resolvedParams = await params;
+      const { id } = resolvedParams;
 
       if (!id) {
          return NextResponse.json(

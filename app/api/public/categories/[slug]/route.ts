@@ -2,11 +2,15 @@ import { connectToDatabase } from "@/lib/db";
 import Category from "@/models/category.model";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest, context: { params: { slug: string } }) {
+export async function GET(
+   request: NextRequest,
+   context: { params: Promise<{ slug: string }> }
+) {
    try {
       await connectToDatabase();
-      const params = await context.params;
-      const { slug } = params;
+      const { params } = context;
+      const resolvedParams = await params;
+      const { slug } = resolvedParams;
 
       if (!slug) {
          return NextResponse.json(

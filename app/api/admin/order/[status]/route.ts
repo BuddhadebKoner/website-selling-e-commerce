@@ -4,11 +4,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
    request: NextRequest,
-   context: { params: { status: string } }
+   context: { params: Promise<{ status: string }> }
 ) {
    try {
-      const params = await context.params;
-      const { status } = params;
+      const { params } = context;
+      const resolvedParams = await params;
+      const { status } = resolvedParams;
 
       if (!status) {
          return NextResponse.json(
@@ -59,7 +60,7 @@ export async function GET(
             $project: {
                _id: 1,
                trackId: 1,
-               orderDate: "$createdAt", 
+               orderDate: "$createdAt",
                payableAmount: 1,
                status: 1,
                paymentStatus: 1,

@@ -8,7 +8,9 @@ import Image from 'next/image';
 import { createProduct, updateProduct } from '@/endpoints/admin.api';
 import { ProductData } from '@/types/interfaces';
 
-const ProductForm = ({ action, productData }: { action: string, productData: ProductData }) => {
+const ProductForm = (
+   { action, productData }: { action: string; productData: ProductData | "" }
+) => {
 
    const initialProductData: ProductData = {
       slug: '',

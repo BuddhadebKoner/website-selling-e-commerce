@@ -6,7 +6,7 @@ import { CalendarDays, LoaderCircle, Percent, ShoppingBag, Tag } from 'lucide-re
 import Link from 'next/link'
 import { formatDate } from '@/lib/utils/formatDate'
 
-export const OffersPage = () => {
+export default function Page() {
   const {
     data,
     fetchNextPage,
@@ -174,6 +174,3 @@ export const OffersPage = () => {
     </div>
   )
 }
-
-// Add default export for Next.js page convention
-export default OffersPage;
