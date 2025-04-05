@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(
    request: NextRequest,
-   { params }: { params: { slug: string } }
+   context: { params: { slug: string } }
 ) {
    try {
       const isAdmin = isAdminRequest(request);
@@ -16,7 +16,7 @@ export async function PATCH(
          );
       }
 
-      const { slug } =  await params;
+      const { slug } = context.params;
 
       if (!slug) {
          return NextResponse.json(
