@@ -50,42 +50,47 @@ const AllCategoriesPage = () => {
     );
   }
 
+  console.log('Categories:', data);
+
   return (
-    <div className="rounded-lg overflow-hidden">
-      {hasCategories ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-          {data?.pages.map((page) =>
-            (page.data || []).map((category: ICategory) => (
-              <CategoryCard key={category._id} {...category} />
-            ))
-          )}
-        </div>
-      ) : (
-        <div className="py-12 text-center">
-          <p className="text-lg mb-2">No categories found.</p>
-          <p className="text-gray-500 mb-6">Please add some categories.</p>
-        </div>
-      )}
-      {/* Infinite scroll indicator */}
-      {hasCategories && (
-        <>
-          <div ref={ref} className="h-10" />
-          {isFetchingNextPage && (
-            <div className="text-center py-4">
-              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
-              <p className="mt-2">Loading more categories...</p>
-            </div>
-          )}
-        </>
-      )}
-      {isFetching && !isFetchingNextPage && (
-        <div className="fixed bottom-4 right-4 bg-background-secondary px-4 py-2 rounded-md shadow-lg">
-          <div className="flex items-center space-x-2">
-            <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent"></div>
-            <span>Updating...</span>
+    <div className="w-full h-fit bg-background pb-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center overflow-y-hidden">
+      <div className="w-full max-w-7xl">
+        <h1 className="text-3xl font-bold mb-6 text-primary">Categories</h1>
+        {hasCategories ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-2">
+            {data?.pages.map((page) =>
+              (page.data || []).map((category: ICategory) => (
+                <CategoryCard key={category._id} {...category} />
+              ))
+            )}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="bg-box rounded-lg overflow-hidden border border-theme py-12 text-center">
+            <p className="text-lg mb-2">No categories found.</p>
+            <p className="text-secondary mb-6">Please add some categories.</p>
+          </div>
+        )}
+        {/* Infinite scroll indicator */}
+        {hasCategories && (
+          <>
+            <div ref={ref} className="h-10" />
+            {isFetchingNextPage && (
+              <div className="text-center py-4">
+                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
+                <p className="mt-2 text-secondary">Loading more categories...</p>
+              </div>
+            )}
+          </>
+        )}
+        {isFetching && !isFetchingNextPage && (
+          <div className="fixed bottom-4 right-4 bg-background-secondary px-4 py-2 rounded-md shadow-lg">
+            <div className="flex items-center space-x-2">
+              <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent"></div>
+              <span>Updating...</span>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

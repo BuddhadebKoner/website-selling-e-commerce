@@ -7,6 +7,7 @@ import { ShieldCheck, Package, UserCircle, Mail, CheckCircle, LoaderCircle, Aler
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useUser } from "@clerk/nextjs";
+import ProfileCartActivity from '@/components/ProfileCartActivity';
 
 const Profile = () => {
    const [image, setImage] = useState<File | null>(null);
@@ -91,6 +92,8 @@ const Profile = () => {
    if (!currentUser) {
       return null;
    }
+
+   console.log("current user : ", currentUser.cart?.products)
 
    return (
       <div className="min-h-screen bg-background pt-24 pb-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center">
@@ -210,28 +213,8 @@ const Profile = () => {
                </div>
             </div>
 
-            {/* Recent activity section */}
-            <div className="bg-box rounded-lg border-theme border p-6">
-               <h2 className="text-xl font-semibold mb-4 text-primary">Recent Activity</h2>
-
-               <div className="space-y-4">
-                  <div className="flex items-center">
-                     <div className="bg-background-secondary rounded-full p-2 mr-4">
-                        <Package className="w-5 h-5 text-highlight-primary" />
-                     </div>
-                     <div>
-                        <p className="text-primary font-medium">You haven&apos;t placed any orders yet</p>
-                        <p className="text-secondary text-sm">Browse our collection and find something you like!</p>
-                     </div>
-                  </div>
-
-                  <div className="mt-4 flex justify-center">
-                     <Link href="/templates" className="btn btn-primary">
-                        Browse Products
-                     </Link>
-                  </div>
-               </div>
-            </div>
+            {/* Cart activity section */}
+            <ProfileCartActivity cartProducts={currentUser?.cart?.products} />
 
             {/* Account options */}
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -12,35 +12,47 @@ const CategoryCard: React.FC<ICategory> = ({
    productsCount = 0
 }) => {
    return (
-      <Link href={`/categories/${slug}`}>
-         <div className="flex flex-col bg-background-secondary rounded-lg overflow-hidden border border-border hover:shadow-md transition-shadow duration-200 h-full">
-            {bannerImageUrl && (
-               <div className="relative w-full h-48 overflow-hidden">
-                  <Image
-                     src={bannerImageUrl}
-                     width={500}
-                     height={500}
-                     alt={title}
-                     fill
-                     className="object-cover"
-                  />
-                  {isFeatured && (
-                     <div className="absolute top-2 right-2 bg-accent px-2 py-1 rounded text-xs font-medium">
-                        Featured
-                     </div>
-                  )}
-               </div>
-            )}
-            <div className="p-4 flex-grow flex flex-col">
-               <h3 className="text-xl font-bold mb-2 line-clamp-1">{title}</h3>
-               <p className="text-gray-600 mb-4 line-clamp-2">{subTitle}</p>
-               <div className="mt-auto flex items-center justify-between">
-                  <span className="text-sm text-gray-500">{productsCount} {productsCount === 1 ? 'product' : 'products'}</span>
-                  <span className="text-sm text-primary">View category</span>
+      <div className="group bg-box border border-theme rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 w-full h-full">
+         <div className="animate-fadeIn transition-all h-full flex flex-col">
+            <div className="relative w-full aspect-[4/3] overflow-hidden">
+               {bannerImageUrl ? (
+                  <Link href={`/categories/${slug}`} className="block h-full">
+                     <Image
+                        src={bannerImageUrl}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        alt={title}
+                        className="object-cover transition-transform group-hover:scale-105 duration-500"
+                        priority
+                     />
+                  </Link>
+               ) : (
+                  <div className="h-full w-full bg-background-secondary flex items-center justify-center">
+                     <span className="text-secondary text-xs sm:text-sm">No image available</span>
+                  </div>
+               )}
+               {isFeatured && (
+                  <div className="absolute top-2 sm:top-3 right-2 sm:right-3 bg-accent-green text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-2xs sm:text-xs font-medium shadow-sm">
+                     Editor's Choice
+                  </div>
+               )}
+            </div>
+            <div className="p-3 sm:p-4 md:p-5 flex-grow flex flex-col">
+               <h3 className="text-primary text-lg sm:text-xl font-bold mb-1 sm:mb-2 line-clamp-1">{title}</h3>
+               {subTitle && (
+                  <p className="text-secondary mb-2 sm:mb-4 text-xs sm:text-sm line-clamp-2">{subTitle}</p>
+               )}
+               <div className="mt-auto pt-2 sm:pt-3 border-t border-theme flex items-center justify-between">
+                  <span className="text-xs sm:text-sm text-secondary">
+                     {productsCount} {productsCount === 1 ? 'product' : 'products'}
+                  </span>
+                  <Link href={`/categories/${slug}`} className="text-xs sm:text-sm link-color font-medium hover:link-hover flex items-center">
+                     View category
+                  </Link>
                </div>
             </div>
          </div>
-      </Link>
+      </div>
    );
 };
 

@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
    try {
       await connectToDatabase();
-      
+
       const page = parseInt(request.nextUrl.searchParams.get('page') || '1');
       const limit = parseInt(request.nextUrl.searchParams.get('limit') || '10');
       const skip = (page - 1) * limit;
@@ -17,16 +17,16 @@ export async function GET(request: NextRequest) {
 
       const categories = await Category.aggregate([
          // First sort by creation date
-         { 
-            $sort: { createdAt: -1 } 
+         {
+            $sort: { createdAt: -1 }
          },
          // Then skip for pagination
-         { 
-            $skip: skip 
+         {
+            $skip: skip
          },
          // Then limit results
-         { 
-            $limit: limit 
+         {
+            $limit: limit
          },
          // Lookup products to get more details (optional)
          {
@@ -43,6 +43,7 @@ export async function GET(request: NextRequest) {
                title: 1,
                subTitle: 1,
                slug: 1,
+               bannerImageUrl: 1,
                isFeatured: 1,
                createdAt: 1,
                productsCount: { $size: "$products" },
