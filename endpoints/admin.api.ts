@@ -1,4 +1,4 @@
-import { CategoriesData, Offer, ProductData } from "@/types/interfaces";
+import { CategoriesData, ProductData } from "@/types/interfaces";
 
 // Define the product type to match your form data structure
 export type CreateResponse = {

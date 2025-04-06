@@ -106,24 +106,24 @@ export interface Product {
  * Product data for forms or API requests
  */
 export interface ProductData {
-  slug: string;
-  title: string;
-  subTitle: string;
-  liveLink: string;
-  productType: string;
-  productAbout: string;
-  tags: string[];
-  _tagsInput: string;
-  price: string;
-  websiteAge: string;
-  images: {
-    imageUrl: string;
-    imageId: string;
-  }[];
-  bannerImageUrl: string;
-  bannerImageID: string;
-  technologyStack: string | string[];
-  [key: string]: string | string[] | { imageUrl: string; imageId: string; }[];
+   slug: string;
+   title: string;
+   subTitle: string;
+   liveLink: string;
+   productType: string;
+   productAbout: string;
+   tags: string[];
+   _tagsInput: string;
+   price: string;
+   websiteAge: string;
+   images: {
+      imageUrl: string;
+      imageId: string;
+   }[];
+   bannerImageUrl: string;
+   bannerImageID: string;
+   technologyStack: string | string[];
+   [key: string]: string | string[] | { imageUrl: string; imageId: string; }[];
 }
 
 /**
@@ -344,7 +344,17 @@ export interface Product {
 export interface Order {
    _id: string;
    owner: string;
-   products: Product[];
+   products: [
+      {
+         productId: string;
+         title: string;
+         productType: string;
+         price: number;
+         OfferStatus: string;
+         OfferType: string;
+         discount: number;
+      }
+   ];
    totalOriginalAmount: number;
    payableAmount: number;
    discountAmount: number;
@@ -363,4 +373,13 @@ export interface Order {
 // Props interface for OrderCard component
 export interface OrderCardProps {
    orders: Order[];
+}
+
+
+// rating 
+export interface Rating {
+   rating: number;
+   comment: string;
+   productIds: string[];
+   orderId: string;
 }

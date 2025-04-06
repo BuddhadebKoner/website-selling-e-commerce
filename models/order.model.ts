@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 export interface IOrder {
    owner: mongoose.Types.ObjectId;
    products: {
+      productId: mongoose.Types.ObjectId; 
       title: string;
       productType: string;
       price: number;
@@ -33,6 +34,11 @@ const OrderSchema = new mongoose.Schema({
    },
    products: [
       {
+         productId: {
+            type: mongoose.Types.ObjectId,
+            ref: "Product",
+            required: true
+         },
          title: {
             type: String,
             required: true,
