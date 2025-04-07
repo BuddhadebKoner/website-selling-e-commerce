@@ -28,6 +28,7 @@ export interface IProduct {
    discount: number;
    offerStartDate: Date;
    offerEndDate: Date;
+   totalSumOfRating: number;
    rating: mongoose.Types.ObjectId[];
 }
 
@@ -152,6 +153,10 @@ const ProductSchema = new mongoose.Schema({
    offerEndDate: {
       type: Date,
       default: Date.now,
+   },
+   totalSumOfRating: {
+      type: Number,
+      default: 0,
    },
    rating: [
       {

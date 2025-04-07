@@ -18,6 +18,8 @@ const OrderPage = () => {
     error,
   } = useGetOrdersListByUserId(currentUser?.id || '');
 
+  console.log(ordersList)
+
   if (isAuthLoading || isOrdersLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-background text-primary">

@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
          // Lookup cart details
          {
             $lookup: {
-               from: "carts", // Assuming collection name is "carts"
+               from: "carts", 
                localField: "cart",
                foreignField: "_id",
                as: "cartDetails"
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
          // Lookup products in the cart
          {
             $lookup: {
-               from: "products", // Assuming collection name is "products"
+               from: "products",
                localField: "cartDetails.products",
                foreignField: "_id",
                as: "cartProducts"

@@ -2,46 +2,36 @@ import { connectToDatabase } from "@/lib/db";
 import Rating from "@/models/rating.model";
 import User from "@/models/user.model";
 import Order from "@/models/order.model";
+import Product from "@/models/product.model";
 import { getAuth } from "@clerk/nextjs/server";
-import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
    try {
+      // Authentication check
       const { userId } = getAuth(request);
-
       if (!userId) {
          return NextResponse.json(
-            { success: false, message: "Authentication required" },
+            { success: false, error: "Authentication required" },
             { status: 401 }
          );
       }
 
-      const {
-         rating,
-         comment,
-         productIds,
-         orderId,
-      } = await request.json();
+      const { rating: ratingValue, comment, productId, orderId } = await request.json()
 
-      console.log("Request Body:", {
-         rating,
-         comment,
-         productIds,
-         orderId,
-      });
-
-      if (!rating || !productIds || !orderId || !Array.isArray(productIds)) {
+      // Input validation
+      if (!ratingValue || !productId || !orderId) {
          return NextResponse.json(
-            { success: false, message: "All fields are required" },
+            { success: false, error: "All fields are required" },
             { status: 400 }
          );
       }
 
-      // Validate numerical values
-      if (isNaN(rating)) {
+      // Validate rating value
+      const numericRating = Number(ratingValue);
+      if (isNaN(numericRating) || numericRating < 1 || numericRating > 5) {
          return NextResponse.json(
-            { success: false, message: "Rating must be a valid number" },
+            { success: false, error: "Rating must be a number between 1 and 5" },
             { status: 400 }
          );
       }
@@ -49,90 +39,133 @@ export async function POST(request: NextRequest) {
       // Validate comment length
       if (comment && comment.length > 500) {
          return NextResponse.json(
-            { success: false, message: "Comment is too long" },
+            { success: false, error: "Comment is too long (max 500 characters)" },
             { status: 400 }
          );
       }
 
+      // Connect to database
       await connectToDatabase();
 
-      // Find user by id
-      const user = await User.findOne({ clerkId: userId }).select("_id");
+      // Verify user exists
+      const user = await User.findOne({ clerkId: userId });
       if (!user) {
          return NextResponse.json(
-            { success: false, message: "User not found" },
+            { success: false, error: "User not found" },
             { status: 404 }
          );
       }
 
-      // Use aggregation pipeline to validate order and products
-      const orderValidation = await Order.aggregate([
-         {
-            $match: {
-               _id: new mongoose.Types.ObjectId(orderId),
-               owner: user._id,
-               status: "completed",
-               paymentStatus: "completed",
-            }
-         },
-         {
-            $project: {
-               products: "$products.productId"
-            }
-         }
-      ]);
-
-
-      if (orderValidation.length === 0) {
+      // Verify product exists
+      const product = await Product.findById(productId);
+      if (!product) {
          return NextResponse.json(
-            { success: false, message: "Order not found, not completed, or you do not have permission to rate this order" },
+            { success: false, error: "Product not found" },
+            { status: 404 }
+         );
+      }
+
+      // Verify order exists and is valid
+      const order = await Order.findById(orderId);
+      if (!order) {
+         return NextResponse.json(
+            { success: false, error: "Order not found" },
+            { status: 404 }
+         );
+      }
+
+      // Verify order belongs to the user
+      if (order.owner.toString() !== user._id.toString()) {
+         return NextResponse.json(
+            { success: false, error: "Unauthorized: Order does not belong to this user" },
             { status: 403 }
          );
       }
 
-      const orderedProductIds = orderValidation[0].products.map((productId: string) => productId.toString());
-      const invalidProductIds = productIds.filter(productId => !orderedProductIds.includes(productId));
-      if (invalidProductIds.length > 0) {
+      // Verify order is completed
+      if (order.paymentStatus !== "completed" || order.status !== "completed") {
          return NextResponse.json(
-            { success: false, message: `Invalid product IDs: ${invalidProductIds.join(", ")}` },
+            { success: false, error: "Cannot rate products from incomplete orders" },
             { status: 400 }
          );
       }
 
-      // Check if the user has already rated this order for these products
-      const existingRating = await Rating.findOne({ user: user._id, products: { $in: productIds }, orderId });
+      // Verify product is in the order
+      const productInOrder = order.products.some((p: { productId: string }) =>
+         p.productId.toString() === productId
+      );
+
+      if (!productInOrder) {
+         return NextResponse.json(
+            { success: false, error: "Product not found in this order" },
+            { status: 400 }
+         );
+      }
+
+      // Check if user has already rated this product for this order
+      const existingRating = await Rating.findOne({
+         user: user._id,
+         products: productId,
+         order: orderId
+      });
+
       if (existingRating) {
          return NextResponse.json(
-            { success: false, message: "You have already submitted a rating for this order and products" },
+            { success: false, error: "You have already rated this product" },
             { status: 400 }
          );
       }
 
-      // Create a new rating
-      const ratingData = {
+      // Create the rating
+      const newRating = await Rating.create({
+         rating: numericRating,
+         comment: comment || "",
          user: user._id,
-         products: productIds,
-         rating,
-         comment,
-         orderId,
-      };
+         products: productId,
+         order: orderId
+      });
 
-      const newRating = await Rating.create(ratingData);
-      if (!newRating) {
+      // Update product rating counts
+      const newTotalSum = (product.totalSumOfRating || 0) + numericRating;
+      const newTotalRatings = (product.rating?.length || 0) + 1;
+
+      // Update product with new rating information
+      const updatedProduct = await Product.findByIdAndUpdate(
+         productId,
+         {
+            $push: { rating: newRating._id },
+            $set: {
+               totalSumOfRating: newTotalSum,
+               totalRating: newTotalRatings
+            },
+         },
+         { new: true }
+      );
+
+      if (!updatedProduct) {
+         // Rollback if product update fails
+         await Rating.findByIdAndDelete(newRating._id);
          return NextResponse.json(
-            { success: false, message: "Failed to create rating" },
+            { success: false, error: "Failed to update product rating" },
             { status: 500 }
          );
       }
 
-      return NextResponse.json(
-         { success: true, message: "Rating created successfully", data: newRating },
-         { status: 201 }
-      );
+      // Return success response
+      return NextResponse.json({
+         success: true,
+         message: "Rating submitted successfully",
+         data: {
+            ratingId: newRating._id,
+            productId,
+            rating: numericRating
+         }
+      });
+
    } catch (error) {
-      console.error("Internal server error:", error);
+      console.error("Rating submission error:", error);
       return NextResponse.json(
-         { success: false, message: "Internal server error" },
+         { success: false, error: "Internal server error" },
          { status: 500 }
       );
    }

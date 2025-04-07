@@ -380,6 +380,6 @@ export interface OrderCardProps {
 export interface Rating {
    rating: number;
    comment: string;
-   productIds: string[];
+   productId: string;
    orderId: string;
 }

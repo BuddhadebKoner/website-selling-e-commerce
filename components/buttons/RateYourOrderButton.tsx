@@ -1,64 +1,117 @@
 "use client";
 import { useState } from 'react';
-import { Star, X, Loader2 } from 'lucide-react';
+import { Star, X, Loader2, ChevronRight } from 'lucide-react';
 import { createRating } from '@/endpoints/rating.api';
 import { toast } from 'react-toastify';
 
+interface ProductData {
+   productId: string;
+   title: string;
+   price: number;
+   productType: string;
+}
+
 const RateYourOrderButton = ({
-   productIds,
+   productsData,
    orderId,
 }: {
-   productIds: string[];
+   productsData: ProductData[];
    orderId: string;
 }) => {
    const [isModalOpen, setIsModalOpen] = useState(false);
-   const [rating, setRating] = useState(0);
-   const [comment, setComment] = useState('');
+   const [currentProductIndex, setCurrentProductIndex] = useState(0);
+   const [ratings, setRatings] = useState<{ [key: string]: { rating: number; comment: string } }>({});
    const [isHovering, setIsHovering] = useState(0);
    const [isSubmitting, setIsSubmitting] = useState(false);
    const [error, setError] = useState<string | null>(null);
 
    const openModal = () => {
       setIsModalOpen(true);
-      // Reset states when opening modal
+      setCurrentProductIndex(0);
+      // Initialize ratings object with empty values for all products
+      const initialRatings: { [key: string]: { rating: number; comment: string } } = {};
+      productsData.forEach(product => {
+         initialRatings[product.productId] = { rating: 0, comment: '' };
+      });
+      setRatings(initialRatings);
       setError(null);
-      setRating(0);
-      setComment('');
    };
 
    const closeModal = () => {
       setIsModalOpen(false);
       setIsHovering(0);
-      setRating(0);
-      setComment('');
+      setRatings({});
       setError(null);
    };
 
-   const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-      setError(null);
+   const currentProduct = productsData[currentProductIndex];
 
-      // Validate before submission
-      if (rating === 0) {
+   const getCurrentRating = () => {
+      return currentProduct ? (ratings[currentProduct.productId]?.rating || 0) : 0;
+   };
+
+   const getCurrentComment = () => {
+      return currentProduct ? (ratings[currentProduct.productId]?.comment || '') : '';
+   };
+
+   const setCurrentRating = (value: number) => {
+      if (!currentProduct) return;
+
+      setRatings(prev => ({
+         ...prev,
+         [currentProduct.productId]: {
+            ...prev[currentProduct.productId],
+            rating: value
+         }
+      }));
+   };
+
+   const setCurrentComment = (value: string) => {
+      if (!currentProduct) return;
+
+      setRatings(prev => ({
+         ...prev,
+         [currentProduct.productId]: {
+            ...prev[currentProduct.productId],
+            comment: value
+         }
+      }));
+   };
+
+   const handleSubmitCurrentProduct = async () => {
+      if (!currentProduct) return;
+
+      // Validate current product rating
+      if (getCurrentRating() === 0) {
          setError("Please select a rating");
          return;
       }
 
+      setError(null);
+      setIsSubmitting(true);
+
       const ratingData = {
-         rating,
-         comment,
-         productIds,
+         rating: getCurrentRating(),
+         comment: getCurrentComment(),
+         productId: currentProduct.productId,
          orderId,
       };
 
-      setIsSubmitting(true);
+      console.log("Submitting rating data:", ratingData);
 
       try {
          const response = await createRating({ rating: ratingData });
 
          if (response.success) {
-            toast.success("Thank you for your feedback!");
-            closeModal();
+            // If this is the last product, close modal and show success
+            if (currentProductIndex === productsData.length - 1) {
+               toast.success("Thanks for rating all your products!");
+               closeModal();
+            } else {
+               // Move to next product
+               setCurrentProductIndex(prev => prev + 1);
+               toast.success(`Rating for ${currentProduct.title} submitted successfully!`);
+            }
          } else {
             setError(response.error || "Failed to submit your review. Please try again.");
          }
@@ -70,6 +123,10 @@ const RateYourOrderButton = ({
       }
    };
 
+   if (!productsData || productsData.length === 0) {
+      return null;
+   }
+
    return (
       <>
          <button
@@ -79,11 +136,16 @@ const RateYourOrderButton = ({
             Rate Your Order
          </button>
 
-         {isModalOpen && (
+         {isModalOpen && currentProduct && (
             <div className="fixed inset-0 w-full h-screen bg-glass/95 backdrop-blur-sm flex items-start justify-center pt-16 px-4 z-50 animate-fadeIn overflow-y-auto">
                <div className="w-full max-w-3xl bg-background-secondary border border-theme rounded-lg shadow-xl animate-slideDown p-5 mt-16">
                   <div className="flex justify-between items-center p-4 border-b border-theme">
-                     <h3 className="text-primary text-lg font-medium">Rate Your Order</h3>
+                     <div>
+                        <h3 className="text-primary text-lg font-medium">Rate Your Order</h3>
+                        <p className="text-secondary text-xs mt-1">
+                           Product {currentProductIndex + 1} of {productsData.length}
+                        </p>
+                     </div>
                      <button
                         onClick={closeModal}
                         className="text-secondary hover:text-primary transition-all"
@@ -94,7 +156,14 @@ const RateYourOrderButton = ({
                      </button>
                   </div>
 
-                  <form onSubmit={handleSubmit} className="p-5">
+                  <div className="p-5">
+                     <div className="mb-4 p-3 border border-theme rounded-md">
+                        <h4 className="font-medium text-primary">{currentProduct.title}</h4>
+                        <p className="text-secondary text-sm mt-1">
+                           {currentProduct.productType} · ${currentProduct.price}
+                        </p>
+                     </div>
+
                      {error && (
                         <div className="mb-4 p-3 bg-red-50 text-red-600 border border-red-200 rounded-md text-sm">
                            {error}
@@ -111,14 +180,14 @@ const RateYourOrderButton = ({
                                  className="transition-all focus-visible:outline-none"
                                  onMouseEnter={() => setIsHovering(star)}
                                  onMouseLeave={() => setIsHovering(0)}
-                                 onClick={() => setRating(star)}
+                                 onClick={() => setCurrentRating(star)}
                                  disabled={isSubmitting}
                               >
                                  <Star
                                     size={28}
-                                    fill={(isHovering || rating) >= star ? "currentColor" : "none"}
+                                    fill={(isHovering || getCurrentRating()) >= star ? "currentColor" : "none"}
                                     className={`cursor-pointer transition-colors ${isSubmitting ? "opacity-50" : ""
-                                       } ${(isHovering || rating) >= star
+                                       } ${(isHovering || getCurrentRating()) >= star
                                           ? "accent-yellow"
                                           : "text-secondary"
                                        }`}
@@ -126,8 +195,8 @@ const RateYourOrderButton = ({
                               </button>
                            ))}
                            <span className="text-xs ml-2 text-secondary">
-                              {rating > 0 &&
-                                 `${rating} ${rating === 1 ? 'Star' : 'Stars'}`
+                              {getCurrentRating() > 0 &&
+                                 `${getCurrentRating()} ${getCurrentRating() === 1 ? 'Star' : 'Stars'}`
                               }
                            </span>
                         </div>
@@ -139,15 +208,15 @@ const RateYourOrderButton = ({
                         </label>
                         <textarea
                            id="comment"
-                           value={comment}
-                           onChange={(e) => setComment(e.target.value)}
+                           value={getCurrentComment()}
+                           onChange={(e) => setCurrentComment(e.target.value)}
                            className="form-input min-h-24 w-full"
-                           placeholder="Share your experience with this order..."
+                           placeholder="Share your experience with this product..."
                            disabled={isSubmitting}
                            maxLength={500}
                         />
                         <div className="text-xs text-secondary mt-1">
-                           {comment.length}/500 characters
+                           {getCurrentComment().length}/500 characters
                         </div>
                      </div>
 
@@ -161,9 +230,9 @@ const RateYourOrderButton = ({
                            Cancel
                         </button>
                         <button
-                           type="submit"
-                           disabled={rating === 0 || isSubmitting}
-                           className={`btn text-xs py-1.5 px-3 rounded transition-all ${rating === 0 || isSubmitting
+                           onClick={handleSubmitCurrentProduct}
+                           disabled={getCurrentRating() === 0 || isSubmitting}
+                           className={`btn text-xs py-1.5 px-3 rounded transition-all flex items-center ${getCurrentRating() === 0 || isSubmitting
                               ? 'bg-secondary cursor-not-allowed opacity-70'
                               : 'btn-primary'
                               }`}
@@ -174,11 +243,16 @@ const RateYourOrderButton = ({
                                  Submitting...
                               </>
                            ) : (
-                              "Submit Review"
+                              <>
+                                 {currentProductIndex === productsData.length - 1 ? "Submit Review" : "Next Product"}
+                                 {currentProductIndex < productsData.length - 1 && (
+                                    <ChevronRight size={16} className="ml-1" />
+                                 )}
+                              </>
                            )}
                         </button>
                      </div>
-                  </form>
+                  </div>
                </div>
             </div>
          )}

@@ -33,7 +33,7 @@ const CategoryCard: React.FC<ICategory> = ({
                )}
                {isFeatured && (
                   <div className="absolute top-2 sm:top-3 right-2 sm:right-3 bg-accent-green text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-2xs sm:text-xs font-medium shadow-sm">
-                     Editor's Choice
+                     Editor&apos;s Choice
                   </div>
                )}
             </div>

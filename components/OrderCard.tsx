@@ -168,7 +168,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
             {validatedOrder.status === 'completed' && validatedOrder.paymentStatus === 'completed' && (
                <RateYourOrderButton
                   key={validatedOrder._id}
-                  productIds={validatedOrder.products.map(product => product.productId)}
+                  productsData={validatedOrder.products}
                   orderId={validatedOrder._id}
                />
             )}
