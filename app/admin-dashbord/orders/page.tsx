@@ -141,7 +141,7 @@ const OrdersTable = () => {
         )}
         {!hasNextPage && hasOrders && (
           <div className="text-secondary text-sm">
-            You've reached the end of the orders list
+            You&apos;ve reached the end of the orders list
           </div>
         )}
       </div>

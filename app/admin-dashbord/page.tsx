@@ -14,7 +14,6 @@ import { OrderRow } from '@/components/OrderRow'
 import { useAllOrders, useGetAllOffers } from '@/lib/react-query/queriesAndMutation';
 import { useEffect, useRef, useState } from 'react'
 import OfferRow from '@/components/OfferRow';
-import { toast } from 'react-toastify'
 
 export default function Page() {
    // Orders data fetching
@@ -28,7 +27,6 @@ export default function Page() {
       isFetchingNextPage: isFetchingNextOrdersPage,
    } = useAllOrders();
 
-   // Offers data fetching
    const {
       data: offersData,
       hasNextPage: hasNextOffersPage,

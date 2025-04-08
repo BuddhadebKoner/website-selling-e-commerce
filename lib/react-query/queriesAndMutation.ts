@@ -8,6 +8,7 @@ import { getAllOffers } from "@/endpoints/offer.api";
 import { fetchPendingProcessingOrders, getAllOrders, getAllUsers, getNotificationCount, getOrderByStatus, updateOrderStatus } from "@/endpoints/admin.api";
 import { OrderCreateData } from "@/types/interfaces";
 import { toast } from "react-toastify";
+import { getRatings } from "@/endpoints/rating.api";
 
 export const useGetIsAuthCheck = (clerkId: string, email: string, fullName: string) => {
    return useQuery({
@@ -241,6 +242,23 @@ export const useGetNotificationCount = () => {
       queryKey: [QUERY_KEYS.GET_NOTIFICATION_COUNT],
       queryFn: () => getNotificationCount(),
       enabled: true,
+      staleTime: 1000 * 60 * 5,
+   });
+}
+
+// get all ratings infinite scroll
+export const useGetAllRatings = (slug: string, limit = 5) => { 
+   return useInfiniteQuery({
+      queryKey: [QUERY_KEYS.GET_ALL_RATINGS, slug, limit],
+      initialPageParam: 1,
+      queryFn: ({ pageParam = 1 }: { pageParam?: number }) => getRatings(slug, pageParam, limit),
+      getNextPageParam: (lastPage) => {
+         if ('error' in lastPage) return undefined;
+         if (lastPage.currentPage < lastPage.totalPages) {
+            return lastPage.currentPage + 1;
+         }
+         return undefined;
+      },
       staleTime: 1000 * 60 * 5,
    });
 }

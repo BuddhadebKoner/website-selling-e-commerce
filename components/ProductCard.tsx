@@ -46,8 +46,6 @@ export function ProductCard({
    const averageRating = actualRatingCount > 0 ? (totalSumOfRating / actualRatingCount) : 0;
    const formattedRating = averageRating > 0 ? averageRating.toFixed(1) : '0';
 
-   console.log(formattedRating);
-
    // Star display calculation
    const fullStars = Math.floor(averageRating);
    const halfStar = (averageRating % 1) >= 0.5;

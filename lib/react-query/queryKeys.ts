@@ -17,4 +17,5 @@ export const QUERY_KEYS = {
    GET_PENDING_PROCESSING_ORDERS: 'getpendingprocessingorders',
    UPDATE_ORDER_ACTION: 'updateorderaction',
    GET_NOTIFICATION_COUNT: 'getnotificationcount',
+   GET_ALL_RATINGS: 'getallratings',
 }

@@ -26,7 +26,7 @@ const ProductDetailsPage = () => {
       error,
       refetch
    } = useGetProductBySlug(slug as string);
-   
+
    const product: ProductCardProps | undefined = data?.product;
 
    // Check if offer is active
@@ -241,20 +241,20 @@ const ProductDetailsPage = () => {
 
                   <div className="w-full h-fit flex">
                      {/* Pricing Section Component for Desktop */}
-                        <ProductPriceDetails
-                           product={product}
-                           originalPrice={product.price}
-                           discountedPrice={discountedPrice}
-                           formattedOriginalPrice={formattedPrice}
-                           formattedDiscountedPrice={formattedDiscountedPrice}
-                           isOfferActive={isOfferActive}
-                           statusColorClass={statusColorClass}
-                           isInCart={isInCart}
-                           currentUser={currentUser ?? { id: '', cart: { id: '', products: [] } }}
-                           isAuthLoading={isAuthLoading}
-                           refreshCurrentUser={refreshCurrentUser}
-                           isMobile={false}
-                        />
+                     <ProductPriceDetails
+                        product={product}
+                        originalPrice={product.price}
+                        discountedPrice={discountedPrice}
+                        formattedOriginalPrice={formattedPrice}
+                        formattedDiscountedPrice={formattedDiscountedPrice}
+                        isOfferActive={isOfferActive}
+                        statusColorClass={statusColorClass}
+                        isInCart={isInCart}
+                        currentUser={currentUser ?? { id: '', cart: { id: '', products: [] } }}
+                        isAuthLoading={isAuthLoading}
+                        refreshCurrentUser={refreshCurrentUser}
+                        isMobile={false}
+                     />
                   </div>
                </div>
             </div>
@@ -309,9 +309,7 @@ const ProductDetailsPage = () => {
             {/* Reviews Section Component */}
             <div className={`mt-6 sm:mt-8 ${activeTab !== 'reviews' && 'hidden md:block'}`}>
                <ProductReviews
-                  productId={product._id}
-                  totalRating={product.totalRating}
-                  rating={product.rating}
+                  slug={slug as string}
                />
             </div>
          </div>

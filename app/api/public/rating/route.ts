@@ -9,12 +9,11 @@ import mongoose from "mongoose";
 
 // Add this interface at the top of your file after the imports
 interface MongoError extends Error {
-  code?: number;
+   code?: number;
 }
 
 export async function POST(request: NextRequest) {
    try {
-      // Authentication check
       const { userId } = getAuth(request);
       if (!userId) {
          return NextResponse.json(
@@ -25,7 +24,6 @@ export async function POST(request: NextRequest) {
 
       const { rating: ratingValue, comment, productId, orderId } = await request.json();
 
-      // Input validation
       if (!ratingValue || !productId || !orderId) {
          return NextResponse.json(
             { success: false, error: "Rating value, product ID, and order ID are required" },
@@ -33,7 +31,6 @@ export async function POST(request: NextRequest) {
          );
       }
 
-      // Validate rating value
       const numericRating = Number(ratingValue);
       if (isNaN(numericRating) || numericRating < 1 || numericRating > 5) {
          return NextResponse.json(
@@ -42,7 +39,6 @@ export async function POST(request: NextRequest) {
          );
       }
 
-      // Validate comment length if provided
       if (comment && comment.length > 500) {
          return NextResponse.json(
             { success: false, error: "Comment is too long (max 500 characters)" },
@@ -50,10 +46,8 @@ export async function POST(request: NextRequest) {
          );
       }
 
-      // Connect to database
       await connectToDatabase();
 
-      // Verify user exists
       const user = await User.findOne({ clerkId: userId });
       if (!user) {
          return NextResponse.json(
@@ -62,7 +56,6 @@ export async function POST(request: NextRequest) {
          );
       }
 
-      // Validate MongoDB ObjectId format for productId and orderId
       if (!mongoose.Types.ObjectId.isValid(productId) || !mongoose.Types.ObjectId.isValid(orderId)) {
          return NextResponse.json(
             { success: false, error: "Invalid product ID or order ID format" },
@@ -70,7 +63,6 @@ export async function POST(request: NextRequest) {
          );
       }
 
-      // Use a single aggregation to validate order and product in one database call
       const orderDetails = await Order.aggregate([
          { $match: { _id: new mongoose.Types.ObjectId(orderId), owner: user._id } },
          {
@@ -94,7 +86,6 @@ export async function POST(request: NextRequest) {
          }
       ]).exec();
 
-      // Check if order exists and belongs to user
       if (!orderDetails || orderDetails.length === 0) {
          return NextResponse.json(
             { success: false, error: "Order not found or does not belong to this user" },
@@ -104,7 +95,6 @@ export async function POST(request: NextRequest) {
 
       const orderData = orderDetails[0];
 
-      // Check if order is completed
       if (!orderData.isCompleted) {
          return NextResponse.json(
             { success: false, error: "Cannot rate products from incomplete orders" },
@@ -112,7 +102,6 @@ export async function POST(request: NextRequest) {
          );
       }
 
-      // Check if product is in the order
       if (!orderData.productInOrder) {
          return NextResponse.json(
             { success: false, error: "Product not found in this order" },
@@ -120,7 +109,6 @@ export async function POST(request: NextRequest) {
          );
       }
 
-      // Verify product exists (still needed for rating calculation)
       const product = await Product.findById(productId);
       if (!product) {
          return NextResponse.json(
@@ -129,7 +117,6 @@ export async function POST(request: NextRequest) {
          );
       }
 
-      // Check if user has already rated this product for this order
       const existingRating = await Rating.findOne({
          user: user._id,
          products: productId,
@@ -143,12 +130,10 @@ export async function POST(request: NextRequest) {
          );
       }
 
-      // Use a session for transaction
       const session = await mongoose.startSession();
       session.startTransaction();
 
       try {
-         // Create the rating
          const newRating = await Rating.create([{
             rating: numericRating,
             comment: comment || "",
@@ -157,12 +142,10 @@ export async function POST(request: NextRequest) {
             order: orderId
          }], { session });
 
-         // Calculate new rating metrics
          const newTotalSum = (product.totalSumOfRating || 0) + numericRating;
          const newTotalRatings = (product.rating?.length || 0) + 1;
          const averageRating = newTotalSum / newTotalRatings;
 
-         // Update product with new rating information
          await Product.findByIdAndUpdate(
             productId,
             {
@@ -176,7 +159,6 @@ export async function POST(request: NextRequest) {
             { session, new: true }
          );
 
-         // Commit the transaction
          await session.commitTransaction();
          session.endSession();
 
@@ -192,11 +174,9 @@ export async function POST(request: NextRequest) {
             }
          });
       } catch (error) {
-         // Abort transaction if any operation fails
          await session.abortTransaction();
          session.endSession();
 
-         // Handle duplicate key error (race condition)
          if ((error as MongoError).code === 11000) {
             return NextResponse.json(
                { success: false, error: "You have already rated this product for this order" },
@@ -204,7 +184,7 @@ export async function POST(request: NextRequest) {
             );
          }
 
-         throw error; 
+         throw error;
       }
    } catch (error) {
       console.error("Rating submission error:", error);

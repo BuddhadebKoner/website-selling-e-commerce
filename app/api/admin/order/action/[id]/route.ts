@@ -56,7 +56,6 @@ export async function PATCH(
          }
 
          const completeOrder = await Order.findById(id).lean() as CompleteOrder | null;
-         console.log("Complete Order:", completeOrder);
          
          if (completeOrder && completeOrder.products && Array.isArray(completeOrder.products)) {
             // Update totalSold for each product

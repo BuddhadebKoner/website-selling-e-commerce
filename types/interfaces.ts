@@ -384,3 +384,10 @@ export interface Rating {
    productId: string;
    orderId: string;
 }
+
+export interface IReview {
+   userName: string;
+   createdAt: string;
+   rating: number;
+   comment?: string;
+}

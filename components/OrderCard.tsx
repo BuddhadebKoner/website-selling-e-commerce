@@ -13,8 +13,6 @@ interface OrderCardProps {
 const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
    const [validatedOrder, setValidatedOrder] = useState<Order | null>(null);
    const [error, setError] = useState<string | null>(null);
-
-   console.log("OrderCard", order);
    
    useEffect(() => {
       // Validate the order data

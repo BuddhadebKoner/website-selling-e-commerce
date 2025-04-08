@@ -26,8 +26,6 @@ const AllProductsPage = () => {
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  console.log('AllProductsPage data:', data);
-
   // Determine if there are any products
   const hasProducts = data?.pages?.[0]?.data?.length > 0;
 

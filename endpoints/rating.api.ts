@@ -28,3 +28,23 @@ export async function createRating({ rating }: { rating: Rating }) {
       };
    }
 }
+
+// get infinite scroll ratings
+export async function getRatings(slug: string, page = 1, limit = 5) {
+   try {
+      const response = await fetch(`/api/public/rating/${slug}?page=${page}&limit=${limit}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+         throw new Error(data.error || 'Failed to fetch ratings');
+      }
+
+      return data
+   } catch (error) {
+      console.error('Error in fetching ratings:', error);
+      return {
+         success: false,
+         error: error instanceof Error ? error.message : 'Unknown error occurred while fetching ratings',
+      };
+   }
+ }

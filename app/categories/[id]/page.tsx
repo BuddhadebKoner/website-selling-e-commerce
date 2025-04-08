@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ProductCard } from "@/components/ProductCard";
 import { LoaderCircle, Info } from "lucide-react";
 import { useParams } from "next/navigation";
+import { ProductCardProps } from "@/types/interfaces";
 
 const CategoryPage = () => {
   const { id } = useParams();
@@ -97,7 +98,7 @@ const CategoryPage = () => {
 
           {category.productsData && category.productsData.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {category.productsData.map((product) => (
+              {category.productsData.map((product: ProductCardProps) => (
                 <ProductCard key={product._id} {...product} />
               ))}
             </div>
