@@ -151,8 +151,9 @@ export interface ProductCardProps {
    bannerImageID?: string;
    is_featured?: boolean;
    totalSold: number;
-   totalRating: number;
-   rating: number;
+   totalSumOfRating: number;
+   rating?: string[];
+   ratingCount?: number;
    comment: string;
    isRatingFeatured: boolean;
    OfferStatus: string;

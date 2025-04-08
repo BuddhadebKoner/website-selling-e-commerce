@@ -1,11 +1,13 @@
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "./queryKeys";
 import { getAllProducts, getProductBySlug, getProductsByStatus, getProductsByType } from "@/endpoints/products.api";
 import { getAllCategory, getCategoryBySlug } from "@/endpoints/category.api";
 import { isAuthCheck } from "@/endpoints/user.api";
-import { getOrderListById } from "@/endpoints/order.api";
+import { createOrder, getOrderListById } from "@/endpoints/order.api";
 import { getAllOffers } from "@/endpoints/offer.api";
 import { fetchPendingProcessingOrders, getAllOrders, getAllUsers, getNotificationCount, getOrderByStatus, updateOrderStatus } from "@/endpoints/admin.api";
+import { OrderCreateData } from "@/types/interfaces";
+import { toast } from "react-toastify";
 
 export const useGetIsAuthCheck = (clerkId: string, email: string, fullName: string) => {
    return useQuery({
@@ -184,6 +186,27 @@ export const useAllOrders = (limit = 5) => {
    });
 };
 
+export const useCreateOrder = () => {
+   const queryClient = useQueryClient();
+
+   return useMutation({
+      mutationFn: (orderData: OrderCreateData) => createOrder(orderData),
+      onSuccess: (data) => {
+         queryClient.invalidateQueries({
+            queryKey: [QUERY_KEYS.GET_ORDERS_BY_USER_ID],
+            exact: false
+         });
+
+         return data;
+      },
+      onError: (error) => {
+         console.error('Error placing order:', error);
+         toast.error("An error occurred while placing the order");
+         return { success: false, error: "An error occurred while placing the order" };
+      }
+   });
+};
+
 export const useGetPendingProcessingOrders = (limit = 5) => {
    return useInfiniteQuery({
       queryKey: [QUERY_KEYS.GET_PENDING_PROCESSING_ORDERS, limit],
@@ -203,12 +226,12 @@ export const useGetPendingProcessingOrders = (limit = 5) => {
 }
 
 export const useUpdateOrderAction = (orderId: string) => {
-  return useQuery({
-    queryKey: [QUERY_KEYS.UPDATE_ORDER_ACTION, orderId],
-    queryFn: () => updateOrderStatus(orderId),
-    enabled: false,
-    staleTime: 1000 * 60 * 5,
-  });
+   return useQuery({
+      queryKey: [QUERY_KEYS.UPDATE_ORDER_ACTION, orderId],
+      queryFn: () => updateOrderStatus(orderId),
+      enabled: false,
+      staleTime: 1000 * 60 * 5,
+   });
 };
 
 
@@ -220,4 +243,4 @@ export const useGetNotificationCount = () => {
       enabled: true,
       staleTime: 1000 * 60 * 5,
    });
- }
+}

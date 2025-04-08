@@ -23,11 +23,12 @@ export function ProductCard({
    bannerImageUrl,
    is_featured,
    totalSold,
-   totalRating,
+   totalSumOfRating,
+   rating, 
+   ratingCount, 
    OfferStatus,
    OfferType,
    discount,
-   rating: propRating,
    offerStartDate,
    offerEndDate,
    technologyStack,
@@ -35,23 +36,24 @@ export function ProductCard({
    const { currentUser, refreshCurrentUser, isLoading } = useUserAuthentication();
    const [addToCartLoading, setAddToCartLoading] = useState(false);
 
-   // Status color mapping - updated to match product data status values
    const statusColorClass =
       status === 'live' ? 'bg-accent-green bg-opacity-10 text-accent-green' :
          status === 'delay' ? 'bg-accent-yellow bg-opacity-10 text-accent-yellow' :
             status === 'unavailable' || status === 'unabaliable' ? 'bg-accent-red bg-opacity-10 text-accent-red' :
                'bg-background-secondary text-secondary';
 
-   // Use provided rating or fallback to a default value
-   const rating = propRating || 0;
-   const fullStars = Math.floor(rating);
-   const halfStar = rating % 1 >= 0.5;
-   const displayRating = rating > 0 ? rating : totalRating > 0 ? totalRating : 0;
+   const actualRatingCount = ratingCount !== undefined ? ratingCount : (rating?.length || 0);
+   const averageRating = actualRatingCount > 0 ? (totalSumOfRating / actualRatingCount) : 0;
+   const formattedRating = averageRating > 0 ? averageRating.toFixed(1) : '0';
 
-   // Display "New" badge if website is less than 30 days old
+   console.log(formattedRating);
+
+   // Star display calculation
+   const fullStars = Math.floor(averageRating);
+   const halfStar = (averageRating % 1) >= 0.5;
+
    const isNewProduct = websiteAge < 30;
 
-   // Display featured badge
    const isFeatured = is_featured;
 
    // Handler for adding product to cart
@@ -158,10 +160,14 @@ export function ProductCard({
             <div className="flex items-center text-sm">
                <div className="text-yellow-500">
                   {Array(5).fill(0).map((_, i) => (
-                     <span key={i}>{i < fullStars ? '★' : (i === fullStars && halfStar) ? '☆' : '☆'}</span>
+                     <span key={i}>
+                        {i < fullStars ? '★' : (i === fullStars && halfStar) ? '★' : '☆'}
+                     </span>
                   ))}
                </div>
-               <span className="text-secondary ml-1">({displayRating})</span>
+               <span className="text-secondary ml-1">
+                  {formattedRating} ({actualRatingCount} reviews)
+               </span>
                {totalSold > 0 && (
                   <span className="text-secondary ml-3 text-xs">
                      {totalSold} sold

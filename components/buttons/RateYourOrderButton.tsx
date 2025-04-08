@@ -97,7 +97,6 @@ const RateYourOrderButton = ({
          orderId,
       };
 
-      console.log("Submitting rating data:", ratingData);
 
       try {
          const response = await createRating({ rating: ratingData });
@@ -114,9 +113,11 @@ const RateYourOrderButton = ({
             }
          } else {
             setError(response.error || "Failed to submit your review. Please try again.");
+            toast.error(response.error || "Failed to submit your review. Please try again.");
          }
       } catch (err) {
          setError("An unexpected error occurred. Please try again later.");
+         toast.error("An unexpected error occurred. Please try again later.");
          console.error("Rating submission error:", err);
       } finally {
          setIsSubmitting(false);

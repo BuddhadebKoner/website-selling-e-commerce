@@ -1,5 +1,6 @@
 import { connectToDatabase } from "@/lib/db";
 import Order from "@/models/order.model";
+import Product from "@/models/product.model"; // Add Product model import
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(
@@ -48,6 +49,29 @@ export async function PATCH(
       else if (status === "processing" && paymentStatus === "completed") {
          newStatus = "completed";
          shouldUpdate = true;
+         
+         interface CompleteOrder {
+            _id: string;
+            products: { productId: string }[];
+         }
+
+         const completeOrder = await Order.findById(id).lean() as CompleteOrder | null;
+         console.log("Complete Order:", completeOrder);
+         
+         if (completeOrder && completeOrder.products && Array.isArray(completeOrder.products)) {
+            // Update totalSold for each product
+            for (const item of completeOrder.products) {
+               const productId = item.productId;
+               
+               if (productId) {
+                  await Product.findByIdAndUpdate(
+                     productId,
+                     { $inc: { totalSold: 1 } },
+                     { new: true }
+                  );
+               }
+            }
+         }
       }
 
       // Only update if conditions match

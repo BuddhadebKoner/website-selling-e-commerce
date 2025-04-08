@@ -32,6 +32,25 @@ export async function GET(
             }
          },
          {
+            $addFields: {
+               productsData: {
+                  $map: {
+                     input: "$productsData",
+                     as: "product",
+                     in: {
+                        $mergeObjects: [
+                           "$$product",
+                           {
+                              ratingCount: { $size: { $ifNull: ["$$product.rating", []] } },
+                              rating: "$$REMOVE"
+                           }
+                        ]
+                     }
+                  }
+               }
+            }
+         },
+         {
             $project: {
                slug: 1,
                title: 1,
@@ -40,7 +59,6 @@ export async function GET(
                bannerImageUrl: 1,
                bannerImageID: 1,
                isFeatured: 1,
-               products: 1,
                productsData: 1,
                _id: 1
             }

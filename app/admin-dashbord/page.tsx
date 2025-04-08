@@ -6,50 +6,57 @@ import {
    ShoppingBag,
    Users,
    Package,
-   AlertCircle
+   AlertCircle,
+   Loader2
 } from 'lucide-react'
 import { StatCard } from '@/components/StatCard'
 import { OrderRow } from '@/components/OrderRow'
 import { useAllOrders, useGetAllOffers } from '@/lib/react-query/queriesAndMutation';
 import { useEffect, useRef, useState } from 'react'
 import OfferRow from '@/components/OfferRow';
+import { toast } from 'react-toastify'
 
 export default function Page() {
+   // Orders data fetching
    const {
       data: ordersData,
-      isLoading,
-      isError,
-      error,
-      fetchNextPage,
-      hasNextPage,
-      isFetchingNextPage,
+      isLoading: isOrdersLoading,
+      isError: isOrdersError,
+      error: ordersError,
+      fetchNextPage: fetchNextOrdersPage,
+      hasNextPage: hasNextOrdersPage,
+      isFetchingNextPage: isFetchingNextOrdersPage,
    } = useAllOrders();
 
+   // Offers data fetching
    const {
       data: offersData,
       hasNextPage: hasNextOffersPage,
       isFetchingNextPage: isFetchingNextOffersPage,
-      isLoading: isLoadingOffers,
-      isError: isErrorOffers,
+      isLoading: isOffersLoading,
+      isError: isOffersError,
       error: offersError,
+      fetchNextPage: fetchNextOffersPage,
       refetch: refetchOffers
    } = useGetAllOffers();
 
-   const observerRef = useRef(null);
-   const offersObserverRef = useRef(null);
-   const [isVisible, setIsVisible] = useState(false);
-   const [isOffersVisible, setIsOffersVisible] = useState(false);
 
+   // Intersection observer refs and states
+   const ordersObserverRef = useRef(null);
+   const offersObserverRef = useRef(null);
+   const [isOrdersObserverVisible, setIsOrdersObserverVisible] = useState(false);
+   const [isOffersObserverVisible, setIsOffersObserverVisible] = useState(false);
+
+   // Setup intersection observer for orders pagination
    useEffect(() => {
       const observer = new IntersectionObserver(
          ([entry]) => {
-            setIsVisible(entry.isIntersecting);
+            setIsOrdersObserverVisible(entry.isIntersecting);
          },
          { threshold: 0.1 }
       );
 
-      const currentElement = observerRef.current;
-
+      const currentElement = ordersObserverRef.current;
       if (currentElement) {
          observer.observe(currentElement);
       }
@@ -61,16 +68,16 @@ export default function Page() {
       };
    }, []);
 
+   // Setup intersection observer for offers pagination
    useEffect(() => {
       const observer = new IntersectionObserver(
          ([entry]) => {
-            setIsOffersVisible(entry.isIntersecting);
+            setIsOffersObserverVisible(entry.isIntersecting);
          },
          { threshold: 0.1 }
       );
 
       const currentElement = offersObserverRef.current;
-
       if (currentElement) {
          observer.observe(currentElement);
       }
@@ -82,35 +89,28 @@ export default function Page() {
       };
    }, []);
 
+   // Fetch next page of orders when observer is visible
    useEffect(() => {
-      if (isVisible && hasNextPage && !isFetchingNextPage) {
-         fetchNextPage();
+      if (isOrdersObserverVisible && hasNextOrdersPage && !isFetchingNextOrdersPage) {
+         fetchNextOrdersPage();
       }
-   }, [isVisible, hasNextPage, isFetchingNextPage, fetchNextPage]);
+   }, [isOrdersObserverVisible, hasNextOrdersPage, isFetchingNextOrdersPage, fetchNextOrdersPage]);
 
+   // Fetch next page of offers when observer is visible
    useEffect(() => {
-      if (isOffersVisible && hasNextOffersPage && !isFetchingNextOffersPage) {
-         fetchNextPage();
+      if (isOffersObserverVisible && hasNextOffersPage && !isFetchingNextOffersPage) {
+         fetchNextOffersPage();
       }
-   }, [isOffersVisible, hasNextOffersPage, isFetchingNextOffersPage, offersData, fetchNextPage]);
+   }, [isOffersObserverVisible, hasNextOffersPage, isFetchingNextOffersPage, fetchNextOffersPage]);
 
+   // Handle offer deletion
    const handleDeleteOffer = async (id: string) => {
-      try {
-         console.log("Deleting offer with ID:", id);
-        
-         alert("Offer deleted successfully!");
-         refetchOffers();
-      } catch (error) {
-         console.error("Error deleting offer:", error);
-         alert("Failed to delete offer. Please try again.");
-      }
+      console.log("Deleting offer with ID:", id);
    };
 
-   // order data
-   const allOrders = ordersData?.pages.flatMap(page => page.data) || [];
-
-   // offer data
-   const allOffers = offersData?.pages.flatMap(page => page.offers) || [];
+   // Prepare data for display
+   const allOrders = ordersData?.pages?.flatMap(page => page?.data || []) || [];
+   const allOffers = offersData?.pages?.flatMap(page => page?.offers || []) || [];
 
    return (
       <div className="w-full space-y-6 animate-fadeIn">
@@ -128,7 +128,7 @@ export default function Page() {
             <StatCard
                icon={<ShoppingBag className="text-accent-yellow" size={24} />}
                title="Total Orders"
-               value="1,248"
+               value={`${allOrders.length || 0}`}
                change="+8.2%"
                positive={true}
             />
@@ -142,7 +142,7 @@ export default function Page() {
             <StatCard
                icon={<Package className="text-highlight-secondary" size={24} />}
                title="Pending Orders"
-               value="42"
+               value={`${allOrders.filter(order => order.status === "pending").length || 0}`}
                change="-2.5%"
                positive={false}
             />
@@ -157,58 +157,71 @@ export default function Page() {
                </Link>
             </div>
 
-            {isLoading ? (
+            {isOrdersLoading ? (
                <div className="bg-box rounded-lg p-8 text-center border border-theme">
-                  <div className="animate-pulse">Loading recent orders...</div>
+                  <div className="flex justify-center items-center gap-2">
+                     <Loader2 className="animate-spin" size={20} />
+                     <span>Loading recent orders...</span>
+                  </div>
                </div>
-            ) : isError ? (
+            ) : isOrdersError ? (
                <div className="bg-box rounded-lg p-6 border border-accent-red">
                   <div className="flex items-center text-accent-red gap-2">
                      <AlertCircle size={20} />
-                     <p>Error loading orders: {error?.message || 'Unknown error'}</p>
+                     <p>Error loading orders: {ordersError instanceof Error ? ordersError.message : 'Unknown error'}</p>
                   </div>
+                  <button
+                     onClick={() => fetchNextOrdersPage()}
+                     className="mt-3 px-4 py-2 bg-highlight-primary text-white rounded-md hover:bg-highlight transition-colors"
+                  >
+                     Try Again
+                  </button>
                </div>
             ) : (
                <div className="bg-box rounded-lg overflow-hidden border border-theme">
-                  <table className="w-full">
-                     <thead className="bg-background-secondary">
-                        <tr>
-                           <th className="px-4 py-3 text-left text-sm font-medium">Index</th>
-                           <th className="px-4 py-3 text-left text-sm font-medium">Order ID</th>
-                           <th className="px-4 py-3 text-left text-sm font-medium">Customer</th>
-                           <th className="px-4 py-3 text-left text-sm font-medium">Date</th>
-                           <th className="px-4 py-3 text-left text-sm font-medium">Amount</th>
-                           <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
-                           <th className="px-4 py-3 text-left text-sm font-medium">Payment Status</th>
-                           <th className="px-4 py-3 text-left text-sm font-medium">Action</th>
-                        </tr>
-                     </thead>
-                     <tbody>
-                        {allOrders.length === 0 ? (
+                  {allOrders.length === 0 ? (
+                     <div className="px-4 py-8 text-center text-secondary">
+                        <p className="mb-2">No orders found</p>
+                        <p className="text-sm text-gray-500">New orders will appear here when customers make purchases</p>
+                     </div>
+                  ) : (
+                     <table className="w-full">
+                        <thead className="bg-background-secondary">
                            <tr>
-                              <td colSpan={6} className="px-4 py-8 text-center text-secondary">No orders found</td>
+                              <th className="px-4 py-3 text-left text-sm font-medium">Index</th>
+                              <th className="px-4 py-3 text-left text-sm font-medium">Order ID</th>
+                              <th className="px-4 py-3 text-left text-sm font-medium">Customer</th>
+                              <th className="px-4 py-3 text-left text-sm font-medium">Date</th>
+                              <th className="px-4 py-3 text-left text-sm font-medium">Amount</th>
+                              <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
+                              <th className="px-4 py-3 text-left text-sm font-medium">Payment Status</th>
+                              <th className="px-4 py-3 text-left text-sm font-medium">Action</th>
                            </tr>
-                        ) : (
-                           allOrders.map((order, idx) => (
+                        </thead>
+                        <tbody>
+                           {allOrders.map((order, idx) => (
                               <OrderRow
                                  key={order._id}
                                  order={order}
                                  index={idx + 1}
                               />
-                           ))
-                        )}
-                     </tbody>
-                  </table>
+                           ))}
+                        </tbody>
+                     </table>
+                  )}
 
-                  {/* Intersection Observer Trigger - outside of table for better layout */}
+                  {/* Intersection Observer Trigger */}
                   <div
-                     ref={observerRef}
+                     ref={ordersObserverRef}
                      className="h-10 flex items-center justify-center"
                   >
-                     {isFetchingNextPage && (
-                        <div className="text-secondary py-2">Loading more orders...</div>
+                     {isFetchingNextOrdersPage && (
+                        <div className="flex items-center gap-2 text-secondary py-2">
+                           <Loader2 className="animate-spin" size={16} />
+                           <span>Loading more orders...</span>
+                        </div>
                      )}
-                     {!hasNextPage && allOrders.length > 0 && (
+                     {!hasNextOrdersPage && allOrders.length > 0 && (
                         <div className="text-secondary py-2 text-sm">No more orders to load</div>
                      )}
                   </div>
@@ -225,45 +238,61 @@ export default function Page() {
                </Link>
             </div>
 
-            {isLoadingOffers ? (
+            {isOffersLoading ? (
                <div className="bg-box rounded-lg p-8 text-center border border-theme">
-                  <div className="animate-pulse">Loading active offers...</div>
+                  <div className="flex justify-center items-center gap-2">
+                     <Loader2 className="animate-spin" size={20} />
+                     <span>Loading active offers...</span>
+                  </div>
                </div>
-            ) : isErrorOffers ? (
+            ) : isOffersError ? (
                <div className="bg-box rounded-lg p-6 border border-accent-red">
                   <div className="flex items-center text-accent-red gap-2">
                      <AlertCircle size={20} />
-                     <p>Error loading offers: {offersError?.message || 'Unknown error'}</p>
+                     <p>Error loading offers: {offersError instanceof Error ? offersError.message : 'Unknown error'}</p>
                   </div>
+                  <button
+                     onClick={() => refetchOffers()}
+                     className="mt-3 px-4 py-2 bg-highlight-primary text-white rounded-md hover:bg-highlight transition-colors"
+                  >
+                     Try Again
+                  </button>
                </div>
             ) : (
                <div className="bg-box rounded-lg overflow-hidden border border-theme">
-                  <table className="w-full">
-                     <thead className="bg-background-secondary">
-                        <tr>
-                           <th className="px-4 py-3 text-left text-sm font-medium">Type</th>
-                           <th className="px-4 py-3 text-left text-sm font-medium">Discount</th>
-                           <th className="px-4 py-3 text-left text-sm font-medium">Original Price</th>
-                           <th className="px-4 py-3 text-left text-sm font-medium">Final Price</th>
-                           <th className="px-4 py-3 text-left text-sm font-medium">Actions</th>
-                        </tr>
-                     </thead>
-                     <tbody>
-                        {allOffers.length === 0 ? (
+                  {allOffers.length === 0 ? (
+                     <div className="px-4 py-8 text-center text-secondary">
+                        <p className="mb-2">No active offers found</p>
+                        <p className="text-sm text-gray-500">Create new offers to attract more customers</p>
+                        <Link
+                           href="/admin-dashbord/offers/new"
+                           className="mt-3 inline-block px-4 py-2 bg-highlight-primary text-white rounded-md hover:bg-highlight transition-colors"
+                        >
+                           Create New Offer
+                        </Link>
+                     </div>
+                  ) : (
+                     <table className="w-full">
+                        <thead className="bg-background-secondary">
                            <tr>
-                              <td colSpan={5} className="px-4 py-8 text-center text-secondary">No active offers found</td>
+                              <th className="px-4 py-3 text-left text-sm font-medium">Type</th>
+                              <th className="px-4 py-3 text-left text-sm font-medium">Discount</th>
+                              <th className="px-4 py-3 text-left text-sm font-medium">Original Price</th>
+                              <th className="px-4 py-3 text-left text-sm font-medium">Final Price</th>
+                              <th className="px-4 py-3 text-left text-sm font-medium">Actions</th>
                            </tr>
-                        ) : (
-                           allOffers.map((offer) => (
+                        </thead>
+                        <tbody>
+                           {allOffers.map((offer) => (
                               <OfferRow
                                  key={offer._id}
                                  offer={offer}
                                  onDelete={handleDeleteOffer}
                               />
-                           ))
-                        )}
-                     </tbody>
-                  </table>
+                           ))}
+                        </tbody>
+                     </table>
+                  )}
 
                   {/* Pagination/loading indicator */}
                   <div
@@ -271,7 +300,10 @@ export default function Page() {
                      className="h-10 flex items-center justify-center"
                   >
                      {isFetchingNextOffersPage && (
-                        <div className="text-secondary py-2">Loading more offers...</div>
+                        <div className="flex items-center gap-2 text-secondary py-2">
+                           <Loader2 className="animate-spin" size={16} />
+                           <span>Loading more offers...</span>
+                        </div>
                      )}
                      {!hasNextOffersPage && allOffers.length > 0 && (
                         <div className="text-secondary py-2 text-sm">No more offers to load</div>

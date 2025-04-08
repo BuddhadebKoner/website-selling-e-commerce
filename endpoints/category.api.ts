@@ -21,7 +21,7 @@ export const getCategoryBySlug = async (id: string) => {
       if (!response.ok) {
          throw new Error(result.error || "Failed to fetch");
       }
-      return result;
+      return result.category;
    } catch (error) {
       console.error("Failed to get product", error);
       return { error: error instanceof Error ? error.message : "Internal Server Error" };

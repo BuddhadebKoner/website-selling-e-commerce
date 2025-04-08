@@ -5,6 +5,12 @@ import Order from "@/models/order.model";
 import Product from "@/models/product.model";
 import { getAuth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
+import mongoose from "mongoose";
+
+// Add this interface at the top of your file after the imports
+interface MongoError extends Error {
+  code?: number;
+}
 
 export async function POST(request: NextRequest) {
    try {
@@ -17,12 +23,12 @@ export async function POST(request: NextRequest) {
          );
       }
 
-      const { rating: ratingValue, comment, productId, orderId } = await request.json()
+      const { rating: ratingValue, comment, productId, orderId } = await request.json();
 
       // Input validation
       if (!ratingValue || !productId || !orderId) {
          return NextResponse.json(
-            { success: false, error: "All fields are required" },
+            { success: false, error: "Rating value, product ID, and order ID are required" },
             { status: 400 }
          );
       }
@@ -36,7 +42,7 @@ export async function POST(request: NextRequest) {
          );
       }
 
-      // Validate comment length
+      // Validate comment length if provided
       if (comment && comment.length > 500) {
          return NextResponse.json(
             { success: false, error: "Comment is too long (max 500 characters)" },
@@ -56,49 +62,70 @@ export async function POST(request: NextRequest) {
          );
       }
 
-      // Verify product exists
-      const product = await Product.findById(productId);
-      if (!product) {
+      // Validate MongoDB ObjectId format for productId and orderId
+      if (!mongoose.Types.ObjectId.isValid(productId) || !mongoose.Types.ObjectId.isValid(orderId)) {
          return NextResponse.json(
-            { success: false, error: "Product not found" },
+            { success: false, error: "Invalid product ID or order ID format" },
+            { status: 400 }
+         );
+      }
+
+      // Use a single aggregation to validate order and product in one database call
+      const orderDetails = await Order.aggregate([
+         { $match: { _id: new mongoose.Types.ObjectId(orderId), owner: user._id } },
+         {
+            $project: {
+               isCompleted: {
+                  $and: [
+                     { $eq: ["$paymentStatus", "completed"] },
+                     { $eq: ["$status", "completed"] }
+                  ]
+               },
+               productInOrder: {
+                  $anyElementTrue: {
+                     $map: {
+                        input: "$products",
+                        as: "product",
+                        in: { $eq: ["$$product.productId", new mongoose.Types.ObjectId(productId)] }
+                     }
+                  }
+               }
+            }
+         }
+      ]).exec();
+
+      // Check if order exists and belongs to user
+      if (!orderDetails || orderDetails.length === 0) {
+         return NextResponse.json(
+            { success: false, error: "Order not found or does not belong to this user" },
             { status: 404 }
          );
       }
 
-      // Verify order exists and is valid
-      const order = await Order.findById(orderId);
-      if (!order) {
-         return NextResponse.json(
-            { success: false, error: "Order not found" },
-            { status: 404 }
-         );
-      }
+      const orderData = orderDetails[0];
 
-      // Verify order belongs to the user
-      if (order.owner.toString() !== user._id.toString()) {
-         return NextResponse.json(
-            { success: false, error: "Unauthorized: Order does not belong to this user" },
-            { status: 403 }
-         );
-      }
-
-      // Verify order is completed
-      if (order.paymentStatus !== "completed" || order.status !== "completed") {
+      // Check if order is completed
+      if (!orderData.isCompleted) {
          return NextResponse.json(
             { success: false, error: "Cannot rate products from incomplete orders" },
             { status: 400 }
          );
       }
 
-      // Verify product is in the order
-      const productInOrder = order.products.some((p: { productId: string }) =>
-         p.productId.toString() === productId
-      );
-
-      if (!productInOrder) {
+      // Check if product is in the order
+      if (!orderData.productInOrder) {
          return NextResponse.json(
             { success: false, error: "Product not found in this order" },
             { status: 400 }
+         );
+      }
+
+      // Verify product exists (still needed for rating calculation)
+      const product = await Product.findById(productId);
+      if (!product) {
+         return NextResponse.json(
+            { success: false, error: "Product not found" },
+            { status: 404 }
          );
       }
 
@@ -111,57 +138,74 @@ export async function POST(request: NextRequest) {
 
       if (existingRating) {
          return NextResponse.json(
-            { success: false, error: "You have already rated this product" },
+            { success: false, error: "You have already rated this product for this order" },
             { status: 400 }
          );
       }
 
-      // Create the rating
-      const newRating = await Rating.create({
-         rating: numericRating,
-         comment: comment || "",
-         user: user._id,
-         products: productId,
-         order: orderId
-      });
+      // Use a session for transaction
+      const session = await mongoose.startSession();
+      session.startTransaction();
 
-      // Update product rating counts
-      const newTotalSum = (product.totalSumOfRating || 0) + numericRating;
-      const newTotalRatings = (product.rating?.length || 0) + 1;
+      try {
+         // Create the rating
+         const newRating = await Rating.create([{
+            rating: numericRating,
+            comment: comment || "",
+            user: user._id,
+            products: productId,
+            order: orderId
+         }], { session });
 
-      // Update product with new rating information
-      const updatedProduct = await Product.findByIdAndUpdate(
-         productId,
-         {
-            $push: { rating: newRating._id },
-            $set: {
-               totalSumOfRating: newTotalSum,
-               totalRating: newTotalRatings
-            },
-         },
-         { new: true }
-      );
+         // Calculate new rating metrics
+         const newTotalSum = (product.totalSumOfRating || 0) + numericRating;
+         const newTotalRatings = (product.rating?.length || 0) + 1;
+         const averageRating = newTotalSum / newTotalRatings;
 
-      if (!updatedProduct) {
-         // Rollback if product update fails
-         await Rating.findByIdAndDelete(newRating._id);
-         return NextResponse.json(
-            { success: false, error: "Failed to update product rating" },
-            { status: 500 }
-         );
-      }
-
-      // Return success response
-      return NextResponse.json({
-         success: true,
-         message: "Rating submitted successfully",
-         data: {
-            ratingId: newRating._id,
+         // Update product with new rating information
+         await Product.findByIdAndUpdate(
             productId,
-            rating: numericRating
-         }
-      });
+            {
+               $push: { rating: newRating[0]._id },
+               $set: {
+                  totalSumOfRating: newTotalSum,
+                  totalRating: newTotalRatings,
+                  averageRating: parseFloat(averageRating.toFixed(1))
+               },
+            },
+            { session, new: true }
+         );
 
+         // Commit the transaction
+         await session.commitTransaction();
+         session.endSession();
+
+         // Return success response
+         return NextResponse.json({
+            success: true,
+            message: "Rating submitted successfully",
+            data: {
+               ratingId: newRating[0]._id,
+               productId,
+               rating: numericRating,
+               averageRating: parseFloat(averageRating.toFixed(1))
+            }
+         });
+      } catch (error) {
+         // Abort transaction if any operation fails
+         await session.abortTransaction();
+         session.endSession();
+
+         // Handle duplicate key error (race condition)
+         if ((error as MongoError).code === 11000) {
+            return NextResponse.json(
+               { success: false, error: "You have already rated this product for this order" },
+               { status: 400 }
+            );
+         }
+
+         throw error; 
+      }
    } catch (error) {
       console.error("Rating submission error:", error);
       return NextResponse.json(

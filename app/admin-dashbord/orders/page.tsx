@@ -3,6 +3,7 @@
 import { OrderRow } from '@/components/OrderRow';
 import { useAllOrders } from '@/lib/react-query/queriesAndMutation';
 import React, { useEffect, useRef, useState } from 'react';
+import { Loader2, AlertCircle, PackageX } from 'lucide-react';
 
 const OrdersTable = () => {
   const observerRef = useRef(null);
@@ -16,6 +17,7 @@ const OrdersTable = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    refetch
   } = useAllOrders();
 
   useEffect(() => {
@@ -47,11 +49,56 @@ const OrdersTable = () => {
     }
   }, [isVisible, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  if (isLoading) return <div className="text-center py-10">Loading orders...</div>
-  if (isError) return <div className="text-center text-accent-red py-10">Error loading orders: {error?.message}</div>
+  // Extract all orders from all pages with proper validation
+  const allOrders = ordersData?.pages?.flatMap(page => page?.data || []) || [];
+  const hasOrders = allOrders.length > 0;
 
-  // Extract all orders from all pages
-  const allOrders = ordersData?.pages.flatMap(page => page.data) || [];
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-16">
+        <div className="flex flex-col items-center gap-2">
+          <Loader2 className="animate-spin w-8 h-8 text-highlight-primary" />
+          <p className="text-secondary mt-2">Loading orders...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="bg-box rounded-lg p-8 text-center border border-accent-red my-4">
+        <div className="flex flex-col items-center gap-2">
+          <AlertCircle className="text-accent-red w-8 h-8" />
+          <p className="text-accent-red font-medium mt-2">
+            Error loading orders
+          </p>
+          <p className="text-secondary mb-4">
+            {error instanceof Error ? error.message : "An unknown error occurred"}
+          </p>
+          <button
+            onClick={() => refetch()}
+            className="px-4 py-2 bg-highlight-primary text-white rounded-md hover:bg-highlight transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hasOrders) {
+    return (
+      <div className="bg-box rounded-lg p-10 text-center border border-theme my-4">
+        <div className="flex flex-col items-center gap-2">
+          <PackageX className="text-secondary w-12 h-12 mb-2" />
+          <h3 className="text-xl font-semibold">No Orders Found</h3>
+          <p className="text-secondary max-w-md mx-auto mt-2">
+            There are currently no orders in the system. New orders will appear here when customers make purchases.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -70,19 +117,13 @@ const OrdersTable = () => {
             </tr>
           </thead>
           <tbody>
-            {allOrders.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-secondary">No orders found</td>
-              </tr>
-            ) : (
-              allOrders.map((order, idx) => (
-                <OrderRow
-                  key={order._id}
-                  order={order}
-                  index={idx + 1}
-                />
-              ))
-            )}
+            {allOrders.map((order, idx) => (
+              <OrderRow
+                key={order._id}
+                order={order}
+                index={idx + 1}
+              />
+            ))}
           </tbody>
         </table>
       </div>
@@ -93,7 +134,15 @@ const OrdersTable = () => {
         className="h-10 flex items-center justify-center"
       >
         {isFetchingNextPage && (
-          <div className="text-secondary">Loading more...</div>
+          <div className="flex items-center gap-2 text-secondary">
+            <Loader2 className="animate-spin" size={16} />
+            <span>Loading more orders...</span>
+          </div>
+        )}
+        {!hasNextPage && hasOrders && (
+          <div className="text-secondary text-sm">
+            You've reached the end of the orders list
+          </div>
         )}
       </div>
     </div>

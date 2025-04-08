@@ -27,6 +27,25 @@ export async function GET(request: NextRequest) {
                as: "category"
             }
          },
+         {
+            $addFields: {
+               productsData: {
+                  $map: {
+                     input: "$productsData",
+                     as: "product",
+                     in: {
+                        $mergeObjects: [
+                           "$$product",
+                           {
+                              ratingCount: { $size: { $ifNull: ["$rating", []] } },
+                              rating: "$$REMOVE"
+                           }
+                        ]
+                     }
+                  }
+               }
+            }
+         },
 
          // Optional: transform category from array to object
          { $unwind: { path: "$category", preserveNullAndEmptyArrays: true } },

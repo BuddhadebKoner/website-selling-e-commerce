@@ -50,8 +50,6 @@ const AllCategoriesPage = () => {
     );
   }
 
-  console.log('Categories:', data);
-
   return (
     <div className="w-full h-fit bg-background pb-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center overflow-y-hidden">
       <div className="w-full max-w-7xl">

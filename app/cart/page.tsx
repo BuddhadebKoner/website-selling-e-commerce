@@ -10,13 +10,15 @@ import { removeFromCart } from '@/endpoints/user.api';
 import { ProcessedCartItem, CartTotals, CartProductItem } from '@/types/interfaces';
 import { LoaderCircle, ShoppingBag } from 'lucide-react';
 import { calculateCartTotals, calculateDiscountedPrice } from '@/lib/priceCalculations';
-import { createOrder } from '@/endpoints/order.api';
+import { useCreateOrder } from '@/lib/react-query/queriesAndMutation';
 import { useRouter } from 'next/navigation';
 
 const CartPage = () => {
   const { currentUser, isLoading: isAuthLoading, refreshCurrentUser } = useUserAuthentication();
+  const { mutate: createOrderMutation, isPending: isCheckingOut } = useCreateOrder();
+  const router = useRouter();
+
   const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [processedCartItems, setProcessedCartItems] = useState<ProcessedCartItem[]>([]);
   const [cartTotals, setCartTotals] = useState<CartTotals>({
@@ -27,18 +29,24 @@ const CartPage = () => {
     originalTotal: 0
   });
 
-  const route = useRouter();
   const TAX_RATE = 0.08;
-
-  // console.log(currentUser)
 
   useEffect(() => {
     if (!isAuthLoading && currentUser?.cart?.products) {
-      const processedItems = processCartItems(currentUser.cart.products);
-      setProcessedCartItems(processedItems);
+      try {
+        const processedItems = processCartItems(currentUser.cart.products);
+        setProcessedCartItems(processedItems);
 
-      const totals = calculateCartTotals(processedItems, TAX_RATE);
-      setCartTotals(totals);
+        const totals = calculateCartTotals(processedItems, TAX_RATE);
+        setCartTotals(totals);
+      } catch (error) {
+        console.error('Error processing cart items:', error);
+        toast.error('Error loading cart items');
+      } finally {
+        setIsLoading(false);
+      }
+    } else if (!isAuthLoading) {
+      // If authentication loaded but no cart
       setIsLoading(false);
     }
   }, [currentUser?.cart?.products, isAuthLoading]);
@@ -54,7 +62,6 @@ const CartPage = () => {
       const offerStart = item.offerStartDate ? new Date(item.offerStartDate) : null;
       const offerEnd = item.offerEndDate ? new Date(item.offerEndDate) : null;
 
-      // Fixed: Using OfferStatus (uppercase) instead of offerStatus
       const isOfferActive =
         item.OfferStatus === 'live' &&
         offerStart && offerEnd &&
@@ -69,7 +76,6 @@ const CartPage = () => {
       };
 
       if (isOfferActive) {
-        // Fixed: Using OfferType (uppercase) instead of offerType
         processedItem.discountedPrice = calculateDiscountedPrice(
           item.price,
           item.discount,
@@ -87,9 +93,9 @@ const CartPage = () => {
       return;
     }
 
-    setRemovingIds(prev => new Set(prev).add(productId));
-
     try {
+      setRemovingIds(prev => new Set(prev).add(productId));
+
       const response = await removeFromCart(productId, currentUser.cart.id);
 
       if (response.success) {
@@ -102,11 +108,11 @@ const CartPage = () => {
         await refreshCurrentUser();
         toast.success(response.message || "Product removed from cart successfully");
       } else {
-        toast.error(response.error || "Failed to remove product from cart");
+        throw new Error(response.error || "Failed to remove product from cart");
       }
     } catch (error) {
       console.error('Error removing item from cart:', error);
-      toast.error("An error occurred while removing the product");
+      toast.error(error instanceof Error ? error.message : "An error occurred while removing the product");
     } finally {
       setRemovingIds(prev => {
         const updated = new Set(prev);
@@ -116,34 +122,46 @@ const CartPage = () => {
     }
   };
 
+  const validateCartData = () => {
+    if (!currentUser?.id) {
+      toast.error("You must be logged in to checkout");
+      return false;
+    }
+
+    if (!processedCartItems || !processedCartItems.length) {
+      toast.error("Your cart is empty");
+      return false;
+    }
+
+    const { originalTotal, total, discountAmount, tax, subtotal } = cartTotals;
+
+    if (
+      originalTotal === undefined ||
+      total === undefined ||
+      discountAmount === undefined ||
+      tax === undefined ||
+      subtotal === undefined
+    ) {
+      toast.error("Cart calculation error. Please refresh the page.");
+      return false;
+    }
+
+    if (
+      isNaN(originalTotal) ||
+      isNaN(total) ||
+      isNaN(discountAmount) ||
+      isNaN(tax) ||
+      isNaN(subtotal)
+    ) {
+      toast.error("Invalid cart amounts. Please refresh the page.");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleCheckout = async () => {
-    setIsCheckingOut(true);
-
-    if (
-      !currentUser?.id ||
-      cartTotals.originalTotal === undefined ||
-      cartTotals.total === undefined ||
-      cartTotals.discountAmount === undefined ||
-      cartTotals.tax === undefined ||
-      cartTotals.subtotal === undefined ||
-      !processedCartItems || !Array.isArray(processedCartItems)
-    ) {
-      toast.error("All fields are required");
-      setIsCheckingOut(false);
-      return;
-    }
-
-    if (
-      isNaN(cartTotals.originalTotal) ||
-      isNaN(cartTotals.total) ||
-      isNaN(cartTotals.discountAmount) ||
-      isNaN(cartTotals.tax) ||
-      isNaN(cartTotals.subtotal)
-    ) {
-      toast.error("All amounts must be valid numbers");
-      setIsCheckingOut(false);
-      return;
-    }
+    if (!validateCartData()) return;
 
     const orderData = {
       owner: currentUser?.id || '',
@@ -152,30 +170,29 @@ const CartPage = () => {
       discountAmount: cartTotals.discountAmount,
       taxAmount: cartTotals.tax,
       subtotal: cartTotals.subtotal,
-      products: [...processedCartItems.map(item => item._id)],
+      products: processedCartItems.map(item => item._id),
     };
 
-    try {
-      const res = await createOrder(orderData);
+    createOrderMutation(orderData, {
+      onSuccess: (response) => {
+        if (response.status === 403) {
+          toast.warning(response.error || "You already have a pending order");
+          router.push("/orders");
+          return;
+        }
 
-      if (res.status === 403) {
-        toast.warning(res.error || "You already have a pending order");
-        route.push("/orders");
-        return;
+        if (response.success) {
+          toast.success("Order placed successfully");
+          router.push("/orders");
+        } else {
+          toast.error(response.error || "Failed to place order");
+        }
+      },
+      onError: (error) => {
+        console.error('Error placing order:', error);
+        toast.error("An error occurred while placing the order");
       }
-
-      if (res.success) {
-        toast.success("Order placed successfully");
-        route.push("/orders");
-      } else {
-        toast.error(res.error || "Failed to place order");
-      }
-    } catch (error) {
-      console.error('Error placing order:', error);
-      toast.error("An error occurred while placing the order");
-    } finally {
-      setIsCheckingOut(false);
-    }
+    });
   };
 
   if (isAuthLoading || isLoading) {
