@@ -68,3 +68,18 @@ export const getProductBySlug = async (slug: string) => {
       return { error: error instanceof Error ? error.message : "Internal Server Error" };
    }
 };
+
+// search product by key
+export const getSearchProduct = async (key: string) => {
+   try {
+      const response = await fetch(`/api/public/products/search/${key}`);
+      const result = await response.json();
+      if (!response.ok) {
+         throw new Error(result.error || "Failed to fetch");
+      }
+      return result;
+   } catch (error) {
+      console.error("Failed to search product", error);
+      return { error: error instanceof Error ? error.message : "Internal Server Error" };
+   }
+}

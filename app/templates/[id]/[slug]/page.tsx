@@ -128,7 +128,7 @@ const ProductDetailsPage = () => {
 
    return (
       <div className="bg-background min-h-screen pb-12 sm:pb-16">
-         <div className="container mx-auto px-4 py-4 sm:py-6">
+         <div className="py-4 sm:py-6">
             {/* Breadcrumb navigation - improved for mobile */}
             <nav className="mb-4 sm:mb-6 text-xs sm:text-sm overflow-x-auto whitespace-nowrap">
                <ol className="flex items-center">

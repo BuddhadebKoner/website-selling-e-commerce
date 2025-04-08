@@ -18,4 +18,5 @@ export const QUERY_KEYS = {
    UPDATE_ORDER_ACTION: 'updateorderaction',
    GET_NOTIFICATION_COUNT: 'getnotificationcount',
    GET_ALL_RATINGS: 'getallratings',
+   GET_SEARCH_PRODUCTS: 'getsearchproducts',
 }

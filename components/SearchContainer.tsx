@@ -1,63 +1,32 @@
 "use client";
 
-import { Search, X, Loader2, Tag } from 'lucide-react'
+import { Search, X, Loader2 } from 'lucide-react'
 import React, { useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation';
-
-// Mock data for search results
-type Product = {
-   id: string;
-   title: string;
-   category: string;
-   price: number;
-   image: string;
-};
-
-const mockProducts: Product[] = [
-   {
-      id: "1",
-      title: "Modern Portfolio Template",
-      category: "Portfolio",
-      price: 49,
-      image: "/images/portfolio-template.jpg" // You'll need placeholder images
-   },
-   {
-      id: "2",
-      title: "E-commerce Store Theme",
-      category: "E-commerce",
-      price: 79,
-      image: "/images/ecommerce-template.jpg"
-   },
-   {
-      id: "3",
-      title: "Professional Blog Theme",
-      category: "Blog",
-      price: 39,
-      image: "/images/blog-template.jpg"
-   },
-   {
-      id: "4",
-      title: "Landing-Page Builder",
-      category: "Landing-Page",
-      price: 59,
-      image: "/images/landing-template.jpg"
-   }
-];
+import { useGetSearchProducts } from '@/lib/react-query/queriesAndMutation';
+import useDebounce from '@/lib/hooks/useDbounce';
+import SearchResultProduct from './SearchResultProduct';
+import { searchProductCardProps } from '@/types/interfaces';
 
 const SearchContainer = ({ setIsSearchOpen }: {
    setIsSearchOpen: (value: boolean) => void
 }) => {
    const [searchQuery, setSearchQuery] = useState('');
-   const [isLoading, setIsLoading] = useState(false);
    const [recentSearches, setRecentSearches] = useState<string[]>([]);
-   const [searchResults, setSearchResults] = useState<Product[]>([]);
    const [hasSearched, setHasSearched] = useState(false);
    const inputRef = useRef<HTMLInputElement>(null);
    const containerRef = useRef<HTMLDivElement>(null);
    const resultsRef = useRef<HTMLDivElement>(null);
-   const router = useRouter();
 
-   // Focus input on mount
+   // Use debounce to prevent excessive API calls
+   const debouncedSearchTerm = useDebounce(searchQuery, 500);
+
+   // Use the search query hook with the debounced value
+   const {
+      data: searchResults,
+      isFetching: isLoading
+   } = useGetSearchProducts(hasSearched ? debouncedSearchTerm : '');
+
+   // Focus input on mount and load recent searches
    useEffect(() => {
       inputRef.current?.focus();
 
@@ -80,7 +49,7 @@ const SearchContainer = ({ setIsSearchOpen }: {
 
    // Scroll to results when they appear
    useEffect(() => {
-      if (searchResults.length > 0 && resultsRef.current) {
+      if (searchResults?.length > 0 && resultsRef.current) {
          resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
    }, [searchResults]);
@@ -94,7 +63,6 @@ const SearchContainer = ({ setIsSearchOpen }: {
       e.preventDefault();
       if (!searchQuery.trim()) return;
 
-      setIsLoading(true);
       setHasSearched(true);
 
       // Save to recent searches
@@ -105,19 +73,6 @@ const SearchContainer = ({ setIsSearchOpen }: {
 
       setRecentSearches(updatedSearches);
       localStorage.setItem('recentSearches', JSON.stringify(updatedSearches));
-
-      // Simulate search with mock data
-      setTimeout(() => {
-         setIsLoading(false);
-
-         // Filter mock products based on search query
-         const filtered = mockProducts.filter(product =>
-            product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            product.category.toLowerCase().includes(searchQuery.toLowerCase())
-         );
-
-         setSearchResults(filtered);
-      }, 500);
    };
 
    const clearRecentSearches = () => {
@@ -127,13 +82,16 @@ const SearchContainer = ({ setIsSearchOpen }: {
 
    const performSearch = (query: string) => {
       setSearchQuery(query);
-      const event = new Event('submit') as unknown as React.FormEvent;
-      handleSearch(event);
-   };
+      setHasSearched(true);
 
-   const handleProductClick = (product: Product) => {
-      router.push(`/product/${product.id}`);
-      setIsSearchOpen(false);
+      // Save to recent searches
+      const updatedSearches = [
+         query,
+         ...recentSearches.filter(s => s !== query)
+      ].slice(0, 5);
+
+      setRecentSearches(updatedSearches);
+      localStorage.setItem('recentSearches', JSON.stringify(updatedSearches));
    };
 
    return (
@@ -165,17 +123,6 @@ const SearchContainer = ({ setIsSearchOpen }: {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full py-3 px-4 pr-12 rounded-md bg-background border border-theme text-primary focus:outline-none focus:ring-2 focus:ring-highlight focus:border-highlight transition-all"
                />
-               <button
-                  type="submit"
-                  className="absolute right-3 top-3 text-secondary hover:text-primary disabled:opacity-50"
-                  disabled={isLoading || !searchQuery.trim()}
-               >
-                  {isLoading ? (
-                     <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                     <Search className="w-5 h-5" />
-                  )}
-               </button>
             </form>
 
             {/* Popular searches - only show if not displaying results */}
@@ -257,7 +204,7 @@ const SearchContainer = ({ setIsSearchOpen }: {
                      <button
                         onClick={() => {
                            setHasSearched(false);
-                           setSearchResults([]);
+                           setSearchQuery('');
                         }}
                         className="text-sm text-secondary hover:text-highlight transition-colors"
                      >
@@ -273,7 +220,7 @@ const SearchContainer = ({ setIsSearchOpen }: {
                   )}
 
                   {/* No results message */}
-                  {!isLoading && searchResults.length === 0 && hasSearched && (
+                  {!isLoading && (!searchResults || searchResults.length === 0) && hasSearched && (
                      <div className="py-8 text-center">
                         <p className="text-secondary mb-2">No templates found for &quot;{searchQuery}&quot;</p>
                         <p className="text-sm text-secondary">Try another search term or browse our categories</p>
@@ -281,31 +228,13 @@ const SearchContainer = ({ setIsSearchOpen }: {
                   )}
 
                   {/* Results grid */}
-                  {!isLoading && searchResults.length > 0 && (
+                  {!isLoading && searchResults && searchResults.length > 0 && (
                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-                        {searchResults.map((product) => (
-                           <div
-                              key={product.id}
-                              onClick={() => handleProductClick(product)}
-                              className="bg-accent/10 rounded-lg overflow-hidden border border-theme hover:border-highlight cursor-pointer transition-all hover:shadow-md"
-                           >
-                              <div className="h-32 bg-accent/20 relative">
-                                 {/* Replace with actual images when you have them */}
-                                 <div className="absolute inset-0 flex items-center justify-center text-secondary">
-                                    <span className="text-sm">{product.title} Preview</span>
-                                 </div>
-                              </div>
-                              <div className="p-3">
-                                 <div className="flex justify-between items-start">
-                                    <h5 className="font-medium text-primary">{product.title}</h5>
-                                    <span className="text-highlight font-bold">${product.price}</span>
-                                 </div>
-                                 <div className="flex items-center mt-2">
-                                    <Tag className="w-3 h-3 mr-1 text-secondary" />
-                                    <span className="text-xs text-secondary">{product.category}</span>
-                                 </div>
-                              </div>
-                           </div>
+                        {searchResults.map((product: searchProductCardProps) => (
+                           <SearchResultProduct
+                              key={product._id}
+                              product={product}
+                           />
                         ))}
                      </div>
                   )}

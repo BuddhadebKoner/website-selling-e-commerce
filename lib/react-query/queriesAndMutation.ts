@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "./queryKeys";
-import { getAllProducts, getProductBySlug, getProductsByStatus, getProductsByType } from "@/endpoints/products.api";
+import { getAllProducts, getProductBySlug, getProductsByStatus, getProductsByType, getSearchProduct } from "@/endpoints/products.api";
 import { getAllCategory, getCategoryBySlug } from "@/endpoints/category.api";
 import { isAuthCheck } from "@/endpoints/user.api";
 import { createOrder, getOrderListById } from "@/endpoints/order.api";
@@ -247,7 +247,7 @@ export const useGetNotificationCount = () => {
 }
 
 // get all ratings infinite scroll
-export const useGetAllRatings = (slug: string, limit = 5) => { 
+export const useGetAllRatings = (slug: string, limit = 5) => {
    return useInfiniteQuery({
       queryKey: [QUERY_KEYS.GET_ALL_RATINGS, slug, limit],
       initialPageParam: 1,
@@ -261,4 +261,15 @@ export const useGetAllRatings = (slug: string, limit = 5) => {
       },
       staleTime: 1000 * 60 * 5,
    });
+}
+
+// search products
+export const useGetSearchProducts = (key: string) => {
+   return useQuery({
+      queryKey: [QUERY_KEYS.GET_SEARCH_PRODUCTS, key],
+      queryFn: () => getSearchProduct(key),
+      enabled: !!key,
+      staleTime: 1000 * 60 * 5,
+
+   })
 }

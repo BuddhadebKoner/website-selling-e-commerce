@@ -165,6 +165,26 @@ export interface ProductCardProps {
    updatedAt?: string;
 }
 
+export interface searchProductCardProps {
+   _id: string;
+   slug: string;
+   title: string;
+   subTitle: string;
+   liveLink: string;
+   productType: string;
+   bannerImageUrl: string;
+   technologyStack: string[];
+   totalSold: number;
+   totalRating: number;
+   totalSumOfRating: number;
+   price: number;
+   OfferStatus: string;
+   OfferType: string;
+   discount: number;
+   status: string;
+   tags: string[];
+}
+
 // ======================================================
 // USER INTERFACES
 // Interfaces related to user data and authentication
